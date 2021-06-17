@@ -13,6 +13,7 @@ import {
   getAuctionTimesDetail,
   getAuctionPriceDetails,
   getAuctionUserDetails,
+  isMobileDevice,
 } from "../../Constants/constants";
 import HandleNotification from "/Components/commons/handleNotification";
 import { MainWrapper } from "/Components/StyledComponents/globalStyledComponents";
@@ -27,9 +28,11 @@ function Home() {
     initData();
   }, []);
   const initData = () => {
-    window.ethereum.on("accountsChanged", function (accounts) {
-      console.log(accounts);
-    });
+    if (!isMobileDevice())
+      window.ethereum.on("accountsChanged", function (accounts) {
+        console.log(accounts);
+      });
+
     loadBundles();
     loadLiveAuctions();
     loadTopSellers();
@@ -99,14 +102,14 @@ function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header />
-       <MainWrapper>
+      <MainWrapper>
         <Slide />
         <TopSellers data={topSellers} />
-        <LiveAuctions data={liveAuctions && liveAuctions} />
+        <LiveAuctions data={liveAuctions} />
         <HotCollections data={collections} />
         <Explore data={explores} />
       </MainWrapper>
-      <Footer /> 
+      <Footer />
     </>
   );
 }

@@ -5,7 +5,8 @@ import ReactDOM from "react-dom";
 import { Web3Provider } from "../Providers/store";
 
 import React, { useEffect, useRef } from "react";
-
+import store from "../store";
+import { Provider } from "react-redux";
 function getLibrary(provider) {
   const library = new Web3Provider(provider);
   library.pollingInterval = 12000;
@@ -17,9 +18,11 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     ReactDOM.render(
-      <Web3Provider>
-        <Component {...pageProps} />
-      </Web3Provider>,
+      <Provider store={store}>
+        <Web3Provider>
+          <Component {...pageProps} />
+        </Web3Provider>
+      </Provider>,
       ref.current
     );
   }, []);
