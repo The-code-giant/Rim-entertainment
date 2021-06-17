@@ -439,8 +439,9 @@ export default function Header(props) {
         >
           Create
         </button>
-        <Link href={{ link: "/connect" }}>
-          <a>Connect Wallet {accountToken}</a>
+        <Link href={"/wallet"}>
+          Connect Wallet
+          {/* {accountToken} */}
         </Link>
 
         <button

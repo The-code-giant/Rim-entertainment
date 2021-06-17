@@ -373,7 +373,7 @@ export const isMobileDevice = () => {
       )
     )
       check = true;
-  })(navigator.userAgent || navigator.vendor || window.opera);
+  })( window.navigator.userAgent || navigator.vendor || window.opera);
   return check;
 };
 

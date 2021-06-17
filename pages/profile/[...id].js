@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Header from "/Components/header";
 import Footer from "/Components/footer";
 import Products from "/Components/products";
-import OpenSeaAPI from "../../api/openseaApi";
+import OpenSeaAPI from "../api/openseaApi";
 import { LoadingContainer, LoadMoreButton, MainWrapper } from "/Components/StyledComponents/globalStyledComponents";
 import { ProfileContainer, ShareButton, BiographyContainer,BioDescription, ProfileButton } from "/Components/StyledComponents/talentPage-styledComponents";
 const { TabPane } = Tabs;

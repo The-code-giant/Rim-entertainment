@@ -1,38 +1,44 @@
-import React, { useEffect, useState } from "react";
-import styles from "../../styles/connect.module.css";
 import Link from "next/link";
-import { Button } from "antd/lib/radio";
-import { isMobileDevice, providerOptions } from "../../Constants/constants";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import Web3 from "web3";
 import Web3Modal from "web3modal";
-import { setAccountToken } from "../../store/action/accountSlice";
-import { useDispatch } from "react-redux";
-import HandleNotification from "../../Components/commons/handleNotification";
-import detectEthereumProvider from "@metamask/detect-provider";
+import HandleNotification from "/Components/commons/handleNotification";
+import { isMobileDevice, providerOptions } from "/Constants/constants";
+import styles from "/styles/connect.module.css";
 
-const Connect = () => {
+const Wallet = () => {
   const dispatch = useDispatch();
-
-  const [metamaskModal, setMetamaskModal] = useState(
-    new Web3Modal({
-      network: "mainnet", // optional
-      cacheProvider: true, // optional
-      providerOptions, // required
-      // disableInjectedProvider: false,
-    })
-  );
+  const [isMobile, setIsMobile] = useState(false)
+  const [metamaskModal, setMetamaskModal] = useState(null);
+  const [web3Modal, setWeb3Modal] = useState(null);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const browserModal = new Web3Modal({
+        network: "mainnet", // optional
+        cacheProvider: true, // optional
+        providerOptions, // required
+        disableInjectedProvider: true,
+      })
+      const mobileModal = new Web3Modal({
+        network: "mainnet", // optional
+        cacheProvider: true, // optional
+        providerOptions, // required
+        // disableInjectedProvider: false,
+      })
+      setIsMobile(isMobileDevice())
+      if (browserModal.cachedProvider && isMobile) {
+        onMobileConnect();
+      }
+      setMetamaskModal(mobileModal)
+      setWeb3Modal(browserModal)
+    }
+  }, [])
   const [metamaskWeb3, setMetamaskWeb3] = useState(null);
   const [metamaskProvider, setMetamaskProvider] = useState(null);
   const [metamaskConnected, setMetamaskConnected] = useState(null);
 
-  const [web3Modal, setWeb3Modal] = useState(
-    new Web3Modal({
-      network: "mainnet", // optional
-      cacheProvider: true, // optional
-      providerOptions, // required
-      disableInjectedProvider: true,
-    })
-  );
+
   const [fetching, setFetching] = useState(false);
   const [address, setAddress] = useState();
   const [web3, setWeb3] = useState(null);
@@ -44,12 +50,6 @@ const Connect = () => {
   const [showModal, setShowModal] = useState(false);
   const [pendingRequest, setPendingRequest] = useState(false);
   const [result, setResult] = useState();
-
-  useEffect(() => {
-    if (web3Modal.cachedProvider && isMobileDevice()) {
-      onMobileConnect();
-    }
-  }, []);
 
   const initWeb3 = (provider) => {
     const web3 = new Web3(provider);
@@ -151,7 +151,7 @@ const Connect = () => {
       // await getAccountAssets();
     });
   };
-  const commingSoon = () => {
+  const comingSoon = () => {
     HandleNotification(
       "info",
       "Comming Soon",
@@ -295,8 +295,8 @@ const Connect = () => {
       <div className={styles.rightColumn}>
         <div className={styles.content}>
           <div className={styles.contentHeader}>
-            <Link className={styles.navigation} href="/home/index" passHref>
-              <a>Go Home</a>
+            <Link className={styles.navigation} href="/" >
+              Go Home
             </Link>
             <h1 className={styles.walletHeader}>Connect your wallet</h1>
             <p className={styles.walletParagraph}>
@@ -305,7 +305,7 @@ const Connect = () => {
             </p>
           </div>
           <div className={styles.wallectContainer}>
-            {!isMobileDevice() && (
+            {!isMobile && (
               <div
                 className={styles.walletCard}
                 onClick={() => connectToMetamask("injected")}
@@ -323,7 +323,7 @@ const Connect = () => {
             )}
             <div
               className={styles.walletCard}
-              onClick={() => commingSoon("Portis")}
+              onClick={() => comingSoon("Portis")}
             >
               <div className={styles.walletCardPopup}>
                 <span>Credit Card Flow</span>
@@ -387,5 +387,9 @@ const Connect = () => {
     </div>
   );
 };
-
-export default Connect;
+export async function getStaticProps(context) {
+  return {
+    props: {}, // will be passed to the page component as props
+  }
+}
+export default Wallet;

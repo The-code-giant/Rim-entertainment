@@ -7,6 +7,21 @@ import { Web3Provider } from "../Providers/store";
 import React, { useEffect, useRef } from "react";
 import store from "../store";
 import { Provider } from "react-redux";
+
+import { QueryClient, QueryClientProvider, useQuery } from "react-query";
+const defaultQueryFn = async () => {
+  return new Promise((resolve) => {
+    resolve(loadAsset);
+  });
+};
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: defaultQueryFn,
+    },
+  },
+});
+
 function getLibrary(provider) {
   const library = new Web3Provider(provider);
   library.pollingInterval = 12000;
@@ -14,19 +29,15 @@ function getLibrary(provider) {
 }
 
 function MyApp({ Component, pageProps }) {
-  let ref = useRef();
-
-  useEffect(() => {
-    ReactDOM.render(
-      <Provider store={store}>
-        <Web3Provider>
+  return (
+    <Provider store={store}>
+      <Web3Provider>
+        <QueryClientProvider client={queryClient}>
           <Component {...pageProps} />
-        </Web3Provider>
-      </Provider>,
-      ref.current
-    );
-  }, []);
-  return <div ref={ref} />;
+        </QueryClientProvider>
+      </Web3Provider>
+    </Provider>
+  )
 }
 
 export default MyApp;
