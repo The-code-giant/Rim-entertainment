@@ -1,5 +1,6 @@
 import {Tabs, Spin } from "antd";
 import React, { useEffect, useState } from "react";
+import { useRouter } from 'next/router'
 import Header from "/Components/header";
 import Footer from "/Components/footer";
 import Products from "/Components/products";
@@ -8,6 +9,9 @@ import { LoadingContainer, LoadMoreButton, MainWrapper } from "/Components/Style
 import { ProfileContainer, ShareButton, BiographyContainer,BioDescription, ProfileButton } from "/Components/StyledComponents/talentPage-styledComponents";
 const { TabPane } = Tabs;
 function Profile() {
+  const router = useRouter()
+  const { id } = router.params
+
   const [collections, setCollections] = useState();
   const [created, setCreated] = useState();
   const talent = new URLSearchParams(window.location.search).getAll("talent");
