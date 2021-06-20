@@ -11,7 +11,6 @@ import OpenSeaAPI from "/Utils/openseaApi";
 import { isMobileDevice } from "../../Constants/constants";
 import HandleNotification from "/Components/commons/handleNotification";
 import { MainWrapper } from "/Components/StyledComponents/globalStyledComponents";
-import bundlesAPI from "/Constants/lists";
 function Home() {
   const [bundles, setBundles] = useState([]);
   const [topSellers, setTopSellers] = useState([]);
@@ -35,7 +34,7 @@ function Home() {
   };
   const loadBundles = async () => {
     try {
-      let { bundles } = await OpenSeaAPI.getBundles();
+      const { bundles } = await OpenSeaAPI.getBundles();
       setBundles(bundles);
     } catch (e) {
       HandleNotification("error", e.message, "Server Is Not Available");
