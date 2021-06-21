@@ -8,7 +8,7 @@ import Slide from "/Components/slider/slide";
 import HotCollections from "/Components/HotCollections";
 import { useEffect, useState } from "react";
 import OpenSeaAPI from "/Utils/openseaApi";
-import { isMobileDevice } from "../../Constants/constants";
+import { isMobileDevice } from "/Constants/constants";
 import HandleNotification from "/Components/commons/handleNotification";
 import { MainWrapper } from "/Components/StyledComponents/globalStyledComponents";
 function Home() {
@@ -17,16 +17,18 @@ function Home() {
   const [liveAuctions, setLiveAuctions] = useState([]);
   const [collections, setCollections] = useState();
   const [explores, setExplores] = useState();
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     initData();
   }, []);
   const initData = () => {
-    if (!isMobileDevice())
-      window.ethereum.on("accountsChanged", function (accounts) {
-        console.log(accounts);
-      });
+    setIsMobile(isMobileDevice());
+    if (!isMobile)
+      // window.ethereum.on("accountsChanged", function (accounts) {
+      //   console.log(accounts);
+      // });
 
-    loadBundles();
+      loadBundles();
     loadLiveAuctions();
     loadTopSellers();
     loadCollections();
@@ -88,10 +90,10 @@ function Home() {
       <Header />
       <MainWrapper>
         <Slide />
-        {topSellers && <TopSellers data={topSellers} />}
-        {liveAuctions && <LiveAuctions data={liveAuctions} />}
-        {collections && <HotCollections data={collections} />}
-        {explores && <Explore data={explores} />}
+        <TopSellers data={topSellers} />
+        <LiveAuctions data={liveAuctions} />
+        <HotCollections data={collections} />
+        <Explore data={explores} />
       </MainWrapper>
       <Footer />
     </>

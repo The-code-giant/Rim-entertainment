@@ -25,15 +25,19 @@ import {
   SearchWrapper,
   SocialLinkContainer,
 } from "./StyledComponents/header-styledComponents.js";
+import { isMobileDevice } from "/Constants/constants";
 function Header(props) {
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
   const [accountAddress, setAccountAddress] = useState(accountList[0]);
-
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    window.ethereum.on("accountsChanged", function (accounts) {
-      setAccountAddress(accounts[0]);
-    });
+    setIsMobile(isMobileDevice());
+    if (!isMobile) {
+      // window.ethereum.on("accountsChanged", function (accounts) {
+      //   setAccountAddress(accounts[0]);
+      // });
+    }
   }, []);
 
   const displayAddress = () => {

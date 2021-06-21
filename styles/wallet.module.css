@@ -10,7 +10,7 @@
   flex: 2;
   background-color: gainsboro;
   background-image: url("https://rarible.com/static/7c160bd14b05b5c339f8f3bb2f506f50.jpg");
-  object-fit: cover;
+  background-size: cover;
   background-repeat: no-repeat;
 }
 .rightColumn {

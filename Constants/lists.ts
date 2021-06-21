@@ -39085,3 +39085,21 @@ export const collectionsAPI = [
     totalAssets: 1,
   },
 ];
+
+
+export const metamaskData = {
+accounts: ["0x250C5b03dB253F0915Ba5AB0399Fe71AbB625fc0"],
+bridge: "https://bridge.walletconnect.org",
+chainId: 1,
+clientId: "f0758b5c-8ca6-4abe-bd2f-23930a031474",
+clientMeta: {description: "", url: "http://localhost:3000", icons: [], name: ""},
+description: "",
+icons: [],
+url: "http://localhost:3000",
+connected: true,
+handshakeId: 1624263349476614,
+handshakeTopic: "30965c4d-add8-4736-a7f3-d54b7d5c749c",
+key: "142b99d6b1adcd1c35dcc1f2ab45121c32531489362c063b1de5cb118970cc9b",
+peerId: "6300c9cf-1476-447c-a794-8cf1a17c7195",
+peerMeta: {description: null, icons: [""], name: "Trust Wallet Android", url: "https://trustwallet.com"},
+}
