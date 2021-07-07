@@ -60,6 +60,7 @@ function ProductPage() {
   const [notFound, setNotFound] = useState(false)
   const [priceDetails, setPriceDetails] = useState(null);
   const [highestBid, setHighestBid] = useState(null)
+  const [previewImage, setPreviewImage] = useState(null)
   const loadNft = async () => {
     if (queryParam.tokenAddress != undefined && queryParam.tokenId != undefined) {
       const data = await fetchNft(queryParam.tokenAddress,queryParam.tokenId);
@@ -75,8 +76,8 @@ function ProductPage() {
           owner: nft.owner,
           creator: nft?.creator,
           image: nft.imageUrl,
-          imagePreview: nft.imageUrlOriginal,
         });
+        nft.imageUrl && setPreviewImage(prevImage(nft.imageUrl))
       setBids(nft?.orders);
       nft?.orders && setHighestBid(findHighestBid(nft?.orders))
 
@@ -128,7 +129,7 @@ function ProductPage() {
               <Image
                 src={`${asset?.image}`}
                 preview={{
-                  src: `${asset?.imagePreview}`,
+                  src: `${previewImage}`,
                 }}
               />
             </ImageCon>
@@ -452,6 +453,13 @@ function findHighestBid(orders)
       }
     });
     return bid;
+  }
+  function prevImage(url)
+  {
+    console.log("before", url)
+
+    // return +"s0";
+    return url.replace(url.substring(url.length - 3), "0");
   }
 export default ProductPage;
         
