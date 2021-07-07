@@ -59,6 +59,7 @@ function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false)
   const [priceDetails, setPriceDetails] = useState(null);
+  const [highestBid, setHighestBid] = useState(null)
   const loadNft = async () => {
     if (queryParam.tokenAddress != undefined && queryParam.tokenId != undefined) {
       const data = await fetchNft(queryParam.tokenAddress,queryParam.tokenId);
@@ -76,8 +77,10 @@ function ProductPage() {
           image: nft.imageUrl,
           imagePreview: nft.imageUrlOriginal,
         });
+      setBids(nft?.orders);
+      nft?.orders && setHighestBid(findHighestBid(nft?.orders))
+
         console.log("data", data.data)
-      setBids(nft?.buyOrders);
       }
       else if(data=="error")
       {
@@ -85,12 +88,11 @@ function ProductPage() {
       }
     }
   }
-  useEffect( (key) => {
+  useEffect(() => {
     if (!queryParam) {
       return null;
     }
     loadNft();
-   
   }, [queryParam]);
 
   const item = {
@@ -335,7 +337,7 @@ function ProductPage() {
               </Tabs>
             </ItemDetails>
             <ItemFooter>
-              {bids &&<BidCountdown>
+              {highestBid &&<BidCountdown>
                 <BidOwnerContainer className={"border-right pr-2 pl-2"}>
                   <BidOwner className={"float-left"}>
                     {CONSTANTS.highestBid}{" "}
@@ -343,14 +345,14 @@ function ProductPage() {
                       href={{
                         pathname: "/profile/talent",
                         query: {
-                          address: asset?.owner?.address,
-                          talent: checkName(asset.asset?.owner?.user?.username),
-                          avatar: asset?.owner?.profile_img_url,
+                          address: highestBid?.makerAccount?.address,
+                          talent: checkName(highestBid?.makerAccount?.user?.username),
+                          avatar: highestBid?.makerAccount?.profile_img_url,
                         },
                       }}
                       passHref
                     >
-                      <a>{checkName(asset?.owner?.user?.username)}</a>
+                      <a>{checkName(highestBid?.makerAccount?.user?.username)}</a>
                     </Link>
                   </BidOwner>
                   <BidPrice>
@@ -358,9 +360,9 @@ function ProductPage() {
                       href={{
                         pathname: "/profile/talent",
                         query: {
-                          address: asset?.owner?.address,
-                          talent: checkName(asset?.owner?.user?.username),
-                          avatar: asset?.owner?.profile_img_url,
+                          address: highestBid?.makerAccount?.address,
+                          talent: checkName(highestBid?.makerAccount?.user?.username),
+                          avatar: highestBid?.makerAccount?.profile_img_url,
                         },
                       }}
                       passHref
@@ -370,7 +372,7 @@ function ProductPage() {
                           <Avatar
                             size={"large"}
                             icon={
-                              <img src={asset?.owner?.profile_img_url} />
+                              <img src={highestBid?.makerAccount?.profile_img_url} />
                             }
                           />
                         </BidOwnerProfile>
@@ -378,11 +380,14 @@ function ProductPage() {
                     </Link>
                     <BidPriceValue>
                       <PriceInCryptoContainer>
-                        <span>{`0.02 eth`}</span>
+                        {/* <span>{`0.02 eth`}</span> */}
+                        <span className={"bidValue"}>{`${
+                                  getAuctionPriceDetails(highestBid).priceBase
+                                } ${highestBid?.paymentTokenContract?.symbol}`}</span>
                         {/* <span>{`${getAuctionPriceDetails(asset.asset?.orders[0]).priceBase} eth`}</span> */}
                       </PriceInCryptoContainer>
                       <PriceInDollarContainer>
-                        <span>{"~$32"}</span>
+                        <span>{`~$ ${convertToUsd(highestBid)}`}</span> 
                       </PriceInDollarContainer>
                     </BidPriceValue>
                   </BidPrice>
@@ -428,4 +433,25 @@ function ProductPage() {
     </>
   );
 }
+function convertToUsd(bid)
+{
+  let usd = null
+  usd = (parseFloat(getAuctionPriceDetails(bid).priceBase ) * parseFloat(bid?.paymentTokenContract.usdPrice)) / (parseFloat(bid?.paymentTokenContract.ethPrice));
+  return parseInt(usd);
+}
+function findHighestBid(orders)
+  {
+    let bid = null;
+    let max = null;
+     orders.length >0 & orders.map((order) => {
+       let price = parseFloat(getAuctionPriceDetails(order).priceBase)
+      if(max < price)
+      {
+        bid = order;
+        max = price
+      }
+    });
+    return bid;
+  }
 export default ProductPage;
+        
