@@ -35,7 +35,7 @@ import { getAuctionPriceDetails } from "/Constants/constants";
 import CONSTANTS from "/Constants/productDetailsConstants";
 import { useQueryParam } from "/Components/hooks/useQueryParam";
 import { fetchNft } from "/Utils/strapiApi";
-import { unixToHumanDate, checkName } from "/Utils/utils";
+import { unixToHumanDate, checkName, prevImage, findHighestBid, convertToUsd} from "/Utils/utils";
 const { TabPane } = Tabs;
 const { Countdown } = Statistic;
 const menu = (
@@ -80,8 +80,6 @@ function ProductPage() {
         nft.imageUrl && setPreviewImage(prevImage(nft.imageUrl))
       setBids(nft?.orders);
       nft?.orders && setHighestBid(findHighestBid(nft?.orders))
-
-        console.log("data", data.data)
       }
       else if(data=="error")
       {
@@ -434,32 +432,5 @@ function ProductPage() {
     </>
   );
 }
-function convertToUsd(bid)
-{
-  let usd = null
-  usd = (parseFloat(getAuctionPriceDetails(bid).priceBase ) * parseFloat(bid?.paymentTokenContract.usdPrice)) / (parseFloat(bid?.paymentTokenContract.ethPrice));
-  return parseInt(usd);
-}
-function findHighestBid(orders)
-  {
-    let bid = null;
-    let max = null;
-     orders.length >0 & orders.map((order) => {
-       let price = parseFloat(getAuctionPriceDetails(order).priceBase)
-      if(max < price)
-      {
-        bid = order;
-        max = price
-      }
-    });
-    return bid;
-  }
-  function prevImage(url)
-  {
-    console.log("before", url)
-
-    // return +"s0";
-    return url.replace(url.substring(url.length - 3), "0");
-  }
 export default ProductPage;
         
