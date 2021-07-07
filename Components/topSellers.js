@@ -14,27 +14,27 @@ import {
 import Link from "next/link";
 function TopSellers({ data }) {
   const [selectedSeller, setSelectedSeller] = useState([]);
-  const topSellerDetails = async (top) => {
-    const address = top.address;
-    const talent = top.talent;
-    let created = [];
-    let collectibles = [];
-    const result = await OpenSeaAPI.getAssetsListByOwner(address);
-    if (result.ok) {
-      created = result.data?.assets;
-      collectibles = _.groupBy(created, "collection[name]");
-      console.log(created);
-      console.log(collectibles);
-      console.log(address);
-      console.log(talent);
-    }
-    setSelectedSeller({
-      talent,
-      address,
-      created,
-      collectibles,
-    });
-  };
+  // const topSellerDetails = async (top) => {
+  //   const address = top.address;
+  //   const talent = top.talent;
+  //   let created = [];
+  //   let collectibles = [];
+  //   const result = await OpenSeaAPI.getAssetsListByOwner(address);
+  //   if (result.ok) {
+  //     created = result.data?.assets;
+  //     collectibles = _.groupBy(created, "collection[name]");
+  //     console.log(created);
+  //     console.log(collectibles);
+  //     console.log(address);
+  //     console.log(talent);
+  //   }
+  //   setSelectedSeller({
+  //     talent,
+  //     address,
+  //     created,
+  //     collectibles,
+  //   });
+  // };
 
   const topSellers = data;
   return (
@@ -55,8 +55,8 @@ function TopSellers({ data }) {
                 >
                   <a>
                     <TopSellerItem
-                      key={seller.name}
-                      onClick={() => topSellerDetails(seller)}
+                      key={seller.accountAddress}
+                      // onClick={() => topSellerDetails(seller)}
                     >
                       <ListCounter>{index + 1}</ListCounter>
                       <AvatarContainer>
