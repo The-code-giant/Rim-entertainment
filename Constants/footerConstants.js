@@ -5,6 +5,7 @@ export const FOOTER = {
   terms: "Terms",
   termsLink: "www.facebook.com",
   policy: "Policy",
+  privacy: "Privacy",
   policyLink: "www.facebook.com",
 };
 export const FOOTER_WEBSITE_LINKS = {
@@ -31,14 +32,5 @@ export const FOOTER_COMMUNITY = {
     { communityLinktitle: "Instagram", link: "www.facebook.com" },
     { communityLinktitle: "Telegram", link: "https://t.me/topNFTcollectibles" },
     { communityLinktitle: "WhatsApp", link: "www.facebook.com" },
-  ],
-};
-export const FOOTER_LANGUAGES = {
-  languagesTitle: "Language",
-  languages: [
-    { language: "English", link: "www.facebook.com" },
-    { language: "中文", link: "www.facebook.com" },
-    { language: "한국어", link: "www.facebook.com" },
-    { language: "日本語", link: "www.facebook.com" },
   ],
 };

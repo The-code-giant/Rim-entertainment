@@ -157,9 +157,15 @@ export const TermAndPolicy = styled.div`
     flex: 1;
     margin-left: 20px;
     span{
+      a{
         font-weight: 700;
         color: rgba(4, 4, 5, 0.6); !important;
         padding-left: 10px;
+
+        &:hover{
+          color: blue;
+        }
+      }
     };
     @media (max-width:  700px)
     {
