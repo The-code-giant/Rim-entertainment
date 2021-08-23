@@ -11,6 +11,7 @@ const {
   searchSubmitMessage,
   terms,
   policy,
+  privacy,
 } = FOOTER;
 import {
   FooterContainer,
@@ -158,8 +159,8 @@ function Footer() {
                 <CopyRight>{`© ${FOOTER_WEBSITE_LINKS.websiteTitle}, Inc. ${FOOTER_WEBSITE_LINKS.allRightReserved}`}</CopyRight>
               </CopyRightAndPolicyContainer>
               <TermAndPolicy>
-                <span>{terms}</span>
-                <span>{policy}</span>
+                <span><a href={"/docs/terms.pdf"}>{terms}</a></span>
+                <span><a href={"/docs/privacy.pdf"}>{`${privacy} ${policy}`}</a></span>
               </TermAndPolicy>
               <SocialLinksContainer>
                 <a
