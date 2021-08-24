@@ -27,6 +27,7 @@ import { useSelector } from "react-redux";
 import { getMetaConnected, getMetaToken } from "store/action/accountSlice";
 import { isMobileDevice } from "Constants/constants";
 import Onboard from "bnc-onboard";
+import { getCurrentAccount } from "Utils/utils";
 
 const initNft = {
   tokenId: null,
