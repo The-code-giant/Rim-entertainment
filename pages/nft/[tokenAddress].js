@@ -626,8 +626,8 @@ function ProductPage() {
                     </Link>
                   ) : (
                     <>
-                      {asset?.sellOrder != null &&
-                        !asset?.sellOrder?.waitingForBestCounterOrder && (
+                      {sellOrders && sellOrders[0] != null &&
+                        !sellOrders[0]?.waitingForBestCounterOrder && (
                           <BuyNftModal
                             asset={asset}
                             isBundle={isBundle}
