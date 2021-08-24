@@ -59,12 +59,17 @@ const Layout = ({ children }) => {
     ? false
     : true;
   const subscribeMetamaskProvider = async () => {
-    const provider = await detectEthereumProvider();
-    if (provider !== window.ethereum) {
-      return;
+    const { ethereum } = window;
+    if (ethereum) {
+      const provider = await ethereum;
+      if (provider !== window.ethereum) {
+        return;
+      }
+      ethereum.on("accountsChanged", handleMetaAccount);
+      ethereum.on("chainChanged", (chainId) => {
+        console.log("chain changed in layout", chainId);
+      });
     }
-    ethereum.on("accountsChanged", handleMetaAccount);
-    ethereum.on("chainChanged", (chainId) => {});
   };
   const handleMetaAccount = async (accounts) => {
     if (accounts.length == 0) {
@@ -73,6 +78,7 @@ const Layout = ({ children }) => {
       await dipsatchMetaBalance(setMetaBalance(0));
     } else {
       await dispatchMetaConnected(setMetaConnected(true));
+      console.log("accounts we have in current layou is ", accounts);
       await dispatchMetaToken(setMetaToken(accounts));
       let web3 = new Web3(window.ethereum);
       web3.eth.getBalance(accounts[0], async (err, result) => {
@@ -97,10 +103,6 @@ const Layout = ({ children }) => {
     if (ethereum && ethereum.isMetaMask) {
       if (!isMetaconnected || !metaToken) {
         setDisplayUnlockModal(true);
-      }
-    } else {
-      if (!isMobileDevice()) {
-        alert("Please install MetaMask!");
       }
     }
   };
@@ -162,7 +164,7 @@ const Layout = ({ children }) => {
       <Footer />
 
       {router.pathname != "/wallet" &&
-        router.pathname != "/" &&
+        router.pathname.includes("create") &&
         !isMetaconnected &&
         !isMobileDevice() && (
           <Modal

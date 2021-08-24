@@ -45,38 +45,37 @@ const deadline = Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30;
 const { Countdown } = Statistic;
 function LiveAuctions() {
   const [liveAuctions, setLiveAuctions] = useState(null);
-  const [loading, setLoading] = useState(false);
   const loadAuctions = async () => {
     const auctionResult = await fetch("/nfts/auction");
     const auctions = await auctionResult.data;
     if (auctions) {
       setLiveAuctions(auctions);
       console.log("acutions hare here", auctions);
-      setLoading(false);
     }
   };
   useEffect(() => {
-    setLoading(true);
     loadAuctions();
   }, []);
 
-  return (
-    <>
-      <SectionHeading>{CONSTANTS.liveAuctions}</SectionHeading>
-      {loading == true && liveAuctions == null ? (
-        <Carousel
-          breakPoints={breakPoints}
-          pagination={false}
-          transitionMs={1000}
-          className={styles.loadingCardContainer}
-        >
-          {[...Array(10).keys()].map((item, index) => (
-            <Card key={index} size="middle" className={styles.loadingCard}>
-              <Spin size="large" />
-            </Card>
-          ))}
-        </Carousel>
-      ) : (
+  if (!liveAuctions) {
+    return (
+      <Carousel
+        breakPoints={breakPoints}
+        pagination={false}
+        transitionMs={1000}
+        className={styles.loadingCardContainer}
+      >
+        {[...Array(10).keys()].map((item, index) => (
+          <Card key={index} size="middle" className={styles.loadingCard}>
+            <Spin size="large" />
+          </Card>
+        ))}
+      </Carousel>
+    );
+  } else {
+    return (
+      <>
+        <SectionHeading>{CONSTANTS.liveAuctions}</SectionHeading>
         <Carousel
           breakPoints={breakPoints}
           pagination={false}
@@ -90,9 +89,9 @@ function LiveAuctions() {
                 Product(product, index)
             )}
         </Carousel>
-      )}
-    </>
-  );
+      </>
+    );
+  }
 }
 
 function Product(product, index) {

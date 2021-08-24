@@ -272,6 +272,7 @@
   background-color: #007bff;
   color: white;
 }
+
 @media (max-width: 1024px) {
   .container {
     width: 100%;
