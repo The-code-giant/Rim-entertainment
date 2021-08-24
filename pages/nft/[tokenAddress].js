@@ -161,6 +161,13 @@ function ProductPage() {
       if (data) {
         setLoading(false);
       }
+    else if (queryParam.tokenAddress != undefined && queryParam.tokenId != undefined) {
+      const data = await fetchOne(queryParam.tokenAddress,queryParam.tokenId);
+      console.log(data)
+      if(data)
+        {
+          setLoading(false)
+        }
 
       if (data.status == 200) {
         const nft = data.data;
@@ -626,8 +633,8 @@ function ProductPage() {
                     </Link>
                   ) : (
                     <>
-                      {asset?.sellOrder != null &&
-                        !asset?.sellOrder?.waitingForBestCounterOrder && (
+                      {sellOrders && sellOrders[0] != null &&
+                        !sellOrders[0]?.waitingForBestCounterOrder && (
                           <BuyNftModal
                             asset={asset}
                             isBundle={isBundle}
@@ -651,5 +658,5 @@ function ProductPage() {
     </>
   );
 }
-
+}
 export default ProductPage;
