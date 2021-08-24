@@ -21,8 +21,9 @@ import { useRouter } from "next/router";
 import { useOnboard } from "use-onboard";
 
 import Onboard from "bnc-onboard";
-import { getCurrentAccount } from "Utils/utils";
+import { detectMetamaskInstalled, getCurrentAccount } from "Utils/utils";
 import { fetch, post } from "Utils/strapiApi";
+import InstallMetamaskModal from "@/components/commons/InstallMetamaskModal";
 const Wallet = () => {
   const router = useRouter();
   const dispatchMetaToken = useDispatch();
@@ -37,6 +38,7 @@ const Wallet = () => {
   const [connected, setConnected] = useState();
   const [isMobile, setIsMobile] = useState(false);
   const [metamaskModal, setMetamaskModal] = useState(null);
+  const [displayInstallModal, setDisplayInstallModal] = useState();
   const { selectWallet, address, isWalletSelected, disconnectWallet, balance } =
     useOnboard({
       options: {
@@ -77,32 +79,40 @@ const Wallet = () => {
     return web3;
   };
   const connectToMetamask = async (wallet) => {
-    const account = await getCurrentAccount();
-    console.log("current account is ", account);
-    const talentResult = await fetch(`/talents/talentexists/${account}`);
-    if (talentResult.data) {
-      const talentExists = talentResult.data.success;
-      if (!talentExists) {
-        let talentData = new FormData();
-        talentData.append("data", JSON.stringify({ walletAddress: account }));
-        const result = await post(`${STRAPI_BASE_URL}/talents`, talentData, {
-          headers: {
-            "Content-Type": `multipart/form-data`,
-          },
-        });
-      }
-    }
-    console.log("connecting to metamask");
-    if (metaToken.length > 0) {
-      await dispatchMetaConnected(setMetaConnected(true));
-      router.push("/");
+    const { ethereum } = window;
+    if (!ethereum) {
+      setDisplayInstallModal(true);
     } else {
-      const metamaskProvider = await metamaskModal.connectTo(wallet);
-      await subscribeMetamaskProvider(metamaskProvider);
-      const metamaskWeb3 = initWeb3(metamaskProvider);
+      const account = await getCurrentAccount();
+      console.log("current wallet is ", account);
+      const talentResult = await fetch(`/talents/talentexists/${account}`);
+      if (talentResult.data) {
+        const talentExists = talentResult.data.success;
+        if (!talentExists) {
+          console.log("registering the wallet", account);
+          let talentData = new FormData();
+          talentData.append("data", JSON.stringify({ walletAddress: account }));
+          const result = await post(`${STRAPI_BASE_URL}/talents`, talentData, {
+            headers: {
+              "Content-Type": `multipart/form-data`,
+            },
+          });
+        } else {
+          console.log("user wallet was registered", account);
+        }
+      }
+      console.log("connecting to metamask");
+      if (metaToken.length > 0) {
+        await dispatchMetaConnected(setMetaConnected(true));
+        router.push("/");
+      } else {
+        const metamaskProvider = await metamaskModal.connectTo(wallet);
+        await subscribeMetamaskProvider(metamaskProvider);
+        const metamaskWeb3 = initWeb3(metamaskProvider);
 
-      await setMetamaskWeb3(metamaskWeb3);
-      await setMetamaskProvider(metamaskProvider);
+        await setMetamaskWeb3(metamaskWeb3);
+        await setMetamaskProvider(metamaskProvider);
+      }
     }
   };
 
@@ -176,6 +186,7 @@ const Wallet = () => {
   }, []);
   return (
     <div className={styles.container}>
+      <InstallMetamaskModal displayModal={displayInstallModal} />
       <div className={styles.leftColumn}></div>
       <div className={styles.rightColumn}>
         <div className={styles.content}>

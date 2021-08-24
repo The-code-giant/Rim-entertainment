@@ -137,10 +137,8 @@ const ERC721Collection = ({ collections }) => {
       bannerError == null
     ) {
       setDisplayUploadModal(true);
-      console.log("values are ready ", values);
       (async function () {
-        const ownerAccount = await getCurrentAccount();
-        console.log("current account is ", ownerAccount);
+        const ownerAccount = await metaToken[0];
         if (ownerAccount) {
           const result = await deployCollection(
             logoImageFile,
@@ -157,7 +155,7 @@ const ERC721Collection = ({ collections }) => {
             setDisplayUploadModal(false);
             setDisplayModalButtons(false);
           } else {
-            console.log("reult is ", result);
+            setDisplayUnlockModal(true);
           }
         }
       })();
@@ -184,10 +182,6 @@ const ERC721Collection = ({ collections }) => {
     if (ethereum && ethereum.isMetaMask) {
       if (!isMetaconnected || !metaToken) {
         setDisplayUnlockModal(true);
-      }
-    } else {
-      if (!isMobileDevice()) {
-        alert("Please install MetaMask!");
       }
     }
   };
@@ -220,20 +214,24 @@ const ERC721Collection = ({ collections }) => {
   };
 
   const isTalentRegistered = async () => {
-    const account = await getCurrentAccount();
-    const talentResult = await fetch(`/talents/talentexists/${account}`);
-    if (talentResult.data) {
-      const talentExists = talentResult.data;
-      if (talentExists.success) {
-        setCollectionTalent({
-          id: talentExists.id,
-        });
-        setDisplayRegisterModal(false);
+    if (metaToken != null && metaToken[0]) {
+      const account = await metaToken[0];
+
+      console.log(account);
+      const talentResult = await fetch(`talents/talentexists/${account}`);
+      if (talentResult.data) {
+        const talentExists = talentResult.data;
+        if (talentExists.success) {
+          setCollectionTalent({
+            id: talentExists.id,
+          });
+          setDisplayRegisterModal(false);
+        } else {
+          setDisplayRegisterModal(true);
+        }
       } else {
         setDisplayRegisterModal(true);
       }
-    } else {
-      setDisplayRegisterModal(true);
     }
   };
 

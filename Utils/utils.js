@@ -11,6 +11,7 @@ import { OpenSeaPort, Network, EventType } from "opensea-js";
 import { OrderSide } from "opensea-js/lib/types";
 import { isMobileDevice } from "Constants/constants";
 import Onboard from "bnc-onboard";
+import detectEthereumProvider from "@metamask/detect-provider";
 const referrerAddress = process.env.REF_ADDRESS;
 
 export const seaportProvider = new Web3.providers.HttpProvider(
@@ -181,7 +182,7 @@ export async function sellOrder(
           endAmount: orderValue.price.endPrice,
           expirationTime,
         });
-         
+
         return result;
       } else if (orderValue.switch.futureTime) {
         var date = new Date(orderValue.date.futureTime);
@@ -195,7 +196,7 @@ export async function sellOrder(
           startAmount: orderValue.price.amount,
           listingTime: listingTime,
         });
-         
+
         return result;
       } else {
         const result = await seaport().createSellOrder({
@@ -206,7 +207,7 @@ export async function sellOrder(
           accountAddress: address,
           startAmount: orderValue.price.amount,
         });
-         
+
         return result;
       }
     } else {
@@ -228,7 +229,7 @@ export async function sellOrder(
         paymentTokenAddress,
         waitForHighestBid: true,
       });
-       
+
       return result;
     }
   } catch (e) {
@@ -283,9 +284,12 @@ export function findHighestOffer(orders) {
   return offer;
 }
 export function displayAddress(address) {
-  return address && address
-    .toString()
-    .replace(address.toString().substring(10, address.length - 10), ".....");
+  return (
+    address &&
+    address
+      .toString()
+      .replace(address.toString().substring(10, address.length - 10), ".....")
+  );
 }
 export function detectVideo(url) {
   const formats = ["mp4", "mkv", "mov", "wmv", "avi", "flv", "webm"];
@@ -385,10 +389,21 @@ export const getCurrentAccount = async () => {
   const web3 = new Web3(Web3.givenProvider);
   await window.ethereum.enable();
   const accounts = await web3.eth.getAccounts();
-  return accounts[0];
+  return accounts[0].toLowerCase();
 };
-export function randomAvatar()
-{
-  let randomNumber = Math.floor((Math.random() * 33) + 1);
-  return "https://storage.googleapis.com/opensea-static/opensea-profile/"+randomNumber+".png";
+export function randomAvatar() {
+  let randomNumber = Math.floor(Math.random() * 33 + 1);
+  return (
+    "https://storage.googleapis.com/opensea-static/opensea-profile/" +
+    randomNumber +
+    ".png"
+  );
 }
+
+export const detectMetamaskInstalled = () => {
+  if (typeof window.ethereum !== "undefined") {
+    return false;
+  } else {
+    return true;
+  }
+};

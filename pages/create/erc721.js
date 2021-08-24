@@ -27,7 +27,6 @@ import { useSelector } from "react-redux";
 import { getMetaConnected, getMetaToken } from "store/action/accountSlice";
 import { isMobileDevice } from "Constants/constants";
 import Onboard from "bnc-onboard";
-import { getCurrentAccount } from "Utils/utils";
 
 const initNft = {
   tokenId: null,
@@ -174,21 +173,17 @@ const ERC721 = ({ collections, categories, nfts }) => {
       if (!isMetaconnected) {
         setDisplayUnlockModal(true);
       }
-    } else {
-      if (!isMobileDevice()) {
-        alert("Please install MetaMask!");
-      } else {
-        // alert("Please install Metamask for Mobile!");
-      }
     }
   };
 
   const getOwnerCollections = async () => {
-    const ownerAccount = await getCurrentAccount();
-    const cols = collections.filter((item) => {
-      return item.talentAddress == ownerAccount;
-    });
-    setOwnerCollections(cols);
+    if (metaToken != null && metaToken[0]) {
+      const ownerAccount = await metaToken[0];
+      const cols = collections.filter((item) => {
+        return item.talentAddress == ownerAccount;
+      });
+      setOwnerCollections(cols);
+    }
   };
   const checkMobileMaskUnlocked = async () => {
     const onboard = Onboard({
@@ -218,20 +213,22 @@ const ERC721 = ({ collections, categories, nfts }) => {
   };
 
   const isTalentRegistered = async () => {
-    const account = await getCurrentAccount();
-    const talentResult = await fetch(`/talents/talentexists/${account}`);
-    if (talentResult.data) {
-      const talentExists = talentResult.data;
-      if (talentExists.success) {
-        setNftTalent({
-          id: talentExists.id,
-        });
-        setDisplayRegisterModal(false);
+    if (metaToken != null && metaToken[0]) {
+      const account = await metaToken[0];
+      const talentResult = await fetch(`/talents/talentexists/${account}`);
+      if (talentResult.data) {
+        const talentExists = talentResult.data;
+        if (talentExists.success) {
+          setNftTalent({
+            id: talentExists.id,
+          });
+          setDisplayRegisterModal(false);
+        } else {
+          setDisplayRegisterModal(true);
+        }
       } else {
         setDisplayRegisterModal(true);
       }
-    } else {
-      setDisplayRegisterModal(true);
     }
   };
 
