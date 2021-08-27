@@ -242,7 +242,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
     const ipfsUrl = logoFileResult.ipfsUrl;
     const bannerIpfsUrl = bannerFileResult.ipfsUrl;
     const metadata = {
-      name: values.collection,
+      name: values.collectionName,
       description: values.description,
       image: ipfsUrl,
       banner: bannerIpfsUrl,
@@ -312,7 +312,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
       collectionData.contractAddress = deployResult._address;
       collectionData.talentAddress = ownerAddress;
       collectionData.talent = values.talent;
-      collectionData.collectionName = values.collection;
+      collectionData.collectionName = values.collectionName;
       collectionData.slug = slugify(values.collectionName.toString());
       return uploadCollectionToStrapi(logo, banner, collectionData);
     } else {
