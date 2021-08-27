@@ -1,6 +1,7 @@
 import Link from "next/link";
 import React, { useEffect, useRef, useState, useReducer } from "react";
 import styles from "/styles/erc721.module.css";
+import { socket } from "config/websocket";
 import {
   Input,
   Tooltip,
@@ -14,8 +15,6 @@ import {
   Spin,
 } from "antd";
 import { fetch, post } from "/Utils/strapiApi";
-import { useFormik, File } from "formik";
-import * as Yup from "yup";
 import ReactPlayer from "react-player";
 import {
   capitalizeWorkd,
@@ -28,6 +27,7 @@ import { getMetaConnected, getMetaToken } from "store/action/accountSlice";
 import { isMobileDevice } from "Constants/constants";
 import Onboard from "bnc-onboard";
 import { getCurrentAccount } from "Utils/utils";
+import { useRouter } from "next/router";
 
 const initNft = {
   tokenId: null,
@@ -44,7 +44,9 @@ const initNft = {
   },
 };
 
-const ERC721 = ({ collections, categories, nfts }) => {
+const ERC721 = ({ serverCollections, categories, serverNfts }) => {
+  const [collections, setCollections] = useState(serverCollections);
+  const [nfts, setNfts] = useState(serverNfts);
   const hiddenFileInput = useRef(null);
   const formRef = React.createRef();
   const [selectedCollection, setSelectedCollection] = useState();
@@ -68,6 +70,7 @@ const ERC721 = ({ collections, categories, nfts }) => {
   const [displayUnlockModal, setDisplayUnlockModal] = useState(false);
   const [displayRegisterModal, setDisplayRegisterModal] = useState();
   const [form] = Form.useForm();
+  const router = useRouter();
 
   const getSelectedCollection = (colId) => {
     const selected = collections.filter((item) => item.id === colId)[0];
@@ -95,7 +98,7 @@ const ERC721 = ({ collections, categories, nfts }) => {
     if (targetFile) {
       setNftImageFile(targetFile);
       setUploadFileUrl(URL.createObjectURL(event.target.files[0]));
-      const validationStatus = validateImage(targetFile, 40);
+      const validationStatus = validateImage(targetFile, 10);
 
       if (!validationStatus.status) {
         setNftImageError(validationStatus.message);
@@ -106,6 +109,7 @@ const ERC721 = ({ collections, categories, nfts }) => {
   };
 
   const checkNftNameDuplication = (e) => {
+    console.log("nfts are", nfts);
     let input = e.target.value;
     const nftDuplicationResult = checkForDuplicate(
       nfts,
@@ -133,7 +137,7 @@ const ERC721 = ({ collections, categories, nfts }) => {
   };
 
   const onFinish = (values) => {
-    let validationResult = validateImage(nftImageFile, 40);
+    let validationResult = validateImage(nftImageFile, 10);
     console.log("on finish", validationResult);
     if (validationResult.status == true && !duplicateNameError.isDuplicate) {
       setDisplayUploadModal(true);
@@ -157,9 +161,10 @@ const ERC721 = ({ collections, categories, nfts }) => {
       })();
     }
   };
+
   const onFinishFailed = () => {
     setDisplayUploadModal(false);
-    const validationStatus = validateImage(nftImageFile, 40);
+    const validationStatus = validateImage(nftImageFile, 10);
     if (!validationStatus.status) {
       setNftImageError(validationStatus.message);
     } else {
@@ -183,9 +188,11 @@ const ERC721 = ({ collections, categories, nfts }) => {
       const cols = collections.filter((item) => {
         return item.talentAddress == ownerAccount;
       });
+      console.log("talent collections are", cols);
       setOwnerCollections(cols);
     }
   };
+
   const checkMobileMaskUnlocked = async () => {
     const onboard = Onboard({
       dappId: process.env.ONBOARD_API_KEY, // [String] The API key created by step one above
@@ -238,7 +245,25 @@ const ERC721 = ({ collections, categories, nfts }) => {
     setDisplayModalButtons(false);
     clearForm();
   };
+
+  const refreshData = () => {
+    // router.replace(router.asPath);
+    socket.on("newCollection", (data) => {
+      const cols = collections;
+      cols.push(data);
+      setCollections(cols);
+      getOwnerCollections();
+    });
+    socket.on("newERC721", (data) => {
+      console.log("new newERC721 Created", data);
+      const oldNfts = nfts;
+      oldNfts.push(data);
+      setNfts(oldNfts);
+    });
+  };
+
   useEffect(() => {
+    refreshData();
     isTalentRegistered();
     getOwnerCollections();
     if (isMobileDevice()) {
@@ -251,98 +276,6 @@ const ERC721 = ({ collections, categories, nfts }) => {
   return (
     <div className={styles.container}>
       <div>
-        <Modal
-          title="Please Register your wallet"
-          visible={displayRegisterModal}
-          header={null}
-          footer={null}
-          closable={false}
-          width={500}
-          height={500}
-          maskStyle={{
-            backgroundColor: "#EEEEEE",
-            opacity: 0.1,
-          }}
-          bodyStyle={{
-            height: 350,
-            display: "flex",
-            justifyContent: "center",
-            alignContent: "center",
-          }}
-        >
-          <div className={styles.modalContent}>
-            <div className={styles.modalControls}>
-              <Link
-                href={{
-                  pathname: `/`,
-                }}
-              >
-                <a>
-                  <span className={styles.linkButton}>{"Go To Main Page"}</span>
-                </a>
-              </Link>
-              <Link
-                href={{
-                  pathname: `/wallet`,
-                }}
-              >
-                <a>
-                  {
-                    <span className={styles.linkButton}>
-                      {"Register My Wallet"}
-                    </span>
-                  }
-                </a>
-              </Link>
-            </div>
-          </div>
-        </Modal>
-        <Modal
-          title="Unlock Wallet To Create Collection"
-          visible={displayUnlockModal}
-          header={null}
-          footer={null}
-          closable={false}
-          width={500}
-          height={500}
-          maskStyle={{
-            backgroundColor: "#EEEEEE",
-            opacity: 0.1,
-          }}
-          bodyStyle={{
-            height: 350,
-            display: "flex",
-            justifyContent: "center",
-            alignContent: "center",
-          }}
-        >
-          <div className={styles.modalContent}>
-            <div className={styles.modalControls}>
-              <Link
-                href={{
-                  pathname: `/`,
-                }}
-              >
-                <a>
-                  <span className={styles.linkButton}>{"Go To Main Page"}</span>
-                </a>
-              </Link>
-              <Link
-                href={{
-                  pathname: `/wallet`,
-                }}
-              >
-                <a>
-                  {
-                    <span className={styles.linkButton}>
-                      {"Connect with Wallet"}
-                    </span>
-                  }
-                </a>
-              </Link>
-            </div>
-          </div>
-        </Modal>
         <Modal
           title="Uploading NFT..."
           visible={displayUploadModal}
@@ -557,7 +490,7 @@ const ERC721 = ({ collections, categories, nfts }) => {
                       key={item.id}
                       style={{ height: 50, padding: 10 }}
                     >
-                      {item.collection}
+                      {item.collectionName}
                     </Select.Option>
                   ))}
                 </Select>
@@ -632,9 +565,9 @@ export const getServerSideProps = async () => {
 
   return {
     props: {
-      collections: JSON.parse(JSON.stringify(collections)),
+      serverCollections: JSON.parse(JSON.stringify(collections)),
       categories: JSON.parse(JSON.stringify(categories)),
-      nfts: JSON.parse(JSON.stringify(nfts)),
+      serverNfts: JSON.parse(JSON.stringify(nfts)),
     },
   };
 };

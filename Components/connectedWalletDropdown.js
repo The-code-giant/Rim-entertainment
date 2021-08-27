@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Menu, List, Avatar } from "antd";
 import { SwapOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import styled from "styled-components";
@@ -107,14 +107,8 @@ function WalletInfoDropdown({ data }) {
   const walletBalance = useSelector(getWalletBalance);
   const metaToken = useSelector(getMetaToken);
   const walletToken = useSelector(getWalletToken);
-  let address = data[0];
-  // address = address
-  //   .toString()
-  //   .replace(address.toString().substring(10, address.length - 10), ".....");
-  address =
-    address.substring(0, 6) +
-    "..." +
-    address.substring(address.length - 4, address.length);
+  const [address, setAddress] = useState(data[0]);
+
   const disconnectWallet = async () => {
     const bridge = "https://bridge.walletconnect.org";
 
@@ -129,13 +123,17 @@ function WalletInfoDropdown({ data }) {
     await dispatchWalletToken(setWalletToken(null));
     await dispatchWalletBalance(setWalletBalance(""));
   };
-  const displayAddress = (token) => {
-    return (
-      token.substring(1, 4) +
+  const displayAddress = () => {
+    const add =
+      address?.substring(0, 6) +
       "..." +
-      token.substring(token.length - 5, token.length)
-    );
+      address?.substring(address?.length - 4, address?.length);
+    setAddress(add);
   };
+
+  useEffect(() => {
+    displayAddress();
+  }, [isMetaConnected]);
   return (
     <DropdownMenu>
       <Label>

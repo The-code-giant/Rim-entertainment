@@ -5,50 +5,30 @@ import { useEffect, useState } from "react";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import styles from "/styles/erc721.module.css";
 import Onboard from "bnc-onboard";
 
 import {
-  setAccountTokens,
   setMetaToken,
   setMetaBalance,
-  setWalletToken,
   setMetaConnected,
-  setWalletConnected,
-  getAccountTokens,
   getMetaToken,
-  getWalletToken,
   getMetaConnected,
-  getWalletConnected,
 } from "/store/action/accountSlice";
 import Web3 from "web3";
-import { OpenSeaPort, Network } from "opensea-js";
-import { seaportProvider } from "/Utils/openseaApi";
-import openseaApi from "Utils/openseaApi";
 import { providers } from "/Constants/constants";
 import { Modal } from "antd";
-import Link from "next/link";
 import { isMobileDevice } from "Constants/constants";
-// This example provider won't let you make transactions, only read-only calls:
-
-const seaport = new OpenSeaPort(seaportProvider, {
-  networkName: Network.Main,
-  apiKey: "2e7ef0ac679f4860bbe49a34a98cf5ac",
-});
+import { useIdleTimer } from "react-idle-timer";
+import ConnectWalletModal from "../commons/connectWalletModal";
+import { registerTalent } from "Utils/utils";
 
 const Layout = ({ children }) => {
-  const dispatchAccountTokens = useDispatch();
   const dispatchMetaToken = useDispatch();
-  const dispatchWalletToken = useDispatch();
   const dispatchMetaConnected = useDispatch();
-  const dispatchWalletconneted = useDispatch();
   const dipsatchMetaBalance = useDispatch();
 
-  const accountTokens = useSelector(getAccountTokens);
   const metaToken = useSelector(getMetaToken);
-  const walletToken = useSelector(getWalletToken);
   const isMetaconnected = useSelector(getMetaConnected);
-  const isWalletConnected = useSelector(getWalletConnected);
   const [isWrongNet, setIsWrongNet] = useState(false);
   const router = useRouter();
   const [network, setNetwork] = useState(null);
@@ -72,15 +52,20 @@ const Layout = ({ children }) => {
     }
   };
   const handleMetaAccount = async (accounts) => {
+    console.log("handingl meta account", accounts);
+    let web3 = new Web3(window.ethereum);
     if (accounts.length == 0) {
       await dispatchMetaConnected(setMetaConnected(false));
       await dispatchMetaToken(setMetaToken([]));
       await dipsatchMetaBalance(setMetaBalance(0));
     } else {
       await dispatchMetaConnected(setMetaConnected(true));
-      console.log("accounts we have in current layou is ", accounts);
+      accounts = accounts.map((account) =>
+        web3.utils.toChecksumAddress(account)
+      );
+
+      await registerTalent(accounts[0]);
       await dispatchMetaToken(setMetaToken(accounts));
-      let web3 = new Web3(window.ethereum);
       web3.eth.getBalance(accounts[0], async (err, result) => {
         if (err) {
           console.log(err);
@@ -91,7 +76,7 @@ const Layout = ({ children }) => {
         }
       });
       if (router.pathname.toString().includes("create")) {
-        router.reload(window.location.pathname);
+        // router.replace(router.asPath);
       } else {
         router.push("/");
       }
@@ -136,6 +121,22 @@ const Layout = ({ children }) => {
     }
   };
 
+  const handleOnIdle = (event) => {
+    console.log("user is idle", event);
+    disconnectUserWallet();
+    console.log("last active", getLastActiveTime());
+  };
+
+  const disconnectUserWallet = async () => {
+    await dispatchMetaConnected(setMetaConnected(false));
+  };
+
+  const { getLastActiveTime } = useIdleTimer({
+    timeout: 1000 * 60 * 60,
+    onIdle: handleOnIdle,
+    debounce: 500,
+  });
+
   useEffect(() => {
     subscribeMetamaskProvider();
     if (isMobileDevice()) {
@@ -143,7 +144,7 @@ const Layout = ({ children }) => {
     } else {
       checkMetamaskUnlocked();
     }
-  }, [isMetaconnected, metaToken]);
+  }, [isMetaconnected]);
 
   return (
     <>
@@ -166,58 +167,7 @@ const Layout = ({ children }) => {
       {router.pathname != "/wallet" &&
         router.pathname.includes("create") &&
         !isMetaconnected &&
-        !isMobileDevice() && (
-          <Modal
-            title="Unlock Wallet To Create Collection"
-            visible={displayUnlockModal}
-            header={null}
-            footer={null}
-            closable={false}
-            width={500}
-            height={500}
-            maskStyle={{
-              backgroundColor: "#EEEEEE",
-              opacity: 0.1,
-            }}
-            bodyStyle={{
-              height: 350,
-              display: "flex",
-              justifyContent: "center",
-              alignContent: "center",
-            }}
-          >
-            <div className={styles.modalContent}>
-              <div className={styles.modalControls}>
-                {router.pathname !== "/" && (
-                  <Link
-                    href={{
-                      pathname: `/`,
-                    }}
-                  >
-                    <a>
-                      <span className={styles.linkButton}>
-                        {"Go To Main Page"}
-                      </span>
-                    </a>
-                  </Link>
-                )}
-                <Link
-                  href={{
-                    pathname: `/wallet`,
-                  }}
-                >
-                  <a>
-                    {
-                      <span className={styles.linkButton}>
-                        {"Connect with Wallet"}
-                      </span>
-                    }
-                  </a>
-                </Link>
-              </div>
-            </div>
-          </Modal>
-        )}
+        !isMobileDevice() && <ConnectWalletModal displayModal={true} />}
     </>
   );
   async function detectNetwork() {
