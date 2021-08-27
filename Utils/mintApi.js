@@ -2,7 +2,7 @@ import collectionArtifact from "./../build/contracts/Rimable.json";
 
 import Web3 from "web3";
 import axios from "axios";
-import { requestUnlockMetamask, slugify } from "./utils";
+import { slugify } from "./utils";
 import detectEthereumProvider from "@metamask/detect-provider";
 
 const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
@@ -313,7 +313,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
       collectionData.talentAddress = ownerAddress;
       collectionData.talent = values.talent;
       collectionData.collectionName = values.collection;
-      collectionData.slug = slugify(values.collection.toString());
+      collectionData.slug = slugify(values.collectionName.toString());
       return uploadCollectionToStrapi(logo, banner, collectionData);
     } else {
       return {

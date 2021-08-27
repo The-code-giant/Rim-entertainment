@@ -1,43 +1,28 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import Web3 from "web3";
-import Web3Modal from "web3modal";
-import { isMobileDevice, providerOptions } from "/Constants/constants";
 import styles from "/styles/wallet.module.css";
-const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
+import { isMobile } from "react-device-detect";
+
+// const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
-// const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
-import {
-  setMetaToken,
-  setMetaConnected,
-  getAccountTokens,
-  getMetaToken,
-  getWalletToken,
-  getMetaConnected,
-  getWalletConnected,
-} from "/store/action/accountSlice";
+import { setMetaConnected, getMetaToken } from "/store/action/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useOnboard } from "use-onboard";
 
 import Onboard from "bnc-onboard";
-import { detectMetamaskInstalled, getCurrentAccount } from "Utils/utils";
-import { fetch, post } from "Utils/strapiApi";
+import { getCurrentAccount, registerTalent } from "Utils/utils";
 import InstallMetamaskModal from "@/components/commons/InstallMetamaskModal";
+import { setMetaBalance, setMetaToken } from "store/action/accountSlice";
+import HandleNotification from "@/components/commons/handleNotification";
 const Wallet = () => {
   const router = useRouter();
-  const dispatchMetaToken = useDispatch();
   const dispatchMetaConnected = useDispatch();
-
-  const isMetaconnected = useSelector(getMetaConnected);
-  const isWalletConnected = useSelector(getWalletConnected);
-  const accountTokens = useSelector(getAccountTokens);
+  const dispatchMetaToken = useDispatch();
+  const dipsatchMetaBalance = useDispatch();
   const metaToken = useSelector(getMetaToken);
-  const walletToken = useSelector(getWalletToken);
 
-  const [connected, setConnected] = useState();
-  const [isMobile, setIsMobile] = useState(false);
-  const [metamaskModal, setMetamaskModal] = useState(null);
   const [displayInstallModal, setDisplayInstallModal] = useState();
   const { selectWallet, address, isWalletSelected, disconnectWallet, balance } =
     useOnboard({
@@ -58,94 +43,66 @@ const Wallet = () => {
 
   const [onboard, setOnboard] = useState(null);
 
-  const [metamaskWeb3, setMetamaskWeb3] = useState(null);
-  const [metamaskProvider, setMetamaskProvider] = useState(null);
-  const [metamaskConnected, setMetamaskConnected] = useState(null);
-
   const [web3, setWeb3] = useState(null);
-  const initWeb3 = (provider) => {
-    const web3 = new Web3(provider);
-
-    web3.eth.extend({
-      methods: [
-        {
-          name: "chainId",
-          call: "eth_chainId",
-          outputFormatter: web3.utils.hexToNumber,
-        },
-      ],
-    });
-
-    return web3;
-  };
-  const connectToMetamask = async (wallet) => {
-    const { ethereum } = window;
-    if (!ethereum) {
-      setDisplayInstallModal(true);
-    } else {
-      const account = await getCurrentAccount();
-      console.log("current wallet is ", account);
-      const talentResult = await fetch(`/talents/talentexists/${account}`);
-      if (talentResult.data) {
-        const talentExists = talentResult.data.success;
-        if (!talentExists) {
-          console.log("registering the wallet", account);
-          let talentData = new FormData();
-          talentData.append("data", JSON.stringify({ walletAddress: account }));
-          const result = await post(`${STRAPI_BASE_URL}/talents`, talentData, {
-            headers: {
-              "Content-Type": `multipart/form-data`,
-            },
-          });
-        } else {
-          console.log("user wallet was registered", account);
-        }
-      }
-      console.log("connecting to metamask");
-      if (metaToken.length > 0) {
-        await dispatchMetaConnected(setMetaConnected(true));
-        router.push("/");
-      } else {
-        const metamaskProvider = await metamaskModal.connectTo(wallet);
-        await subscribeMetamaskProvider(metamaskProvider);
-        const metamaskWeb3 = initWeb3(metamaskProvider);
-
-        await setMetamaskWeb3(metamaskWeb3);
-        await setMetamaskProvider(metamaskProvider);
-      }
-    }
-  };
-
-  const subscribeMetamaskProvider = async (provider) => {
-    if (!provider.on) {
-      return;
-    }
-    provider.on("disconnect", () => {
-      setMetamaskConnected(false);
-    });
-    provider.on("accountsChanged", async (accounts) => {
-      if (accounts.length == 0) {
-        await dispatchMetaConnected(setMetaConnected(false));
-        await dispatchMetaToken(setMetaToken([]));
-      } else {
-        await dispatchMetaConnected(setMetaConnected(true));
-        await dispatchMetaToken(setMetaToken(accounts));
-      }
-    });
-  };
-
-  const onMobileConnect = async () => {
-    if (metaToken != null) {
+  const onDesktopConnect = async (wallet) => {
+    if (metaToken && metaToken.length > 0) {
       await dispatchMetaConnected(setMetaConnected(true));
       router.push("/");
     } else {
-      const data = await onboard.walletSelect();
-
-      if (data) {
-        const walletCheck = await onboard.walletCheck();
-        console.log("walletselct is ", data);
-        console.log("wallet checi is ", walletCheck);
+      if (typeof window.ethereum !== "undefined" && ethereum.isMetaMask) {
+        const { ethereum } = window;
+        let web3 = new Web3(window.ethereum);
+        ethereum
+          .request({
+            method: "wallet_requestPermissions",
+            params: [{ eth_accounts: {} }],
+          })
+          .then((permissions) => {
+            const accountsPermission = permissions.find(
+              (permission) => permission.parentCapability === "eth_accounts"
+            );
+            if (accountsPermission) {
+              (async () => {
+                const accounts = await ethereum.request({
+                  method: "eth_requestAccounts",
+                });
+                await dispatchMetaConnected(setMetaConnected(true));
+                await registerTalent(accounts[0]);
+                await dispatchMetaToken(setMetaToken(accounts));
+                web3.eth.getBalance(accounts[0], async (err, result) => {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    await dipsatchMetaBalance(
+                      setMetaBalance(web3.utils.fromWei(result, "ether"))
+                    );
+                  }
+                });
+                router.push("/");
+              })();
+            }
+          })
+          .catch((error) => {
+            if (error.code === 4001) {
+              HandleNotification(
+                "warning",
+                "Metamask",
+                "User rejected wallet connection "
+              );
+            } else {
+              console.error(error);
+            }
+          });
       }
+    }
+  };
+
+  const onMobileConnect = async () => {
+    if (metaToken != null && metaToken.length > 0) {
+      await dispatchMetaConnected(setMetaConnected(true));
+      router.push("/");
+    } else {
+      await onboard.walletSelect();
     }
   };
 
@@ -169,20 +126,9 @@ const Wallet = () => {
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const browserModal = new Web3Modal({
-        network: "mainnet", // optional
-        cacheProvider: false, // optional
-        providerOptions, // required
-        disableInjectedProvider: true,
-      });
-      setIsMobile(isMobileDevice());
-      if (browserModal.cachedProvider && isMobile) {
-        // onMobileConnect();
-      }
-      setMetamaskModal(browserModal);
+    if (isMobile) {
+      initBoard();
     }
-    initBoard();
   }, []);
   return (
     <div className={styles.container}>
@@ -204,7 +150,7 @@ const Wallet = () => {
             {!isMobile && (
               <div
                 className={styles.walletCard}
-                onClick={() => connectToMetamask("injected")}
+                onClick={() => onDesktopConnect("injected")}
               >
                 <div className={styles.walletCardPopup}>
                   <span>Most Popular</span>

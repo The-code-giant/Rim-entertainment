@@ -4,6 +4,8 @@ import {
   combineReducers,
 } from "@reduxjs/toolkit";
 import accountSlice from "./action/accountSlice";
+import { encryptTransform } from "redux-persist-transform-encrypt";
+
 import {
   persistStore,
   persistReducer,
@@ -21,6 +23,14 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage,
+  // transforms: [
+  //   encryptTransform({
+  //     secretKey: "rim-entertaiment",
+  //     onError: function (error) {
+  //       // Handle the error.
+  //     },
+  //   }),
+  // ],
 };
 const multiReducer = combineReducers({
   account: accountSlice,

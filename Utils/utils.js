@@ -12,6 +12,8 @@ import { OrderSide } from "opensea-js/lib/types";
 import { isMobileDevice } from "Constants/constants";
 import Onboard from "bnc-onboard";
 import detectEthereumProvider from "@metamask/detect-provider";
+import { fetch, post } from "./strapiApi";
+const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
 const referrerAddress = process.env.REF_ADDRESS;
 
 export const seaportProvider = new Web3.providers.HttpProvider(
@@ -385,12 +387,17 @@ export function initOnboard(subscriptions) {
   });
 }
 
+/**
+ * Request the permission to get wallet addresses from metamask throwing error if window is not loaded
+ */
 export const getCurrentAccount = async () => {
   const web3 = new Web3(Web3.givenProvider);
   await window.ethereum.enable();
   const accounts = await web3.eth.getAccounts();
-  return accounts[0].toLowerCase();
+  let acts = accounts.map((account) => web3.utils.toChecksumAddress(account));
+  return acts;
 };
+
 export function randomAvatar() {
   let randomNumber = Math.floor(Math.random() * 33 + 1);
   return (
@@ -405,5 +412,34 @@ export const detectMetamaskInstalled = () => {
     return false;
   } else {
     return true;
+  }
+};
+
+export const checkTalentRegistered = async (wallet) => {
+  try {
+    return await fetch("/talents/talentexists", wallet);
+  } catch (e) {
+    return {
+      success: false,
+      message: "Server is not available",
+    };
+  }
+};
+
+export const registerTalent = async (account) => {
+  const talentResult = await fetch(`/talents/talentexists/${account}`);
+  if (talentResult.data) {
+    const talentExists = await talentResult.data.success;
+    if (!talentExists) {
+      console.log("registreing user to backend", account);
+      let talentData = new FormData();
+      talentData.append("data", JSON.stringify({ walletAddress: account }));
+      return post(`${STRAPI_BASE_URL}/talents`, talentData, {
+        headers: {
+          "Content-Type": `multipart/form-data`,
+          "Content-Type": "application/json",
+        },
+      });
+    }
   }
 };

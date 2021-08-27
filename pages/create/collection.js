@@ -3,32 +3,26 @@ import styles from "/styles/erc721.module.css";
 import { Input, Button, Form, Spin, Modal } from "antd";
 import { fetch } from "/Utils/strapiApi";
 import Link from "next/link";
-import { isMobileDevice, providerOptions } from "/Constants/constants";
+import { isMobile } from "react-device-detect";
 import Onboard from "bnc-onboard";
 import Web3 from "web3";
-
+import { socket } from "config/websocket";
 import {
   checkFileType,
   checkForDuplicate,
   deployCollection,
 } from "Utils/mintApi";
 import { allowedImageTypes } from "Constants/constants";
-import detectEthereumProvider from "@metamask/detect-provider";
-import { getCurrentAccount, requestUnlockMetamask } from "Utils/utils";
 import {
-  getAccountTokens,
   getMetaConnected,
   getMetaToken,
   getWalletConnected,
-  getWalletToken,
 } from "store/action/accountSlice";
 
 import { useSelector } from "react-redux";
 import { useOnboard } from "use-onboard";
 
-let web3;
-
-const ERC721Collection = ({ collections }) => {
+const ERC721Collection = ({ serverCollections }) => {
   const logoImageInputRef = useRef(null);
   const bannerImageInputRef = useRef(null);
   const formRef = React.createRef();
@@ -52,7 +46,7 @@ const ERC721Collection = ({ collections }) => {
   const isWalletConnected = useSelector(getWalletConnected);
   const metaToken = useSelector(getMetaToken);
   const [onboard, setOnboard] = useState(null);
-
+  const [collections, setCollections] = useState(serverCollections);
   const { selectWallet, address, isWalletSelected, disconnectWallet, balance } =
     useOnboard({
       dappId: "2978c0ac-ae01-46c3-8054-9fc9ec2bfc2d", // optional API key
@@ -102,7 +96,7 @@ const ERC721Collection = ({ collections }) => {
     const duplicationResult = checkForDuplicate(
       collections,
       input,
-      "collection",
+      "collectionName",
       "Collection Name"
     );
     setDuplicateNameError(duplicationResult);
@@ -120,8 +114,14 @@ const ERC721Collection = ({ collections }) => {
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
+    const duplicationResult = checkForDuplicate(
+      collections,
+      values.collectionName,
+      "collectionName",
+      "Collection Name"
+    );
+    setDuplicateNameError(duplicationResult);
     const collectionData = createCollectinData(values);
-    console.log("collectin dat ais ", collectionData);
     if (!logoImageFile) {
       setLogoError("Logo Image is Required");
     }
@@ -163,12 +163,20 @@ const ERC721Collection = ({ collections }) => {
   };
 
   const onFinishFailed = (errorInfo) => {
+    console.log(" on failed ", errorInfo.values);
     if (!logoImageFile) {
       setLogoError("Logo Image is Required");
     }
     if (!bannerImageFile) {
       setBannerError("Banner Image is Required");
     }
+    const duplicationResult = checkForDuplicate(
+      collections,
+      errorInfo.values.collectionName,
+      "collectionName",
+      "Collection Name"
+    );
+    setDuplicateNameError(duplicationResult);
   };
 
   const handleNewCollection = () => {
@@ -241,109 +249,27 @@ const ERC721Collection = ({ collections }) => {
     return collectionData;
   };
 
+  const refreshData = () => {
+    socket.on("newCollection", (data) => {
+      const cols = collections;
+      cols.push(data);
+      console.log("new collection data is ", collections);
+      setCollections(cols);
+    });
+  };
+
   useEffect(() => {
+    refreshData();
     isTalentRegistered();
-    if (isMobileDevice()) {
+    if (isMobile) {
       checkMobileMaskUnlocked();
     } else {
       checkMetamaskUnlocked();
     }
-  }, [isMetaconnected, metaToken]);
+  }, []);
 
   return (
     <div className={styles.container}>
-      <Modal
-        title="Please Register your wallet"
-        visible={displayRegisterModal}
-        header={null}
-        footer={null}
-        closable={false}
-        width={500}
-        height={500}
-        maskStyle={{
-          backgroundColor: "#EEEEEE",
-          opacity: 0.1,
-        }}
-        bodyStyle={{
-          height: 350,
-          display: "flex",
-          justifyContent: "center",
-          alignContent: "center",
-        }}
-      >
-        <div className={styles.modalContent}>
-          <div className={styles.modalControls}>
-            <Link
-              href={{
-                pathname: `/`,
-              }}
-            >
-              <a>
-                <span className={styles.linkButton}>{"Go To Main Page"}</span>
-              </a>
-            </Link>
-            <Link
-              href={{
-                pathname: `/wallet`,
-              }}
-            >
-              <a>
-                {
-                  <span className={styles.linkButton}>
-                    {"Register My Wallet"}
-                  </span>
-                }
-              </a>
-            </Link>
-          </div>
-        </div>
-      </Modal>
-      <Modal
-        title="Unlock Wallet To Create Collection"
-        visible={displayUnlockModal}
-        header={null}
-        footer={null}
-        closable={false}
-        width={500}
-        height={500}
-        maskStyle={{
-          backgroundColor: "#EEEEEE",
-          opacity: 0.1,
-        }}
-        bodyStyle={{
-          height: 350,
-          display: "flex",
-          justifyContent: "center",
-          alignContent: "center",
-        }}
-      >
-        <div className={styles.modalContent}>
-          <div className={styles.modalControls}>
-            <Link
-              href={{
-                pathname: `/`,
-              }}
-            >
-              <a>
-                <span className={styles.linkButton}>{"Go To Main Page"}</span>
-              </a>
-            </Link>
-            <Link
-              href={{
-                pathname: `/wallet`,
-              }}
-            >
-              <a>
-                {
-                  <span className={styles.linkButton}>
-                    {"Connect with Wallet"}
-                  </span>
-                }
-              </a>
-            </Link>
-          </div>
-        </div>
-      </Modal>
       <Modal
         title="Uploading Collection..."
         visible={displayUploadModal}
@@ -485,7 +411,7 @@ const ERC721Collection = ({ collections }) => {
           <div className={styles.nftInputComponent}>
             <h3 className={styles.nftSubHeader}>Collection Name *</h3>
             <Form.Item
-              name="collection"
+              name="collectionName"
               rules={[
                 {
                   required: true,
@@ -574,7 +500,7 @@ export const getServerSideProps = async (context) => {
   const collections = collectionsResult.data;
   return {
     props: {
-      collections: JSON.parse(JSON.stringify(collections)),
+      serverCollections: JSON.parse(JSON.stringify(collections)),
     },
   };
 };
