@@ -7,8 +7,8 @@
 
 // export { addNCollection };
 import io from "socket.io-client";
-const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
-// const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
+// const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
+const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
 
 export const socket = io(STRAPI_BASE_URL);
