@@ -1,3 +1,4 @@
+import FixedSells from "@/components/fixedSells";
 import Head from "next/head";
 import { useState, useEffect } from "react";
 import { fetch } from "Utils/strapiApi";
@@ -9,7 +10,7 @@ import { MainWrapper } from "/Components/StyledComponents/globalStyledComponents
 import TopSellers from "/Components/topSellers";
 import request from "/Utils/axios";
 
-function Home() {
+function Home({ serverFixedPriceSells, serverCollections }) {
   const [topSellers, setTopSellers] = useState([]);
   useEffect(() => {
     // async function fetchingTopSellers() {
@@ -23,7 +24,8 @@ function Home() {
       <Slide />
       <TopSellers />
       <LiveAuctions />
-      <HotCollections />
+      <FixedSells serverFixedPriceSells={serverFixedPriceSells} />
+      <HotCollections serverCollections={serverCollections} />
       <Explore />
     </MainWrapper>
   );
@@ -39,14 +41,19 @@ export const getServerSideProps = async () => {
   // // const bundles = await OpenSeaAPI.getBundles()
   // const assets = await OpenSeaAPI.getCollections();
   // const topSellers = OpenSeaAPI.getTopSellersDetails(orders.orders);
-  // const collections = OpenSeaAPI.getCollectionDetails(assets.assets);
+  const fixPriceSellsResult = await fetch("/nfts/fixed");
+  const fixPriceSells = fixPriceSellsResult.data;
+
+  const collectionResult = await fetch("/collections");
+  const collections = collectionResult.data;
   // const { data } = await openseaApi.getExplores();
   // const explores = OpenSeaAPI.getExploresDetails(data?.assets);
   return {
     props: {
       // topSellers: JSON.parse(JSON.stringify(topSellers)),
       // liveAuctions: JSON.parse(JSON.stringify(auctions)),
-      // collections: JSON.parse(JSON.stringify(collections)),
+      serverFixedPriceSells: JSON.parse(JSON.stringify(fixPriceSells)),
+      serverCollections: JSON.parse(JSON.stringify(collections)),
       // assets: JSON.parse(JSON.stringify(assets)),
       // explores: JSON.parse(JSON.stringify(explores)),
     },

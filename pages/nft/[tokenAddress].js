@@ -11,6 +11,8 @@ import {
   Button,
   Spin,
 } from "antd";
+import { socket } from "config/websocket";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -74,9 +76,11 @@ import {
   getWalletConnected,
   getMetaConnected,
 } from "store/action/accountSlice";
+import { useRouter } from "next/router";
 
 const { Countdown } = Statistic;
 function ProductPage() {
+  const router = useRouter();
   const queryParam = useQueryParam();
   const [asset, setAsset] = useState({});
   const [offers, setOffers] = useState([]);
@@ -157,7 +161,10 @@ function ProductPage() {
       queryParam.tokenAddress != undefined &&
       queryParam.tokenId != undefined
     ) {
-      const data = await fetchOne(queryParam.tokenAddress, queryParam.tokenId);
+      const data = await fetchOne(
+        queryParam?.tokenAddress,
+        queryParam?.tokenId
+      );
       if (data) {
         setLoading(false);
       }
@@ -210,10 +217,27 @@ function ProductPage() {
       message.error("accept");
     }
   }
+
+  const refreshData = () => {
+    socket.on("serverBroadCaseNewFixedPriceSell", (data) => {
+      console.log("user receive new sell from server", data);
+      if (typeof window !== "undefined") {
+        router.replace({
+          pathname: router.pathname,
+          query: {
+            tokenAddress: queryParam?.tokenAddress,
+            tokenId: queryParam?.tokenId,
+          },
+        });
+        console.log("router is ", router);
+      }
+    });
+  };
   useEffect(() => {
     if (!queryParam) {
       return null;
     }
+    refreshData();
     if (isWalletConnected) {
       setAddress(tokenAddresses.walletToken[0]);
       setBalance(tokenAddresses.walletBalance);
@@ -626,7 +650,8 @@ function ProductPage() {
                     </Link>
                   ) : (
                     <>
-                      {sellOrders && sellOrders[0] != null &&
+                      {sellOrders &&
+                        sellOrders[0] != null &&
                         !sellOrders[0]?.waitingForBestCounterOrder && (
                           <BuyNftModal
                             asset={asset}

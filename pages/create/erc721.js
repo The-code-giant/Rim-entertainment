@@ -249,7 +249,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   const refreshData = () => {
     // router.replace(router.asPath);
     socket.on("newCollection", (data) => {
-      const cols = collections;
+      let cols = collections;
       cols.push(data);
       setCollections(cols);
       getOwnerCollections();
