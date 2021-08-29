@@ -10,7 +10,7 @@ import { MainWrapper } from "/Components/StyledComponents/globalStyledComponents
 import TopSellers from "/Components/topSellers";
 import request from "/Utils/axios";
 
-function Home({ serverFixedPriceSells, serverCollections }) {
+function Home() {
   const [topSellers, setTopSellers] = useState([]);
   useEffect(() => {
     // async function fetchingTopSellers() {
@@ -21,12 +21,12 @@ function Home({ serverFixedPriceSells, serverCollections }) {
   }, []);
   return (
     <MainWrapper>
-      <Slide />
-      <TopSellers />
+      {/* <Slide /> */}
+      {/* <TopSellers /> */}
       <LiveAuctions />
-      <FixedSells serverFixedPriceSells={serverFixedPriceSells} />
-      <HotCollections serverCollections={serverCollections} />
-      <Explore />
+      {/* <FixedSells /> */}
+      {/* <HotCollections /> */}
+      {/* <Explore /> */}
     </MainWrapper>
   );
 }
@@ -41,19 +41,19 @@ export const getServerSideProps = async () => {
   // // const bundles = await OpenSeaAPI.getBundles()
   // const assets = await OpenSeaAPI.getCollections();
   // const topSellers = OpenSeaAPI.getTopSellersDetails(orders.orders);
-  const fixPriceSellsResult = await fetch("/nfts/fixed");
-  const fixPriceSells = fixPriceSellsResult.data;
+  // const fixPriceSellsResult = await fetch("/nfts/fixed");
+  // const fixPriceSells = fixPriceSellsResult.data;
 
-  const collectionResult = await fetch("/collections");
-  const collections = collectionResult.data;
+  // const collectionResult = await fetch("/collections");
+  // const collections = collectionResult.data;
   // const { data } = await openseaApi.getExplores();
   // const explores = OpenSeaAPI.getExploresDetails(data?.assets);
   return {
     props: {
       // topSellers: JSON.parse(JSON.stringify(topSellers)),
       // liveAuctions: JSON.parse(JSON.stringify(auctions)),
-      serverFixedPriceSells: JSON.parse(JSON.stringify(fixPriceSells)),
-      serverCollections: JSON.parse(JSON.stringify(collections)),
+      // serverFixedPriceSells: JSON.parse(JSON.stringify(fixPriceSells)),
+      // serverCollections: JSON.parse(JSON.stringify(collections)),
       // assets: JSON.parse(JSON.stringify(assets)),
       // explores: JSON.parse(JSON.stringify(explores)),
     },
