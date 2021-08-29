@@ -7,6 +7,7 @@ import { isMobile } from "react-device-detect";
 import Onboard from "bnc-onboard";
 import Web3 from "web3";
 import { socket } from "config/websocket";
+import bluebird from "bluebird";
 import {
   checkFileType,
   checkForDuplicate,
@@ -250,8 +251,8 @@ const ERC721Collection = ({ serverCollections }) => {
   };
 
   const refreshData = () => {
-    socket.on("newCollection", (data) => {
-      const cols = collections;
+    socket.on("serverBroadCastNewCollection", (data) => {
+      let cols = collections;
       cols.push(data);
       console.log("new collection data is ", collections);
       setCollections(cols);

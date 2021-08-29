@@ -1,7 +1,7 @@
 import {
   configureStore,
-  getDefaultMiddleware,
   combineReducers,
+  getDefaultMiddleware,
 } from "@reduxjs/toolkit";
 import accountSlice from "./action/accountSlice";
 import { encryptTransform } from "redux-persist-transform-encrypt";
@@ -16,6 +16,7 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
+
 import storage from "redux-persist/lib/storage";
 import logger from "redux-logger";
 

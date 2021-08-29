@@ -13,6 +13,8 @@ import { isMobileDevice } from "Constants/constants";
 import Onboard from "bnc-onboard";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { fetch, post } from "./strapiApi";
+// const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
+// const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
 const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
 const referrerAddress = process.env.REF_ADDRESS;
 

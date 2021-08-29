@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Carousel from "react-elastic-carousel";
-import axios from "axios";
 import { SectionHeading } from "./StyledComponents/globalStyledComponents";
 import {
   CollectionCard,
@@ -11,6 +10,9 @@ import {
   CardImageContainer,
 } from "./StyledComponents/hotCollections-styledComponents";
 import api from "/Components/axiosRequest";
+import { socket } from "config/websocket";
+import { fetch } from "Utils/strapiApi";
+import { useRouter } from "next/router";
 const breakPoints = [
   { width: 1, itemsToShow: 1 },
   { width: 550, itemsToShow: 2, itemsToScroll: 2 },
@@ -19,13 +21,18 @@ const breakPoints = [
   { width: 1200, itemsToShow: 5, itemsToScroll: 5 },
 ];
 
-export default function HotCollections() {
-  const [collections, setCollection] = useState([]);
-
-  useEffect(() => {
-    api.get("/collections").then((response) => {
-      setCollection(response.data);
+export default function HotCollections({ serverCollections }) {
+  const [collections, setCollections] = useState(serverCollections);
+  const refreshData = async () => {
+    socket.on("serverBroadCastNewCollection", (data) => {
+      let cols = collections.slice();
+      cols.unshift(data);
+      console.log("colsr are", cols);
+      setCollections(cols);
     });
+  };
+  useEffect(() => {
+    refreshData();
   }, []);
   return (
     <div className={"mt-5"}>
@@ -41,13 +48,13 @@ export default function HotCollections() {
               <CardImageContainer>
                 <Link
                   href={{
-                    pathname: `/collection/${item.slug}`,
+                    pathname: `/collection/${item?.slug}`,
                   }}
                 >
                   <a>
                     <img
                       style={{ width: "auto" }}
-                      src={item.collectionBanner.url}
+                      src={item?.collectionBanner?.url}
                     />
                   </a>
                 </Link>
@@ -56,19 +63,19 @@ export default function HotCollections() {
                 <ProfileAvatarContainer>
                   <Link
                     href={{
-                      pathname: `/collection/${item.slug}`,
+                      pathname: `/collection/${item?.slug}`,
                     }}
                   >
                     <a>
                       <img
                         style={{ width: "auto" }}
-                        src={item.collectionImageURL.url}
+                        src={item?.collectionImageURL?.url}
                       />
                     </a>
                   </Link>
                 </ProfileAvatarContainer>
                 <CardTitle style={{ padding: "0px 10px", marginTop: "-35px" }}>
-                  <span>{item.collectionName}</span>
+                  <span>{item?.collectionName}</span>
                   <span>{`ERC-721`}</span>
                   {/* <span>{item.data[0]?.asset_contract.schema_name}</span> */}
                 </CardTitle>

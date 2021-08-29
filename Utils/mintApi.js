@@ -5,9 +5,11 @@ import axios from "axios";
 import { slugify } from "./utils";
 import detectEthereumProvider from "@metamask/detect-provider";
 
-const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
+// const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
+
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
-// const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
+const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
+
 const RINKEBY_PROXY_ADDRESS = process.env.RINKEBY_PROXY_ADDRESS;
 const RINKEBY_API_KEY = process.env.RINKEBY_API_KEY;
 const RINKEBY_NODE_URL_WSS = process.env.RINKEBY_NODE_URL_WSS;
