@@ -13,6 +13,7 @@ import api from "/Components/axiosRequest";
 import { socket } from "config/websocket";
 import { fetch } from "Utils/strapiApi";
 import { useRouter } from "next/router";
+import HandleNotification from "./commons/handleNotification";
 const breakPoints = [
   { width: 1, itemsToShow: 1 },
   { width: 550, itemsToShow: 2, itemsToScroll: 2 },
@@ -21,18 +22,34 @@ const breakPoints = [
   { width: 1200, itemsToShow: 5, itemsToScroll: 5 },
 ];
 
-export default function HotCollections({ serverCollections }) {
-  const [collections, setCollections] = useState(serverCollections);
-  const refreshData = async () => {
-    socket.on("serverBroadCastNewCollection", (data) => {
-      let cols = collections.slice();
-      cols.unshift(data);
-      console.log("colsr are", cols);
-      setCollections(cols);
-    });
+let newData = null;
+socket.on("serverBroadCastNewCollection", (data) => {
+  console.log("new data is received", data);
+  newData = data;
+});
+
+export default function HotCollections() {
+  const [serverCollections, setServerCollections] = useState([]);
+
+  const loadServerCollection = async () => {
+    await fetch("/collections")
+      .then((response) => {
+        console.log("seeting collection data");
+        const cols = response.data;
+        setServerCollections(cols);
+      })
+      .catch((e) => {
+        console.log("error in loading collection", e);
+        HandleNotification("warning", "Hot Collections", JSON.stringify(e));
+      });
   };
-  useEffect(() => {
-    refreshData();
+
+  useEffect(async () => {
+    socket.on("serverBroadCastNewCollection", (data) => {
+      setServerCollections((prev) => [data, ...prev]);
+    });
+
+    loadServerCollection();
   }, []);
   return (
     <div className={"mt-5"}>
@@ -42,8 +59,8 @@ export default function HotCollections({ serverCollections }) {
         pagination={false}
         transitionMs={1000}
       >
-        {collections &&
-          collections.map((item, index) => (
+        {serverCollections &&
+          serverCollections?.map((item, index) => (
             <CollectionCard key={index}>
               <CardImageContainer>
                 <Link

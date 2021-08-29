@@ -33,6 +33,7 @@ import { SectionHeading } from "./StyledComponents/globalStyledComponents";
 import { unixToMilSeconds, checkName } from "/Utils/utils";
 import { fetch } from "Utils/strapiApi";
 import styles from "/styles/ui.module.css";
+import { socket } from "config/websocket";
 const breakPoints = [
   { width: 1, itemsToShow: 1 },
   { width: 550, itemsToShow: 2, itemsToScroll: 2 },
@@ -44,20 +45,28 @@ const deadline = Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30;
 
 const { Countdown } = Statistic;
 function LiveAuctions() {
-  const [liveAuctions, setLiveAuctions] = useState(null);
+  const [serverLiveAuctions, setServerLiveAuctions] = useState([]);
+
   const loadAuctions = async () => {
-    const auctionResult = await fetch("/nfts/auction");
-    const auctions = await auctionResult.data;
-    if (auctions) {
-      setLiveAuctions(auctions);
-      console.log("acutions hare here", auctions);
-    }
+    await fetch("/nfts/auction")
+      .then((response) => {
+        const fixed = response.data;
+        setServerLiveAuctions(fixed);
+      })
+      .catch((e) => {
+        HandleNotification("warning", "Live Auction ", JSON.stringify(e));
+      });
   };
   useEffect(() => {
+    socket.on("serverBroadCaseNewFixedPriceSell", (data) => {
+      if (data.saleKind == 1) {
+        setServerLiveAuctions((prev) => [data, ...prev]);
+      }
+    });
     loadAuctions();
   }, []);
 
-  if (!liveAuctions) {
+  if (serverLiveAuctions == []) {
     return (
       <Carousel
         breakPoints={breakPoints}
@@ -81,8 +90,8 @@ function LiveAuctions() {
           pagination={false}
           transitionMs={1000}
         >
-          {liveAuctions &&
-            liveAuctions.map(
+          {serverLiveAuctions &&
+            serverLiveAuctions.map(
               (product, index) =>
                 product.expirationTime &&
                 product.expirationTime !== "0" &&

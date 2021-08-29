@@ -34,6 +34,7 @@ import { SectionHeading } from "./StyledComponents/globalStyledComponents";
 import { unixToMilSeconds, checkName } from "/Utils/utils";
 import { fetch } from "Utils/strapiApi";
 import styles from "/styles/ui.module.css";
+import HandleNotification from "./commons/handleNotification";
 const breakPoints = [
   { width: 1, itemsToShow: 1 },
   { width: 550, itemsToShow: 2, itemsToScroll: 2 },
@@ -44,20 +45,32 @@ const breakPoints = [
 const deadline = Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30;
 
 const { Countdown } = Statistic;
-function FixedSells({ serverFixedPriceSells }) {
-  const [fixedPriceSells, setFixedPriceSells] = useState(serverFixedPriceSells);
-  useEffect(() => {
-    refreshData();
-  }, []);
-  const refreshData = () => {
-    socket.on("serverBroadCaseNewFixedPriceSell", (data) => {
-      let cols = fixedPriceSells.slice();
-      cols.unshift(data);
-      console.log("new data is ", data);
-      setFixedPriceSells(cols);
-    });
+function FixedSells() {
+  const [serverFixedPriceSells, setServerFixedPriceSells] = useState([]);
+
+  const loadServerFixedPriceSells = async () => {
+    await fetch("/nfts/fixed")
+      .then((response) => {
+        console.log("seeting collection data");
+        const fixed = response.data;
+        setServerFixedPriceSells(fixed);
+      })
+      .catch((e) => {
+        console.log("error in loading collection", e);
+        HandleNotification("warning", "Fixed Price", JSON.stringify(e));
+      });
   };
-  if (!fixedPriceSells) {
+
+  useEffect(() => {
+    socket.on("serverBroadCaseNewFixedPriceSell", (data) => {
+      if (data.saleKind == 0) {
+        setServerFixedPriceSells((prev) => [data, ...prev]);
+      }
+    });
+    loadServerFixedPriceSells();
+  }, []);
+
+  if (!serverFixedPriceSells) {
     return (
       <Carousel
         breakPoints={breakPoints}
@@ -81,8 +94,10 @@ function FixedSells({ serverFixedPriceSells }) {
           pagination={false}
           transitionMs={1000}
         >
-          {fixedPriceSells &&
-            fixedPriceSells.map((product, index) => Product(product, index))}
+          {serverFixedPriceSells &&
+            serverFixedPriceSells.map((product, index) =>
+              Product(product, index)
+            )}
         </Carousel>
       </>
     );

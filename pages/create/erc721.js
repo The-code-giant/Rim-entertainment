@@ -146,7 +146,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
         const nftData = createNftData(values);
         console.log("nft deat ais ", nftData);
         const ownerAccount = await getCurrentAccount();
-        const result = await uploadNft(nftImageFile, nftData, ownerAccount);
+        const result = await uploadNft(nftImageFile, nftData, ownerAccount[0]);
         if (result.rejected) {
           console.log(result);
           setDisplayUploadModal(false);
