@@ -21,12 +21,12 @@ function Home() {
   }, []);
   return (
     <MainWrapper>
-      {/* <Slide /> */}
-      {/* <TopSellers /> */}
+      <Slide />
+      <TopSellers />
       <LiveAuctions />
-      {/* <FixedSells /> */}
-      {/* <HotCollections /> */}
-      {/* <Explore /> */}
+      <FixedSells />
+      <HotCollections />
+      <Explore />
     </MainWrapper>
   );
 }
