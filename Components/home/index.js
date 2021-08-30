@@ -9,7 +9,7 @@ import HotCollections from "/Components/HotCollections";
 import { useEffect, useState } from "react";
 import OpenSeaAPI from "/Utils/openseaApi";
 import { isMobileDevice } from "../../Constants/constants";
-import HandleNotification from "/Components/commons/handleNotification";
+import CustomNotification from "/Components/commons/customNotification";
 import { MainWrapper } from "/Components/StyledComponents/globalStyledComponents";
 function Home() {
   const [bundles, setBundles] = useState([]);
@@ -37,7 +37,7 @@ function Home() {
       let { bundles } = await OpenSeaAPI.getBundles();
       setBundles(bundles);
     } catch (e) {
-      HandleNotification("error", e.message, "Server Is Not Available");
+      CustomNotification("error", e.message, "Server Is Not Available");
     }
   };
   const loadLiveAuctions = async () => {
@@ -45,7 +45,7 @@ function Home() {
       const { orders } = await OpenSeaAPI.getLiveAuctions();
       setLiveAuctions(orders);
     } catch (e) {
-      HandleNotification("error", e.message, "Server Is Not Available");
+      CustomNotification("error", e.message, "Server Is Not Available");
     }
   };
   const loadTopSellers = async () => {
@@ -55,7 +55,7 @@ function Home() {
       console.log("Top sellers : ", topSellers);
       setTopSellers(topSellers);
     } catch (e) {
-      HandleNotification("error", e.message, "Server Is Not Available");
+      CustomNotification("error", e.message, "Server Is Not Available");
     }
   };
   const loadCollections = async () => {
@@ -64,7 +64,7 @@ function Home() {
       let cols = OpenSeaAPI.getCollectionDetails(assets);
       setCollections(cols);
     } catch (e) {
-      HandleNotification("error", e.message, "Server Is Not Available");
+      CustomNotification("error", e.message, "Server Is Not Available");
     }
   };
 
@@ -75,7 +75,7 @@ function Home() {
   //     const exps = OpenSeaAPI.getExploresDetails(explores);
   //     setExplores(exps);
   //   } catch (e) {
-  //     HandleNotification("error", e.message, "Server Is Not Available");
+  //     CustomNotification("error", e.message, "Server Is Not Available");
   //   }
   // };
   return (

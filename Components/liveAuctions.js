@@ -54,7 +54,7 @@ function LiveAuctions() {
         setServerLiveAuctions(fixed);
       })
       .catch((e) => {
-        HandleNotification("warning", "Live Auction ", JSON.stringify(e));
+        CustomNotification("warning", "Live Auction ", JSON.stringify(e));
       });
   };
   useEffect(() => {

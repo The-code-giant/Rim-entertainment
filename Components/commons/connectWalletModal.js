@@ -3,7 +3,7 @@ import { Modal } from "antd";
 import Link from "next/link";
 import styles from "/styles/connectWalletModal.module.css";
 import { isMobile } from "react-device-detect";
-import HandleNotification from "./handleNotification";
+import CustomNotification from "/Components/commons/customNotification";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAccountTokens,
@@ -42,7 +42,7 @@ const ConnectWalletModal = ({ displayModal }) => {
             .then(handleNewAccounts)
             .catch((error) => {
               if (error.code === 4001) {
-                HandleNotification(
+                CustomNotification(
                   "warning",
                   "Metamask",
                   "User must accept wallet connection "

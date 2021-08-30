@@ -20,7 +20,7 @@ import { useOnboard } from "use-onboard";
 import Onboard from "bnc-onboard";
 import { getCurrentAccount, registerTalent } from "Utils/utils";
 import InstallMetamaskModal from "/components/commons/InstallMetamaskModal";
-import HandleNotification from "/components/commons/handleNotification";
+import CustomNotification from "/components/commons/customNotification";
 const Wallet = () => {
   const router = useRouter();
   const dispatchMetaConnected = useDispatch();
@@ -67,7 +67,7 @@ const Wallet = () => {
             .then(handleNewAccounts)
             .catch((error) => {
               if (error.code === 4001) {
-                HandleNotification(
+                CustomNotification(
                   "warning",
                   "Metamask",
                   "You must accept wallet connection "
