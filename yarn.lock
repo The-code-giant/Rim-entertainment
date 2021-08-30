@@ -2353,13 +2353,6 @@
     readable-stream "^2.2.2"
     through2 "^2.0.3"
 
-"@metamask/onboarding@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@metamask/onboarding/-/onboarding-1.0.1.tgz#14a36e1e175e2f69f09598e2008ab6dc1b3297e6"
-  integrity sha512-FqHhAsCI+Vacx2qa5mAFcWNSrTcVGMNjzxVgaX8ECSny/BJ9/vgXP9V7WF/8vb9DltPeQkxr+Fnfmm6GHfmdTQ==
-  dependencies:
-    bowser "^2.9.0"
-
 "@metamask/post-message-stream@^4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@metamask/post-message-stream/-/post-message-stream-4.0.0.tgz#72f120e562346ca86ccc9b3684023ad44265f0df"
@@ -6290,7 +6283,7 @@ borc@^3.0.0:
     json-text-sequence "~0.3.0"
     readable-stream "^3.6.0"
 
-bowser@^2.10.0, bowser@^2.9.0:
+bowser@^2.10.0:
   version "2.11.0"
   resolved "https://registry.yarnpkg.com/bowser/-/bowser-2.11.0.tgz#5ca3c35757a7aa5771500c70a73a9f91ef420a8f"
   integrity sha512-AlcaJBi/pqqJBIQ8U9Mcpc9i8Aqxn88Skv5d+xBX006BY5u8N3mGLHa5Lgppa7L/HfwgwLgZ6NYs+Ag6uUmJRA==
