@@ -39,7 +39,6 @@ const Layout = ({ children }) => {
   const showHeader = router.pathname.toString().includes("wallet")
     ? false
     : true;
-
   const subscribeMetamaskProvider = async () => {
     const { ethereum } = window;
     if (ethereum) {
