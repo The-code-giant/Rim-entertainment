@@ -19,8 +19,8 @@ import { useOnboard } from "use-onboard";
 
 import Onboard from "bnc-onboard";
 import { getCurrentAccount, registerTalent } from "Utils/utils";
-import InstallMetamaskModal from "/components/commons/InstallMetamaskModal";
-import CustomNotification from "/components/commons/customNotification";
+import InstallMetamaskModal from "/Components/commons/InstallMetamaskModal";
+import CustomNotification from "/Components/commons/customNotification";
 const Wallet = () => {
   const router = useRouter();
   const dispatchMetaConnected = useDispatch();

@@ -8,7 +8,6 @@ import LiveAuctions from "/Components/liveAuctions";
 import Slide from "/Components/slider/slide";
 import { MainWrapper } from "/Components/StyledComponents/globalStyledComponents";
 import TopSellers from "/Components/topSellers";
-import request from "/Utils/axios";
 
 function Home() {
   const [topSellers, setTopSellers] = useState([]);
