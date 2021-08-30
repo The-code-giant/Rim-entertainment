@@ -45,7 +45,7 @@ const ConnectWalletModal = ({ displayModal }) => {
                 HandleNotification(
                   "warning",
                   "Metamask",
-                  "User rejected wallet connection "
+                  "User must accept wallet connection "
                 );
               } else {
                 console.error(error);

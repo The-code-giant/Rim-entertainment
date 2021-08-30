@@ -70,7 +70,7 @@ const Wallet = () => {
                 HandleNotification(
                   "warning",
                   "Metamask",
-                  "User rejected wallet connection "
+                  "You must accept wallet connection "
                 );
               } else {
                 console.error(error);
