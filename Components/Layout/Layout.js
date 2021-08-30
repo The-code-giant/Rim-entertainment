@@ -23,6 +23,8 @@ import ConnectWalletModal from "../commons/connectWalletModal";
 import { registerTalent } from "Utils/utils";
 
 const Layout = ({ children }) => {
+  const router = useRouter();
+
   const dispatchMetaToken = useDispatch();
   const dispatchMetaConnected = useDispatch();
   const dipsatchMetaBalance = useDispatch();
@@ -30,9 +32,8 @@ const Layout = ({ children }) => {
   const metaToken = useSelector(getMetaToken);
   const isMetaconnected = useSelector(getMetaConnected);
   const [isWrongNet, setIsWrongNet] = useState(false);
-  const router = useRouter();
   const [network, setNetwork] = useState(null);
-  const [displayUnlockModal, setDisplayUnlockModal] = useState(true);
+  const [displayMematamaskModal, setDisplayMetaMaskModal] = useState(false);
   const [onboard, setOnboard] = useState(null);
 
   const showHeader = router.pathname.toString().includes("wallet")
@@ -52,12 +53,12 @@ const Layout = ({ children }) => {
     }
   };
   const handleMetaAccount = async (accounts) => {
-    console.log("handingl meta account", accounts);
     let web3 = new Web3(window.ethereum);
     if (accounts.length == 0) {
       await dispatchMetaConnected(setMetaConnected(false));
       await dispatchMetaToken(setMetaToken([]));
       await dipsatchMetaBalance(setMetaBalance(0));
+      setDisplayMetaMaskModal(true);
     } else {
       await dispatchMetaConnected(setMetaConnected(true));
       accounts = accounts.map((account) =>
@@ -75,10 +76,9 @@ const Layout = ({ children }) => {
           );
         }
       });
+      setDisplayMetaMaskModal(false);
       if (router.pathname.toString().includes("create")) {
         // router.replace(router.asPath);
-      } else {
-        router.push("/");
       }
     }
   };
@@ -86,8 +86,12 @@ const Layout = ({ children }) => {
   const checkMetamaskUnlocked = async () => {
     const { ethereum } = window;
     if (ethereum && ethereum.isMetaMask) {
-      if (!isMetaconnected || !metaToken) {
-        setDisplayUnlockModal(true);
+      if (router.pathname.toString().includes("create")) {
+        if (isMetaconnected == false || !metaToken || metaToken.length == 0) {
+          setDisplayMetaMaskModal(true);
+        }
+      } else {
+        setDisplayMetaMaskModal(false);
       }
     }
   };
@@ -144,7 +148,7 @@ const Layout = ({ children }) => {
     } else {
       checkMetamaskUnlocked();
     }
-  }, [isMetaconnected]);
+  }, [isMetaconnected, metaToken]);
 
   return (
     <>

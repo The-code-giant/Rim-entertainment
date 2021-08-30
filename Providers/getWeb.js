@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Web3 from "web3";
-import HandleNotification from "/Components/commons/handleNotification";
+import CustomNotification from "/Components/commons/customNotification";
 
 export const useWeb3 = () => {
   const [web3, setWeb3] = useState();
@@ -29,7 +29,7 @@ export const loadWeb3 = () => {
   if (window.ethereum) {
     window.web3 = new Web3(window.ethereum);
   } else {
-    HandleNotification(
+    CustomNotification(
       "error",
       "Non-Ethereum",
       "Non-Ethereum browser detected. You should consider trying Metamask"

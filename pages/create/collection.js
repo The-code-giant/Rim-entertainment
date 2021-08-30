@@ -186,15 +186,6 @@ const ERC721Collection = ({ serverCollections }) => {
     clearForm();
   };
 
-  const checkMetamaskUnlocked = async () => {
-    const { ethereum } = window;
-    if (ethereum && ethereum.isMetaMask) {
-      if (!isMetaconnected || !metaToken) {
-        setDisplayUnlockModal(true);
-      }
-    }
-  };
-
   const checkMobileMaskUnlocked = async () => {
     const onboard = Onboard({
       dappId: process.env.ONBOARD_API_KEY, // [String] The API key created by step one above
@@ -261,11 +252,11 @@ const ERC721Collection = ({ serverCollections }) => {
 
   useEffect(() => {
     refreshData();
-    isTalentRegistered();
+    // isTalentRegistered();
     if (isMobile) {
       checkMobileMaskUnlocked();
     } else {
-      checkMetamaskUnlocked();
+      // checkMetamaskUnlocked();
     }
   }, []);
 

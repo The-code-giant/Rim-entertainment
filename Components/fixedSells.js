@@ -34,7 +34,7 @@ import { SectionHeading } from "./StyledComponents/globalStyledComponents";
 import { unixToMilSeconds, checkName } from "/Utils/utils";
 import { fetch } from "Utils/strapiApi";
 import styles from "/styles/ui.module.css";
-import HandleNotification from "./commons/handleNotification";
+import CustomNotification from "./commons/customNotification";
 const breakPoints = [
   { width: 1, itemsToShow: 1 },
   { width: 550, itemsToShow: 2, itemsToScroll: 2 },
@@ -57,7 +57,7 @@ function FixedSells() {
       })
       .catch((e) => {
         console.log("error in loading collection", e);
-        HandleNotification("warning", "Fixed Price", JSON.stringify(e));
+        // CustomNotification("warning", "Fixed Price", JSON.stringify(e));
       });
   };
 

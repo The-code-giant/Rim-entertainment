@@ -14,6 +14,7 @@ const accountSlice = createSlice({
     metaConnected: false,
     walletConnected: false,
     requestMetaOpen: false,
+    requestMetaClose: false,
     requestWalletOpen: false,
   },
   reducers: {

@@ -3,7 +3,7 @@ import { Modal } from "antd";
 import Link from "next/link";
 import styles from "/styles/connectWalletModal.module.css";
 import { isMobile } from "react-device-detect";
-import HandleNotification from "./handleNotification";
+import CustomNotification from "/Components/commons/customNotification";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAccountTokens,
@@ -25,55 +25,63 @@ const ConnectWalletModal = ({ displayModal }) => {
   const metaToken = useSelector(getMetaToken);
 
   const onDesktopConnect = async () => {
-    if (metaToken && metaToken.length > 0) {
-      await dispatchMetaConnected(setMetaConnected(true));
-    } else {
-      if (typeof window.ethereum !== "undefined" && ethereum.isMetaMask) {
-        const { ethereum } = window;
-        let web3 = new Web3(window.ethereum);
-        ethereum
-          .request({
-            method: "wallet_requestPermissions",
-            params: [{ eth_accounts: {} }],
-          })
-          .then((permissions) => {
-            const accountsPermission = permissions.find(
-              (permission) => permission.parentCapability === "eth_accounts"
-            );
-            if (accountsPermission) {
-              (async () => {
-                const accounts = await ethereum.request({
-                  method: "eth_requestAccounts",
-                });
-                await dispatchMetaConnected(setMetaConnected(true));
-                await registerTalent(accounts[0]);
-                await dispatchMetaToken(setMetaToken(accounts));
-                web3.eth.getBalance(accounts[0], async (err, result) => {
-                  if (err) {
-                    console.log(err);
-                  } else {
-                    await dipsatchMetaBalance(
-                      setMetaBalance(web3.utils.fromWei(result, "ether"))
-                    );
-                  }
-                });
-              })();
-            }
-          })
-          .catch((error) => {
-            if (error.code === 4001) {
-              HandleNotification(
-                "warning",
-                "Metamask",
-                "User rejected wallet connection "
-              );
-            } else {
-              console.error(error);
-            }
-          });
+    const { ethereum } = window;
+
+    if (ethereum && ethereum.isConnected) {
+      console.log("wallet is connected from walled modal");
+      let web3 = new Web3(ethereum);
+      const accounts = await web3.eth.getAccounts();
+      if (accounts.length > 0) {
+        console.log("accounts are", accounts);
+        presisMetamask(accounts);
+      } else {
+        console.log("request to connect to metamask from walled modal");
+        if (ethereum && ethereum.isMetaMask) {
+          ethereum
+            .request({ method: "eth_requestAccounts" })
+            .then(handleNewAccounts)
+            .catch((error) => {
+              if (error.code === 4001) {
+                CustomNotification(
+                  "warning",
+                  "Metamask",
+                  "User must accept wallet connection "
+                );
+              } else {
+                console.error(error);
+              }
+            });
+          ethereum.on("accountsChanged", handleNewAccounts);
+        }
       }
     }
   };
+
+  const presisMetamask = async (accounts) => {
+    let web3 = new Web3(window.ethereum);
+    await dispatchMetaConnected(setMetaConnected(true));
+    accounts = accounts.map((account) => web3.utils.toChecksumAddress(account));
+
+    await registerTalent(accounts[0]);
+
+    await dispatchMetaToken(setMetaToken(accounts));
+    web3.eth.getBalance(accounts[0], async (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        await dipsatchMetaBalance(
+          setMetaBalance(web3.utils.fromWei(result, "ether"))
+        );
+      }
+    });
+  };
+
+  const handleNewAccounts = (newAccounts) => {
+    if (newAccounts.length > 0) {
+      presisMetamask(newAccounts);
+    }
+  };
+
   const onMobileConnect = async () => {
     console.log("connnecting with mobile");
   };

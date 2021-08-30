@@ -11,6 +11,7 @@
     "@0x/subproviders": "^2.1.4",
     "@binance-chain/bsc-connector": "^1.0.0",
     "@metamask/detect-provider": "^1.2.0",
+    "@metamask/onboarding": "^1.0.1",
     "@openzeppelin/contracts": "^4.2.0",
     "@pinata/sdk": "^1.1.23",
     "@reduxjs/toolkit": "^1.6.0",

@@ -13,7 +13,7 @@ import api from "/Components/axiosRequest";
 import { socket } from "config/websocket";
 import { fetch } from "Utils/strapiApi";
 import { useRouter } from "next/router";
-import HandleNotification from "./commons/handleNotification";
+import CustomNotification from "./commons/customNotification";
 const breakPoints = [
   { width: 1, itemsToShow: 1 },
   { width: 550, itemsToShow: 2, itemsToScroll: 2 },
@@ -40,7 +40,7 @@ export default function HotCollections() {
       })
       .catch((e) => {
         console.log("error in loading collection", e);
-        HandleNotification("warning", "Hot Collections", JSON.stringify(e));
+        CustomNotification("warning", "Hot Collections", JSON.stringify(e));
       });
   };
 
