@@ -115,6 +115,7 @@ const ERC721Collection = ({ serverCollections }) => {
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
+    console.log("data for collectino we are uploading...", values);
     const duplicationResult = checkForDuplicate(
       collections,
       values.collectionName,
@@ -148,11 +149,11 @@ const ERC721Collection = ({ serverCollections }) => {
             ownerAccount
           );
           console.log("result of rejection is ", result);
-          if (!result.rejected && result.data) {
+          if (!result?.rejected && result?.data) {
             const slug = result.data.slug;
             setNewCollectionSlug(slug);
             setDisplayModalButtons(true);
-          } else if (result.rejected) {
+          } else if (result?.rejected) {
             setDisplayUploadModal(false);
             setDisplayModalButtons(false);
           } else {
@@ -252,7 +253,7 @@ const ERC721Collection = ({ serverCollections }) => {
 
   useEffect(() => {
     refreshData();
-    // isTalentRegistered();
+    isTalentRegistered();
     if (isMobile) {
       checkMobileMaskUnlocked();
     } else {

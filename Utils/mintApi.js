@@ -271,7 +271,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
         name: "Rimable",
         data: collectionArtifact.bytecode,
         arguments: [
-          "0xf57b2c51ded3a29e6891aba85459d600256cf317",
+          "0xa5409ec958c83c3f309868babaca7c86dcb077c1",
           "Rimable",
           "RIMABLE",
           collectionUri,
@@ -301,6 +301,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
         }
       })
       .catch((e) => {
+        console.log("error in deploye", e);
         return {
           success: false,
           rejected: true,
