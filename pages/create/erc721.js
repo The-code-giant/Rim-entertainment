@@ -147,11 +147,11 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
         console.log("nft deat ais ", nftData);
         const ownerAccount = await getCurrentAccount();
         const result = await uploadNft(nftImageFile, nftData, ownerAccount[0]);
-        if (result.rejected) {
+        if (result?.rejected) {
           console.log(result);
           setDisplayUploadModal(false);
         } else {
-          if (result.data) {
+          if (result?.data) {
             setNftContract(result.data.tokenAddress);
             setNftTokenId(result.data.tokenId);
             setDisplayUploadModal(true);
@@ -329,7 +329,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
         <h4 className={styles.subHeader}>Image, Video, Audio, or 3D Model</h4>
         <p className={styles.fileTypes}>
           {`File types supported: JPG, PNG, GIF, SVG, MP4, WEBM, MP3, WAV, OGG,
-          GLB, GLTF. Max size: 40 MB`}
+          GLB, GLTF. Max size: 10 MB`}
         </p>
         <Form
           className={styles.uploadForm}
