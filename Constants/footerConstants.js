@@ -29,8 +29,6 @@ export const FOOTER_COMMUNITY = {
       link: "https://www.facebook.com/topNFTcollectibles",
     },
     { communityLinktitle: "Twitter", link: "www.facebook.com" },
-    { communityLinktitle: "Instagram", link: "www.facebook.com" },
-    { communityLinktitle: "Telegram", link: "https://t.me/topNFTcollectibles" },
-    { communityLinktitle: "WhatsApp", link: "www.facebook.com" },
+
   ],
 };

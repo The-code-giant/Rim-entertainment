@@ -73,7 +73,7 @@ function Explore() {
       const data = await api.get("/categories?_sort=id:ASC");
       setCategories(await data.data);
     }
-    // fetchingCats();
+    fetchingCats();
 
     if (cat != undefined) {
       fetchingData(cat);
