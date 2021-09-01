@@ -14,14 +14,14 @@ export const CardsContainer = styled.div`
 `;
 export const ProductCardContainer = styled.div`
   margin-bottom: 20px;
-  max-width: 350px;
+  max-width: 290px;
   padding: 10px;
   @media (max-width: 900px) {
     margin: auto;
   }
   div {
     @media (max-width: 575px) {
-      max-width: 350px;
+      max-width: 290px;
       margin: auto !important;
     }
   }
