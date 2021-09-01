@@ -22,7 +22,6 @@ const breakPoints = [
   { width: 1200, itemsToShow: 5, itemsToScroll: 5 },
 ];
 
-let newData = null;
 socket.on("serverBroadCastNewCollection", (data) => {
   console.log("new data is received", data);
   newData = data;
@@ -34,13 +33,11 @@ export default function HotCollections() {
   const loadServerCollection = async () => {
     await fetch("/collections")
       .then((response) => {
-        console.log("seeting collection data");
         const cols = response.data;
         setServerCollections(cols);
       })
       .catch((e) => {
         console.log("error in loading collection", e);
-        CustomNotification("warning", "Hot Collections", JSON.stringify(e));
       });
   };
 

@@ -51,8 +51,9 @@ const Wallet = () => {
   const [web3, setWeb3] = useState(null);
 
   const onDesktopConnect = async () => {
+    console.log("connecting to metamask");
     const { ethereum } = window;
-    if (ethereum && ethereum.isConnected) {
+    if (ethereum) {
       console.log("wallet is connected from walled modal");
       let web3 = new Web3(ethereum);
       const accounts = await web3.eth.getAccounts();

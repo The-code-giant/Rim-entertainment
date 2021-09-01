@@ -8,7 +8,7 @@ import detectEthereumProvider from "@metamask/detect-provider";
 const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
 // const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
-
+const EXTERNAL_LINK = process.env.EXTERNAL_LINK;
 const RINKEBY_PROXY_ADDRESS = process.env.RINKEBY_PROXY_ADDRESS;
 const RINKEBY_API_KEY = process.env.RINKEBY_API_KEY;
 const RINKEBY_NODE_URL_WSS = process.env.RINKEBY_NODE_URL_WSS;
@@ -250,14 +250,12 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
       ...(fileType.mediaType == "video" && {
         animation_url: ipfsUrl,
       }),
-      ...(values.external_link && { external_link: values.external_link }),
+      external_link: EXTERNAL_LINK,
     };
-    console.log("collection metadata is ", metadata);
     const collectionMetadataResult = await pinJSONToIPFS(
       metadata,
       "collection"
     );
-    console.log("wating to upload collection metadata...");
     // if (collectionMetadataResult.success) {
     const collectionUri = collectionMetadataResult.ipfsUrl;
     console.log("wating to deploy collection...");
@@ -352,7 +350,7 @@ export const uploadNft = async (file, values, ownerAddress) => {
     ...(fileType.mediaType == "video" && {
       animation_url: ipfsUrl,
     }),
-    ...(values.external_link && { external_link: values.external_link }),
+    external_link: EXTERNAL_LINK,
   };
 
   const metadataUploadResult = await pinJSONToIPFS(metadata, "asset");
@@ -471,7 +469,6 @@ export const uploadNftToStrapi = (file, nftMetadata) => {
   let formData = new FormData();
   formData.append("files.previewImage", file);
   formData.append("data", JSON.stringify(nftMetadata));
-  console.log("uploading fntData to strapi...");
   return axios.post(`${STRAPI_BASE_URL}/nfts`, formData, {
     headers: {
       "Content-Type": `multipart/form-data`,

@@ -22,6 +22,7 @@ import {
 
 import { useSelector } from "react-redux";
 import { useOnboard } from "use-onboard";
+import { getCurrentAccount } from "Utils/utils";
 
 const ERC721Collection = ({ serverCollections }) => {
   const logoImageInputRef = useRef(null);
@@ -109,13 +110,13 @@ const ERC721Collection = ({ serverCollections }) => {
     setLogoImageFile(null);
     setBannerImageFile(null);
     setUploadPrecentage(0);
+    setDuplicateNameError("");
     form.resetFields();
   };
 
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
-    console.log("data for collectino we are uploading...", values);
     const duplicationResult = checkForDuplicate(
       collections,
       values.collectionName,
@@ -140,7 +141,13 @@ const ERC721Collection = ({ serverCollections }) => {
     ) {
       setDisplayUploadModal(true);
       (async function () {
-        const ownerAccount = await metaToken[0];
+        let ownerAccount = null;
+        if (metaToken[0]) {
+          ownerAccount = metaToken[0];
+        } else {
+          ownerAccount = await getCurrentAccount();
+          console.log("current account is ", ownerAccount);
+        }
         if (ownerAccount) {
           const result = await deployCollection(
             logoImageFile,
@@ -421,7 +428,7 @@ const ERC721Collection = ({ serverCollections }) => {
             </Form.Item>
             <div
               className={
-                duplicateNameError?.message.includes("×")
+                duplicateNameError?.message?.includes("×")
                   ? styles.nftFormErrors
                   : styles.nftFormValid
               }
@@ -429,7 +436,7 @@ const ERC721Collection = ({ serverCollections }) => {
               {duplicateNameError?.message}
             </div>
           </div>
-          <div className={styles.nftInputComponent}>
+          {/* <div className={styles.nftInputComponent}>
             <h3 className={styles.nftSubHeader}>External Link</h3>
             <p className={styles.nfgParagraph}>
               {
@@ -447,7 +454,7 @@ const ERC721Collection = ({ serverCollections }) => {
                 className={styles.nftInput}
               />
             </Form.Item>
-          </div>
+          </div> */}
           <div className={styles.nftInputComponent}>
             <h3 className={styles.nftSubHeader}>Description</h3>
             <p className={styles.nfgParagraph}>
