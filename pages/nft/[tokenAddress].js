@@ -606,7 +606,7 @@ function ProductPage() {
                               }`}</span>
                             </PriceInCryptoContainer>
                             <PriceInDollarContainer>
-                              <span>{`~$ ${convertToUsd(highestOffer)}`}</span>
+                              {/* <span>{`~$ ${convertToUsd(highestOffer)}`}</span> */}
                             </PriceInDollarContainer>
                           </BidPriceValue>
                         </BidPrice>
