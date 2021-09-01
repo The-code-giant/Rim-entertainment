@@ -12,8 +12,6 @@ import {
 import api from "/Components/axiosRequest";
 import { socket } from "config/websocket";
 import { fetch } from "Utils/strapiApi";
-import { useRouter } from "next/router";
-import CustomNotification from "./commons/customNotification";
 const breakPoints = [
   { width: 1, itemsToShow: 1 },
   { width: 550, itemsToShow: 2, itemsToScroll: 2 },
@@ -21,11 +19,6 @@ const breakPoints = [
   { width: 1024, itemsToShow: 4, itemsToScroll: 4 },
   { width: 1200, itemsToShow: 5, itemsToScroll: 5 },
 ];
-
-socket.on("serverBroadCastNewCollection", (data) => {
-  console.log("new data is received", data);
-  newData = data;
-});
 
 export default function HotCollections() {
   const [serverCollections, setServerCollections] = useState([]);
