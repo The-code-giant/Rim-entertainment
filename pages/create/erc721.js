@@ -124,6 +124,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
     setUploadFileUrl(null);
     setNftImageFile(null);
     setUploadPrecentage(0);
+    setDuplicateNameError("");
     form.resetFields();
     hiddenFileInput.current.value = null;
   };
@@ -186,9 +187,8 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
     if (metaToken != null && metaToken[0]) {
       const ownerAccount = await metaToken[0];
       const cols = collections.filter((item) => {
-        return item.talentAddress == ownerAccount;
+        return item.talentAddress == ownerAccount && item.isEnternal == true;
       });
-      console.log("talent collections are", cols);
       setOwnerCollections(cols);
     }
   };
@@ -248,13 +248,13 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
 
   const refreshData = () => {
     // router.replace(router.asPath);
-    socket.on("newCollection", (data) => {
+    socket.on("serverBroadCastNewCollection", (data) => {
       let cols = collections;
       cols.push(data);
       setCollections(cols);
       getOwnerCollections();
     });
-    socket.on("newERC721", (data) => {
+    socket.on("serverBroadCastNewERC721", (data) => {
       console.log("new newERC721 Created", data);
       const oldNfts = nfts;
       oldNfts.push(data);
@@ -413,7 +413,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
             </Form.Item>
             <div
               className={
-                duplicateNameError?.message.includes("×")
+                duplicateNameError?.message?.includes("×")
                   ? styles.nftFormErrors
                   : styles.nftFormValid
               }
@@ -421,7 +421,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
               {duplicateNameError?.message}
             </div>
           </div>
-          <div className={styles.nftInputComponent}>
+          {/* <div className={styles.nftInputComponent}>
             <h3 className={styles.nftSubHeader}>External Link</h3>
             <p className={styles.nfgParagraph}>
               {
@@ -441,7 +441,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
                 className={styles.nftInput}
               />
             </Form.Item>
-          </div>
+          </div> */}
           <div className={styles.nftInputComponent}>
             <h3 className={styles.nftSubHeader}>Description</h3>
             <p className={styles.nfgParagraph}>

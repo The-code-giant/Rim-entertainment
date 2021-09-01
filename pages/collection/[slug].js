@@ -120,6 +120,7 @@ function CollectionDetails() {
       ? (async function fetchCollection() {
           const { data } = await api.get(
             `${process.env.HEROKU_BASE_URL}/collections/${slug}`
+            // `${process.env.STRAPI_LOCAL_BASE_URL}/collections/${slug}`
           );
           console.log("came", await data);
           setCollect(await data);
