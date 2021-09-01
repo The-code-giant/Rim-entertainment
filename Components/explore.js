@@ -85,10 +85,10 @@ function Explore() {
     <>
       <div>
         <CategoriesListContainer>
-          <SectionHeading>{EXPLORE_CONSTANTS.explore}</SectionHeading>
+        {categories?.length >0 && <SectionHeading>{EXPLORE_CONSTANTS.explore}</SectionHeading> }
           <CategoriesListScroll>
             <CategoriesList className={"m-2"}>
-              {categories.map((category, v) => (
+              {categories && categories.map((category, v) => (
                 <Link key={v} href={`/?cat=${category.slug}`} passHref>
                   <li className={cat == category.slug ? "active" : ""}>{`${
                     category.icon ? category.icon : ""

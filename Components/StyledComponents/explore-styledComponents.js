@@ -8,6 +8,7 @@ export const FilterAndSort = styled.div`
   padding: 10px 15px 10px 15px;
 `;
 export const CategoriesListContainer = styled.div`
+  margin-top: 45px;
   font-weight: bold;
   list-style-type: none;
   display: flex;
