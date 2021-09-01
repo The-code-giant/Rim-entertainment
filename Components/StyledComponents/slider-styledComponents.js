@@ -2,7 +2,6 @@ import styled from "styled-components";
 
 export const SliderWrapper = styled.div`
   width: auto;
-  overflow-x: auto;
   padding: 15px 0px;
   margin-right: 20px;
   white-space: nowrap;
