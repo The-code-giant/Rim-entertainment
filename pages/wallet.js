@@ -57,6 +57,7 @@ const Wallet = () => {
       console.log("wallet is connected from walled modal");
       let web3 = new Web3(ethereum);
       const accounts = await web3.eth.getAccounts();
+      console.log("accounts are null?", accounts);
       if (accounts.length > 0) {
         console.log("accounts are", accounts);
         presisMetamask(accounts);
