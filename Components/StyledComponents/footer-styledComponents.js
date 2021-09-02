@@ -178,17 +178,3 @@ export const TermAndPolicy = styled.div`
          }
     }
 `;
-export const SocialLinksContainer = styled.div`
-    @media (max-width:  700px)
-    {
-        margin: auto !important;
-        position: relative;
-        left: -10px;
-        top: -25px;
-    }
-    margin-right: 10px !important;
-    a{
-        padding-right: 20px;
-        color: rgba(4, 4, 5, 0.6); !important;
-    };
-`;
