@@ -225,6 +225,7 @@ export const pinJSONToIPFS = (metaContent, mediaType) => {
 export const deployCollection = async (logo, banner, values, ownerAddress) => {
   if (process.env.RINKEBY_PROXY_ADDRESS) {
     console.log("proxy address is ", process.env.RINKEBY_PROXY_ADDRESS);
+    console.log("ownder address is ", ownerAddress);
   }
   let strapiUploadResult = {
     success: false,
@@ -268,12 +269,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
       .deploy({
         name: "Rimable",
         data: collectionArtifact.bytecode,
-        arguments: [
-          "0xa5409ec958c83c3f309868babaca7c86dcb077c1",
-          "Rimable",
-          "RIMABLE",
-          collectionUri,
-        ],
+        arguments: [proxyAddress, "TopNftCollectibles", "TNC", collectionUri],
       })
       .send({
         type: "0x2",
