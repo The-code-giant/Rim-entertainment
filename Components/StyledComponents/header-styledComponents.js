@@ -228,11 +228,3 @@ export const SearchWrapper = styled.div`
     }
   }
 `;
-export const SocialLinkContainer = styled.div`
-  min-width: 200px;
-  display: flex;
-  justify-content: space-around;
-  a {
-    color: #888;
-  }
-`;
