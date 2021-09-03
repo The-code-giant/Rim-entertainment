@@ -28,6 +28,7 @@ import { isMobileDevice } from "Constants/constants";
 import Onboard from "bnc-onboard";
 import { getCurrentAccount } from "Utils/utils";
 import { useRouter } from "next/router";
+import CustomNotification from "@/components/commons/customNotification";
 
 const initNft = {
   tokenId: null,
@@ -69,6 +70,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   const [displayModalButtons, setDisplayModalButtons] = useState();
   const [displayUnlockModal, setDisplayUnlockModal] = useState(false);
   const [displayRegisterModal, setDisplayRegisterModal] = useState();
+  const [uploadErrorMessage, setUploadErrorMessage] = useState("");
   const [form] = Form.useForm();
   const router = useRouter();
 
@@ -148,16 +150,21 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
         console.log("nft deat ais ", nftData);
         const ownerAccount = await getCurrentAccount();
         const result = await uploadNft(nftImageFile, nftData, ownerAccount[0]);
-        if (result?.rejected) {
-          console.log(result);
+
+        if (result.data) {
+          setUploadErrorMessage("");
+          setNftContract(result.data.tokenAddress);
+          setNftTokenId(result.data.tokenId);
+          setDisplayUploadModal(true);
+          setDisplayModalButtons(true);
+        } else if (result.success == false && result.rejected == true) {
+          setUploadErrorMessage("");
           setDisplayUploadModal(false);
-        } else {
-          if (result?.data) {
-            setNftContract(result.data.tokenAddress);
-            setNftTokenId(result.data.tokenId);
-            setDisplayUploadModal(true);
-            setDisplayModalButtons(true);
-          }
+          CustomNotification("warning", "Metamask", result.message);
+        } else if (result?.success == false) {
+          setUploadErrorMessage("");
+          setDisplayUploadModal(true);
+          setDisplayModalButtons(false);
         }
       })();
     }
@@ -255,7 +262,6 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
       getOwnerCollections();
     });
     socket.on("serverBroadCastNewERC721", (data) => {
-      console.log("new newERC721 Created", data);
       const oldNfts = nfts;
       oldNfts.push(data);
       setNfts(oldNfts);
@@ -320,6 +326,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
                 </Link>
               </div>
             )}
+            <div>{/* <span>{uploadErrorMessage}</span> */}</div>
           </div>
         </Modal>
       </div>
