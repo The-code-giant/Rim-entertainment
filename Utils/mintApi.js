@@ -250,7 +250,6 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
       "collection"
     );
     if (collectionMetadataResult.success == true) {
-      console.log("collectionresult is", collectionMetadataResult);
       const collectionUri = collectionMetadataResult.pinataUrl;
       const proxyAddress = web3.utils.toChecksumAddress(RINKEBY_PROXY_ADDRESS);
       const owner = web3.utils.toChecksumAddress(ownerAddress);
@@ -268,13 +267,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
         .send({
           type: "0x2",
           from: owner,
-          // gas: "6721975",
         })
-        .on("transactionHash", function (hash) {
-          // console.log("here is transaction hash ", hash);
-        })
-        .once("receipt", function (receipt) {})
-        .once("confirmation", function (confirmationNumber, receipt) {})
         .on("error", (error) => {
           if (error.code == 4001) {
             return {
@@ -297,16 +290,12 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
           }
         })
         .catch((e) => {
-          console.log("deploy result is ", e);
           return {
             success: false,
             rejected: true,
             message: "Metamask Transaction Failed",
           };
         });
-
-      console.log("Collection result is ", deployResult);
-
       if (deployResult?.rejected == true) {
         return {
           success: false,
@@ -321,7 +310,6 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
         collectionData.collectionName = values.collectionName;
         collectionData.slug = slugify(values.collectionName.toString());
         collectionData.metadata = metadata;
-        console.log("deployed collection has fields ", collectionData);
         return uploadCollectionToStrapi(logo, banner, collectionData);
       }
     } else {
@@ -332,7 +320,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
   } else {
     return {
       success: false,
-      rejected: true,
+      rejected: false,
       message: "Your File is not uploaded to blockchain",
     };
   }

@@ -161,7 +161,7 @@ const ERC721Collection = ({ serverCollections }) => {
             const slug = result.data.slug;
             setNewCollectionSlug(slug);
             setDisplayModalButtons(true);
-          } else if (result?.rejected) {
+          } else if (result?.rejected == true) {
             setDisplayUploadModal(false);
             setDisplayModalButtons(false);
           } else {
@@ -173,7 +173,6 @@ const ERC721Collection = ({ serverCollections }) => {
   };
 
   const onFinishFailed = (errorInfo) => {
-    console.log(" on failed ", errorInfo.values);
     if (!logoImageFile) {
       setLogoError("Logo Image is Required");
     }

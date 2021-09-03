@@ -141,10 +141,8 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
 
   const onFinish = (values) => {
     let validationResult = validateImage(nftImageFile, 10);
-    console.log("on finish", validationResult);
     if (validationResult.status == true && !duplicateNameError.isDuplicate) {
       setDisplayUploadModal(true);
-      console.log("validation of nfig image is file is ready");
       (async function () {
         const nftData = createNftData(values);
         console.log("nft deat ais ", nftData);
@@ -183,7 +181,6 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   const checkMetamaskUnlocked = async () => {
     const { ethereum } = window;
     if (ethereum && ethereum.isMetaMask) {
-      console.log("is metamask connected ", isMetaconnected);
       if (!isMetaconnected) {
         setDisplayUnlockModal(true);
       }
@@ -254,7 +251,6 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   };
 
   const refreshData = () => {
-    // router.replace(router.asPath);
     socket.on("serverBroadCastNewCollection", (data) => {
       let cols = collections;
       cols.push(data);
