@@ -259,36 +259,12 @@ const ERC721Collection = ({ serverCollections }) => {
     });
   };
 
-  const test = async () => {
-    console.log("uploading from collection .... test");
-    console.log("uploading file is", uploadingFile);
-    const file = new File(uploadingFile, uploadingFile.src);
-    console.log(file);
-    const metadata = {
-      name: "Testing new api v1",
-      description: "This is for testing new data",
-      image:
-        "https://topnftcollectibles.mypinata.cloud/ipfs/QmYurG5d1waZwnTRJEdWz18QpMGqDPxHmdqWFaYhkwyqDe",
-    };
-
-    const result = await saveFileToPinata(file, "asset");
-    if (result) {
-      console.log("result of uploading ", result);
-    }
-    // const result = await pinJSONToIPFS(metadata, "asset");
-    // if (result) {
-    //   console.log("result of uploading ", result);
-    // }
-  };
   useEffect(() => {
-    // test();
-    // refreshData();
-    // isTalentRegistered();
-    // if (isMobile) {
-    //   checkMobileMaskUnlocked();
-    // } else {
-    //   // checkMetamaskUnlocked();
-    // }
+    refreshData();
+    isTalentRegistered();
+    if (isMobile) {
+      checkMobileMaskUnlocked();
+    }
   }, []);
 
   return (
