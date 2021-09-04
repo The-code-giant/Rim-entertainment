@@ -254,9 +254,14 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
       const proxyAddress = web3.utils.toChecksumAddress(RINKEBY_PROXY_ADDRESS);
       const owner = web3.utils.toChecksumAddress(ownerAddress);
       let gasValue;
+      let nonceValue;
       web3.eth.getGasPrice().then((result) => {
         console.log(web3.utils.fromWei(result, "ether"));
         gasValue = web3.utils.fromWei(result, "ether");
+      });
+
+      web3.eth.getTransactionCount(owner).then((nonce) => {
+        nonceValue = nonce;
       });
       const deployResult = await new web3.eth.Contract(collectionArtifact.abi)
         .deploy({
@@ -274,6 +279,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
           from: owner,
           gas: gasValue,
           gasPrice: web3.utils.toWei("2", "gwei"),
+          nonce: nonceValue,
         })
         .on("error", (error) => {
           if (error.code == 4001) {
@@ -412,18 +418,23 @@ export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
     collectionArtifact.abi,
     contractAddress
   );
+  const owner = web3.utils.toChecksumAddress(ownerAddress);
   let gasValue;
+  let nonceValue;
   web3.eth.getGasPrice().then((result) => {
     console.log(web3.utils.fromWei(result, "ether"));
     gasValue = web3.utils.fromWei(result, "ether");
   });
-  const owner = web3.utils.toChecksumAddress(ownerAddress);
+  web3.eth.getTransactionCount(owner).then((nonce) => {
+    nonceValue = nonce;
+  });
   const nftResult = await nftContract.methods
     .mintTo(owner, metadataUri)
     .send({
       from: owner,
       gas: gasValue,
       gasPrice: web3.utils.toWei("2", "gwei"),
+      nonce: nonceValue,
     })
     .once("transactionHash", function (hash) {
       console.log("here is transaction nft hash ", hash);
