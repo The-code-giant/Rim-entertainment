@@ -110,21 +110,19 @@ const ConnectWalletModal = ({ displayModal }) => {
             <span className={styles.linkSpan}>{"Go Home"}</span>
           </Link>
         </div>
-        {!isMobile && (
-          <div className={styles.walletCard} onClick={onDesktopConnect}>
-            <img
-              className={styles.walletIcon}
-              width={100}
-              height={100}
-              src={"/images/walletIcons/metamask.svg"}
-            />
-            <div className={styles.metamaskButton}>
-              {"Connect with metamask"}
-            </div>
-          </div>
-        )}
+        {/* {!isMobile && ( */}
+        <div className={styles.walletCard} onClick={onDesktopConnect}>
+          <img
+            className={styles.walletIcon}
+            width={100}
+            height={100}
+            src={"/images/walletIcons/metamask.svg"}
+          />
+          <div className={styles.metamaskButton}>{"Connect with metamask"}</div>
+        </div>
+        {/* )} */}
 
-        {isMobile && (
+        {/* {isMobile && (
           <div className={styles.walletCard} onClick={onMobileConnect}>
             <div>
               <img
@@ -148,7 +146,7 @@ const ConnectWalletModal = ({ displayModal }) => {
             </div>
             <div className={styles.walletDetails}>WalletConnect</div>
           </div>
-        )}
+        )} */}
       </div>
     </Modal>
   );
