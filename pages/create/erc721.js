@@ -28,6 +28,7 @@ import { isMobileDevice } from "Constants/constants";
 import Onboard from "bnc-onboard";
 import { getCurrentAccount } from "Utils/utils";
 import { useRouter } from "next/router";
+import CustomNotification from "@/components/commons/customNotification";
 
 const initNft = {
   tokenId: null,
@@ -69,6 +70,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   const [displayModalButtons, setDisplayModalButtons] = useState();
   const [displayUnlockModal, setDisplayUnlockModal] = useState(false);
   const [displayRegisterModal, setDisplayRegisterModal] = useState();
+  const [uploadErrorMessage, setUploadErrorMessage] = useState("");
   const [form] = Form.useForm();
   const router = useRouter();
 
@@ -139,25 +141,28 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
 
   const onFinish = (values) => {
     let validationResult = validateImage(nftImageFile, 10);
-    console.log("on finish", validationResult);
     if (validationResult.status == true && !duplicateNameError.isDuplicate) {
       setDisplayUploadModal(true);
-      console.log("validation of nfig image is file is ready");
       (async function () {
         const nftData = createNftData(values);
         console.log("nft deat ais ", nftData);
         const ownerAccount = await getCurrentAccount();
         const result = await uploadNft(nftImageFile, nftData, ownerAccount[0]);
-        if (result?.rejected) {
-          console.log(result);
+
+        if (result.data) {
+          setUploadErrorMessage("");
+          setNftContract(result.data.tokenAddress);
+          setNftTokenId(result.data.tokenId);
+          setDisplayUploadModal(true);
+          setDisplayModalButtons(true);
+        } else if (result.success == false && result.rejected == true) {
+          setUploadErrorMessage("");
           setDisplayUploadModal(false);
-        } else {
-          if (result?.data) {
-            setNftContract(result.data.tokenAddress);
-            setNftTokenId(result.data.tokenId);
-            setDisplayUploadModal(true);
-            setDisplayModalButtons(true);
-          }
+          CustomNotification("warning", "Metamask", result.message);
+        } else if (result?.success == false) {
+          setUploadErrorMessage("");
+          setDisplayUploadModal(true);
+          setDisplayModalButtons(false);
         }
       })();
     }
@@ -176,7 +181,6 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   const checkMetamaskUnlocked = async () => {
     const { ethereum } = window;
     if (ethereum && ethereum.isMetaMask) {
-      console.log("is metamask connected ", isMetaconnected);
       if (!isMetaconnected) {
         setDisplayUnlockModal(true);
       }
@@ -247,7 +251,6 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   };
 
   const refreshData = () => {
-    // router.replace(router.asPath);
     socket.on("serverBroadCastNewCollection", (data) => {
       let cols = collections;
       cols.push(data);
@@ -255,7 +258,6 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
       getOwnerCollections();
     });
     socket.on("serverBroadCastNewERC721", (data) => {
-      console.log("new newERC721 Created", data);
       const oldNfts = nfts;
       oldNfts.push(data);
       setNfts(oldNfts);
@@ -320,6 +322,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
                 </Link>
               </div>
             )}
+            <div>{/* <span>{uploadErrorMessage}</span> */}</div>
           </div>
         </Modal>
       </div>

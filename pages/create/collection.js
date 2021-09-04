@@ -8,10 +8,13 @@ import Onboard from "bnc-onboard";
 import Web3 from "web3";
 import { socket } from "config/websocket";
 import bluebird from "bluebird";
+import uploadingFile from "/public/images/1.png";
 import {
   checkFileType,
   checkForDuplicate,
   deployCollection,
+  pinJSONToIPFS,
+  saveFileToPinata,
 } from "Utils/mintApi";
 import { allowedImageTypes } from "Constants/constants";
 import {
@@ -68,9 +71,8 @@ const ERC721Collection = ({ serverCollections }) => {
     event.preventDefault();
     const targetInput = event.target.name;
     var imageFile = event.target.files[0];
-    const typeResult = checkFileType(imageFile);
-    console.log("file type is ", typeResult.isTypeValid);
     if (imageFile) {
+      const typeResult = checkFileType(imageFile);
       if (targetInput == "logoImageFile") {
         const logoType = checkFileType(imageFile);
         if (logoType.mediaType != "image") {
@@ -155,12 +157,11 @@ const ERC721Collection = ({ serverCollections }) => {
             collectionData,
             ownerAccount
           );
-          console.log("result of rejection is ", result);
-          if (!result?.rejected && result?.data) {
+          if (result.data) {
             const slug = result.data.slug;
             setNewCollectionSlug(slug);
             setDisplayModalButtons(true);
-          } else if (result?.rejected) {
+          } else if (result?.rejected == true) {
             setDisplayUploadModal(false);
             setDisplayModalButtons(false);
           } else {
@@ -172,7 +173,6 @@ const ERC721Collection = ({ serverCollections }) => {
   };
 
   const onFinishFailed = (errorInfo) => {
-    console.log(" on failed ", errorInfo.values);
     if (!logoImageFile) {
       setLogoError("Logo Image is Required");
     }
@@ -263,8 +263,6 @@ const ERC721Collection = ({ serverCollections }) => {
     isTalentRegistered();
     if (isMobile) {
       checkMobileMaskUnlocked();
-    } else {
-      // checkMetamaskUnlocked();
     }
   }, []);
 
