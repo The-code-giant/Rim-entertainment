@@ -261,8 +261,9 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
       });
 
       web3.eth.getTransactionCount(owner).then((nonce) => {
-        nonceValue = nonce;
+        nonceValue = "0x" + (nonce + 1).toString(16);
       });
+      console.log("nonce value is ", nonce);
       const deployResult = await new web3.eth.Contract(collectionArtifact.abi)
         .deploy({
           name: metadata.name,
@@ -426,8 +427,10 @@ export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
     gasValue = web3.utils.fromWei(result, "ether");
   });
   web3.eth.getTransactionCount(owner).then((nonce) => {
-    nonceValue = nonce;
+    nonceValue = "0x" + (nonce + 1).toString(16);
   });
+
+  console.log("nonce value is ", nonceValue);
   const nftResult = await nftContract.methods
     .mintTo(owner, metadataUri)
     .send({
