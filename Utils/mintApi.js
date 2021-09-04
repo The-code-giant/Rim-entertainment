@@ -233,11 +233,8 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
   const bannerFileResult = await pinFileToPinata(banner);
 
   if (logoFileResult.success && bannerFileResult.success) {
-    console.log("banner and logo are uploaded");
     const logoIpfsUrl = logoFileResult.pinataUrl;
     const bannerIpfsUrl = bannerFileResult.pinataUrl;
-    console.log("banner and logo are uploaded", logoIpfsUrl);
-    console.log("banner and logo are uploaded", bannerIpfsUrl);
     const metadata = {
       name: values.collectionName,
       description: values.description,
@@ -253,16 +250,6 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
       const collectionUri = collectionMetadataResult.pinataUrl;
       const proxyAddress = web3.utils.toChecksumAddress(RINKEBY_PROXY_ADDRESS);
       const owner = web3.utils.toChecksumAddress(ownerAddress);
-      let gasValue;
-      let nonceValue;
-      web3.eth.getGasPrice().then((result) => {
-        console.log(web3.utils.fromWei(result, "ether"));
-        gasValue = web3.utils.fromWei(result, "ether");
-      });
-
-      web3.eth.getTransactionCount(owner).then((nonce) => {
-        nonceValue = nonce;
-      });
       const deployResult = await new web3.eth.Contract(collectionArtifact.abi)
         .deploy({
           name: metadata.name,
@@ -275,11 +262,8 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
           ],
         })
         .send({
-          // type: "0x2",
+          type: "0x2",
           from: owner,
-          gas: gasValue,
-          gasPrice: web3.utils.toWei("2", "gwei"),
-          nonce: nonceValue,
         })
         .on("error", (error) => {
           if (error.code == 4001) {
@@ -316,7 +300,6 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
           message: "Make Sure Your Metamask wallet is connected",
         };
       } else {
-        console.log("collection is uploaded to blockchain");
         collectionData.contractAddress = deployResult._address;
         collectionData.talentAddress = ownerAddress;
         collectionData.talent = values.talent;
@@ -419,23 +402,9 @@ export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
     contractAddress
   );
   const owner = web3.utils.toChecksumAddress(ownerAddress);
-  let gasValue;
-  let nonceValue;
-  web3.eth.getGasPrice().then((result) => {
-    console.log(web3.utils.fromWei(result, "ether"));
-    gasValue = web3.utils.fromWei(result, "ether");
-  });
-  web3.eth.getTransactionCount(owner).then((nonce) => {
-    nonceValue = nonce;
-  });
   const nftResult = await nftContract.methods
     .mintTo(owner, metadataUri)
-    .send({
-      from: owner,
-      gas: gasValue,
-      gasPrice: web3.utils.toWei("2", "gwei"),
-      nonce: nonceValue,
-    })
+    .send({ from: owner, type: "0x2" })
     .once("transactionHash", function (hash) {
       console.log("here is transaction nft hash ", hash);
     })
