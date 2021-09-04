@@ -231,7 +231,11 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
   let collectionData = new Object();
   const logoFileResult = await pinFileToPinata(logo);
   const bannerFileResult = await pinFileToPinata(banner);
-
+  const owner = web3.utils.toChecksumAddress(ownerAddress);
+  let nonceValue;
+  await web3.eth.getTransactionCount(owner).then((nonce) => {
+    nonceValue = nonce;
+  });
   if (logoFileResult.success && bannerFileResult.success) {
     const logoIpfsUrl = logoFileResult.pinataUrl;
     const bannerIpfsUrl = bannerFileResult.pinataUrl;
@@ -249,7 +253,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
     if (collectionMetadataResult.success == true) {
       const collectionUri = collectionMetadataResult.pinataUrl;
       const proxyAddress = web3.utils.toChecksumAddress(RINKEBY_PROXY_ADDRESS);
-      const owner = web3.utils.toChecksumAddress(ownerAddress);
+
       const deployResult = await new web3.eth.Contract(collectionArtifact.abi)
         .deploy({
           name: metadata.name,
@@ -264,6 +268,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
         .send({
           type: "0x2",
           from: owner,
+          nonce: nonceValue,
         })
         .on("error", (error) => {
           if (error.code == 4001) {
@@ -402,9 +407,13 @@ export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
     contractAddress
   );
   const owner = web3.utils.toChecksumAddress(ownerAddress);
+  let nonceValue;
+  await web3.eth.getTransactionCount(owner).then((nonce) => {
+    nonceValue = nonce;
+  });
   const nftResult = await nftContract.methods
     .mintTo(owner, metadataUri)
-    .send({ from: owner, type: "0x2" })
+    .send({ from: owner, type: "0x2", nonce: nonceValue })
     .once("transactionHash", function (hash) {
       console.log("here is transaction nft hash ", hash);
     })
