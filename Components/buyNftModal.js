@@ -7,6 +7,7 @@ import { getAccountTokens, getWalletConnected, getMetaConnected } from "store/ac
 import Link from "next/link"
 import styled from "styled-components"
 import { getAuctionPriceDetails } from "/Constants/constants";
+import ConnectWalletModal from "./commons/connectWalletModal"
 const ConnectButton = styled.button`
 margin: auto;
 width: 200px;
@@ -124,7 +125,8 @@ function BuyNftModal({asset, isBundle, order, loadAgain})
             footer={false}>
               {step ? showInfo(asset) : buy()}
         </Modal>
-         <Modal title={<strong>{"You are not connect to any wallet!"}</strong>} footer={false} visible={notConnected} onCancel={handleCancel}>
+       {/* <ConnectWalletModal displayModal={notConnected} /> */}
+       <Modal title={<strong>{"You are not connect to any wallet!"}</strong>} footer={false} visible={notConnected} onCancel={handleCancel}>
            <ModalContainer>
              <ModalTextContainer>{"You need to connect your Ethereum wallet to sign messages and send transactions to Ethereum blockchain"}</ModalTextContainer>
            <Link style={{textAlign: "center"}} href="/wallet" passHref><a><ConnectButton color={"white"} background={"#0066ff"} marginBottom={"15px"} > Connect Wallet </ConnectButton></a></Link>
@@ -144,9 +146,8 @@ function showInfo(asset)
     setStep(false)
   }
   return <> <List
-                    itemLayout="horizontal"
-                    dataSource={data}
-                >
+              itemLayout="horizontal"
+              dataSource={data}>
                   <List.Item.Meta
                         avatar={<Avatar shape={'square'} src={asset.thumbnail} size={64}/>}
                         title={<strong>{asset.name}</strong>}
