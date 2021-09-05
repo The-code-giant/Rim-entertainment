@@ -155,14 +155,16 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
           setNftTokenId(result.data.tokenId);
           setDisplayUploadModal(true);
           setDisplayModalButtons(true);
-        } else if (result.success == false && result.rejected == true) {
-          setUploadErrorMessage("");
-          setDisplayUploadModal(false);
-          CustomNotification("warning", "Metamask", result.message);
-        } else if (result?.success == false) {
-          setUploadErrorMessage("");
-          setDisplayUploadModal(true);
-          setDisplayModalButtons(false);
+        } else {
+          if (result.rejected) {
+            setUploadErrorMessage("");
+            setDisplayUploadModal(false);
+            CustomNotification("warning", "Metamask", result.message);
+          } else {
+            setUploadErrorMessage("");
+            setDisplayUploadModal(true);
+            setDisplayModalButtons(false);
+          }
         }
       })();
     }
