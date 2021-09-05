@@ -26,6 +26,7 @@ import {
 import { useSelector } from "react-redux";
 import { useOnboard } from "use-onboard";
 import { getCurrentAccount } from "Utils/utils";
+import CustomNotification from "@/components/commons/customNotification";
 
 const ERC721Collection = ({ serverCollections }) => {
   const logoImageInputRef = useRef(null);
@@ -157,15 +158,19 @@ const ERC721Collection = ({ serverCollections }) => {
             collectionData,
             ownerAccount
           );
-          if (result.data) {
+          if (result.success) {
             const slug = result.data.slug;
             setNewCollectionSlug(slug);
             setDisplayModalButtons(true);
-          } else if (result?.rejected == true) {
-            setDisplayUploadModal(false);
-            setDisplayModalButtons(false);
           } else {
-            setDisplayUnlockModal(true);
+            if (result.rejected == true) {
+              setDisplayUploadModal(false);
+              setDisplayModalButtons(false);
+            }
+            CustomNotification("warn", "Metamask", result.message);
+            // else {
+            //   setDisplayUnlockModal(true);
+            // }
           }
         }
       })();
