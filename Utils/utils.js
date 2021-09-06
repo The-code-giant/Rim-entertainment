@@ -59,6 +59,7 @@ export async function makeOffer(
       accountAddress,
       startAmount: offerData.price.amount,
       expirationTime: parseInt(expirationTime),
+      referrerAddress
     });
   } else {
     return await seaport().createBuyOrder({
@@ -77,7 +78,7 @@ export async function buyOrder(asset, isBundle, order, accountAddress) {
   try {
     if (isBundle) {
       const transactionHash = await seaport()
-        .fulfillOrder({ order, accountAddress })
+        .fulfillOrder({ order, accountAddress, referrerAddress})
         .catch(() => {
           return "Error on buying the bundle";
         });
@@ -93,7 +94,7 @@ export async function buyOrder(asset, isBundle, order, accountAddress) {
           return "Error getting order";
         });
       const transactionHash = await seaport()
-        .fulfillOrder({ order, accountAddress })
+        .fulfillOrder({ order, accountAddress, referrerAddress})
         .catch(() => {
           return "Error on buying the token";
         });
@@ -106,7 +107,7 @@ export async function buyOrder(asset, isBundle, order, accountAddress) {
 export async function acceptThisOffer(order, address) {
   try {
     const accountAddress = address; // The owner's wallet address, also the taker
-    return await seaport().fulfillOrder({ order, accountAddress });
+    return await seaport().fulfillOrder({ order, accountAddress});
   } catch (e) {
     return e;
   }
@@ -169,6 +170,11 @@ export async function sellOrder(
   orderValue,
   fixed
 ) {
+  let bounty = 0.00;
+  if(orderValue.bounty.bounty !== undefined)
+  {
+    bounty = orderValue.bounty.bounty;
+  }
   try {
     if (fixed) {
       if (orderValue.switch.includeEnd) {
@@ -185,6 +191,7 @@ export async function sellOrder(
           startAmount: orderValue.price.amount,
           endAmount: orderValue.price.endPrice,
           expirationTime,
+          extraBountyBasisPoints: bounty * 100
         });
 
         return result;
@@ -199,6 +206,7 @@ export async function sellOrder(
           accountAddress: address,
           startAmount: orderValue.price.amount,
           listingTime: listingTime,
+          extraBountyBasisPoints: bounty * 100
         });
 
         return result;
@@ -210,6 +218,7 @@ export async function sellOrder(
           },
           accountAddress: address,
           startAmount: orderValue.price.amount,
+          extraBountyBasisPoints: bounty * 100
         });
 
         return result;
@@ -232,6 +241,7 @@ export async function sellOrder(
         expirationTime,
         paymentTokenAddress,
         waitForHighestBid: true,
+        extraBountyBasisPoints: bounty * 100
       });
 
       return result;

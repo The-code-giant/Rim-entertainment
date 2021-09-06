@@ -2,13 +2,14 @@ import React, {useState, useEffect} from "react"
 import {Modal, Form, Input, List, Select, Checkbox, Avatar, message, DatePicker, TimePicker, Button} from "antd"
 import {FooterButton, AvatarContainer} from "./StyledComponents/productDetails-styledComponents";
 import {makeOffer, checkName} from "Utils/utils";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getAccountTokens, getWalletConnected, getMetaConnected } from "store/action/accountSlice";
 import { getAuctionPriceDetails } from "/Constants/constants";
 const { Option } = Select;
 import Link from "next/link"
-import moment from "moment";
 import styled from "styled-components";
+import ConnectWalletModal from "./commons/connectWalletModal"
+
 const SubmitButton = styled(Button)`
 margin: auto;
 width: 200px;
@@ -123,6 +124,7 @@ const [balance, setBalance] = useState(null)
             footer={false}>
                 {step ? offer() : showInfo(asset)}
         </Modal>
+       {/* <ConnectWalletModal displayModal={notConnected} /> */}
          <Modal title={<strong>{"You are not connect to any wallet!"}</strong>} footer={false} visible={notConnected} onCancel={handleCancel}>
            <ModalContainer>
              <ModalTextContainer>{"You need to connect your Ethereum wallet to sign messages and send transactions to Ethereum blockchain"}</ModalTextContainer>

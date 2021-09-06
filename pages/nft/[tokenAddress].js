@@ -77,9 +77,11 @@ import {
   getMetaConnected,
 } from "store/action/accountSlice";
 import { useRouter } from "next/router";
-
+import * as Web3 from "web3";
 const { Countdown } = Statistic;
 function ProductPage() {
+  const { ethereum } = window;
+let web3 = new Web3(ethereum);
   const router = useRouter();
   const queryParam = useQueryParam();
   const [asset, setAsset] = useState({});
@@ -122,7 +124,8 @@ function ProductPage() {
         setOrder(bundle.data);
         const nft = bundle.data;
         setAssets(nft.assetBundle.assets);
-        const owner = nft?.assetBundle?.maker;
+        let owner =  nft?.assetBundle?.maker;
+        owner.makerAccount.address = web3.utils.toChecksumAddress(owner.makerAccount.address)
         let imgUrl = [nft.assetBundle.assets];
         nft.assetBundle.assets.map((asset, index) => {
           imgUrl[index] = {
@@ -171,7 +174,7 @@ function ProductPage() {
 
       if (data.status == 200) {
         const nft = data.data;
-        console.log(nft);
+        nft.owner.address = web3.utils.toChecksumAddress(nft.owner.address)
         setAsset({
           name: nft.name,
           description: nft.description,
