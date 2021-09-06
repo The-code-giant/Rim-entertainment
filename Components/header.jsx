@@ -386,7 +386,7 @@ function Header(props) {
               />
             }
             placement="bottomRight"
-            trigger={["hover"]}
+            trigger={["click"]}
           >
             <ConnectedButton className={`d-lg-block`}>
               {walletBalance !== null && isWalletConnected == true ? (
