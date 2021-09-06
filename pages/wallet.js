@@ -15,43 +15,22 @@ import {
 } from "/store/action/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { useOnboard } from "use-onboard";
 
 import Onboard from "bnc-onboard";
 import { getCurrentAccount, registerTalent } from "Utils/utils";
 import InstallMetamaskModal from "/Components/commons/InstallMetamaskModal";
 import CustomNotification from "/Components/commons/customNotification";
+import { getMetaConnected } from "store/action/accountSlice";
 const Wallet = () => {
   const router = useRouter();
   const dispatchMetaConnected = useDispatch();
   const dispatchMetaToken = useDispatch();
   const dipsatchMetaBalance = useDispatch();
   const metaToken = useSelector(getMetaToken);
-
+  const isMetaconnected = useSelector(getMetaConnected);
   const [displayInstallModal, setDisplayInstallModal] = useState();
-  const { selectWallet, address, isWalletSelected, disconnectWallet, balance } =
-    useOnboard({
-      options: {
-        dappId: process.env.ONBOARD_API_KEY, // optional API key
-        networkId: 4, // Ethereum network ID
-        walletSelect: {
-          wallets: [
-            {
-              walletName: "metamask",
-              rpcUrl:
-                "https://rinkeby.infura.io/v3/c2dde5d7c0a0465a8e994f711a3a3c31",
-            },
-          ],
-        },
-      },
-    });
-
-  const [onboard, setOnboard] = useState(null);
-
-  const [web3, setWeb3] = useState(null);
 
   const onDesktopConnect = async () => {
-    console.log("connecting to metamask");
     const { ethereum } = window;
     if (ethereum) {
       console.log("wallet is connected from walled modal");
@@ -81,25 +60,18 @@ const Wallet = () => {
           ethereum.on("accountsChanged", handleNewAccounts);
         }
       }
+    } else {
+      onMobileConnect();
     }
   };
 
   const onMobileConnect = async () => {
-    if (metaToken != null && metaToken.length > 0) {
-      await dispatchMetaConnected(setMetaConnected(true));
-      router.push("/");
-    } else {
-      await onboard.walletSelect();
-    }
-  };
-
-  const initBoard = async () => {
-    const onboard = Onboard({
+    const onboard = new Onboard({
       dappId: process.env.ONBOARD_API_KEY, // [String] The API key created by step one above
       networkId: 4, // [Integer] The Ethereum network ID your Dapp uses.
       subscriptions: {
         wallet: (wallet) => {
-          setWeb3(new Web3(wallet.provider));
+          console.log("wallet is ", wallet);
         },
         address: (addres) => {
           console.log("adddres is ", address);
@@ -109,14 +81,15 @@ const Wallet = () => {
         wallets: [{ walletName: "metamask" }],
       },
     });
-    setOnboard(onboard);
+    if (!isMetaconnected) {
+      const data = await onboard.walletSelect();
+      if (data) {
+        const walletCheck = await onboard.walletCheck();
+      }
+    }
   };
 
-  useEffect(() => {
-    if (isMobile) {
-      initBoard();
-    }
-  }, []);
+  useEffect(() => {}, []);
 
   const presisMetamask = async (accounts) => {
     let web3 = new Web3(window.ethereum);
@@ -161,10 +134,7 @@ const Wallet = () => {
           </div>
           <div className={styles.wallectContainer}>
             {/* {!isMobile && ( */}
-            <div
-              className={styles.walletCard}
-              onClick={() => onDesktopConnect("injected")}
-            >
+            <div className={styles.walletCard} onClick={onDesktopConnect}>
               <div className={styles.walletCardPopup}>
                 <span>Most Popular</span>
               </div>
@@ -177,7 +147,7 @@ const Wallet = () => {
             </div>
             {/* )} */}
 
-            {isMobile && (
+            {/* {isMobile && (
               <div className={styles.walletCard} onClick={onMobileConnect}>
                 <div className={styles.walletCardPopup}>
                   <span>Mobile Wallets</span>
@@ -204,7 +174,7 @@ const Wallet = () => {
                 </div>
                 <div className={styles.walletDetails}>WalletConnect</div>
               </div>
-            )}
+            )} */}
           </div>
           <div>
             <p className={styles.walletFooter}>

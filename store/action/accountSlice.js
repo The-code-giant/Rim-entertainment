@@ -16,6 +16,7 @@ const accountSlice = createSlice({
     requestMetaOpen: false,
     requestMetaClose: false,
     requestWalletOpen: false,
+    displayWalletModal: false,
   },
   reducers: {
     setAccountTokens: (state, action) => {
@@ -45,6 +46,9 @@ const accountSlice = createSlice({
     setRequestWalletOpen: (state, action) => {
       state.requestEnableWallet = action.payload;
     },
+    setDisplayWalletModal: (state, action) => {
+      state.displayWalletModal = action.payload;
+    },
   },
 });
 
@@ -56,6 +60,7 @@ export const {
   setWalletBalance,
   setMetaConnected,
   setWalletConnected,
+  setDisplayWalletModal,
 } = accountSlice.actions;
 export const getAccountTokens = (state) => {
   return state.account.accountTokens;
@@ -84,5 +89,8 @@ export const getRequestMetaOpen = (state) => {
 };
 export const getRequestWalletOpen = (state) => {
   return state.account.requestWalletOpen;
+};
+export const getDisplayWalletModal = (state) => {
+  return state.account.displayWalletModal;
 };
 export default accountSlice.reducer;

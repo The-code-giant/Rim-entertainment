@@ -4,6 +4,9 @@ import { Input, Button, Form, Spin, Modal } from "antd";
 import { fetch } from "/Utils/strapiApi";
 import Link from "next/link";
 import { socket } from "config/websocket";
+import WalletConnectProvider from "@walletconnect/web3-provider";
+import WalletConnect from "@walletconnect/client";
+import QRCodeModal from "@walletconnect/qrcode-modal";
 
 import {
   checkFileType,
@@ -13,6 +16,7 @@ import {
   saveFileToPinata,
 } from "Utils/mintApi";
 import { allowedImageTypes } from "Constants/constants";
+import { providerOptions } from "Constants/constants";
 import {
   getMetaConnected,
   getMetaToken,
@@ -20,9 +24,10 @@ import {
 } from "store/action/accountSlice";
 
 import { useSelector } from "react-redux";
-import { useOnboard } from "use-onboard";
 import { getCurrentAccount } from "Utils/utils";
 import CustomNotification from "@/components/commons/customNotification";
+import Web3 from "web3";
+import Web3Modal from "web3modal";
 
 const ERC721Collection = ({ serverCollections }) => {
   const logoImageInputRef = useRef(null);
@@ -195,34 +200,6 @@ const ERC721Collection = ({ serverCollections }) => {
     clearForm();
   };
 
-  // const checkMobileMaskUnlocked = async () => {
-  //   const web3 = new Web3(window.ethereum);
-  //   const onboard = Onboard({
-  //     dappId: process.env.ONBOARD_API_KEY, // [String] The API key created by step one above
-  //     networkId: 4, // [Integer] The Ethereum network ID your Dapp uses.
-  //     subscriptions: {
-  //       wallet: (wallet) => {
-  //         console.log("wallet is ", wallet);
-  //       },
-  //       address: (addres) => {
-  //         console.log("adddres is ", address);
-  //       },
-  //     },
-  //     walletSelect: {
-  //       wallets: [{ walletName: "metamask" }],
-  //     },
-  //   });
-  //   setOnboard(onboard);
-  //   if (!isMetaconnected) {
-  //     const data = await onboard.walletSelect();
-  //     if (data) {
-  //       const walletCheck = await onboard.walletCheck();
-  //       console.log("walletselct is ", data);
-  //       console.log("wallet checi is ", walletCheck);
-  //     }
-  //   }
-  // };
-
   const isTalentRegistered = async () => {
     if (metaToken != null && metaToken[0]) {
       const account = await metaToken[0];
@@ -263,9 +240,6 @@ const ERC721Collection = ({ serverCollections }) => {
   useEffect(() => {
     refreshData();
     isTalentRegistered();
-    // if (isMobile && !isMetaconnected) {
-    //   checkMobileMaskUnlocked();
-    // }
   }, []);
 
   return (
