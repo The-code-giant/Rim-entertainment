@@ -237,7 +237,14 @@ const ERC721Collection = ({ serverCollections }) => {
     });
   };
 
+  const test = async () => {
+    let web3 = new Web3(window.ethereum);
+
+    const address = "0xff6539f953eb682d442c70ae0a9e186dd9668ca2";
+    console.log("original address is ", web3.utils.toChecksumAddress(address));
+  };
   useEffect(() => {
+    test();
     refreshData();
     isTalentRegistered();
   }, []);
