@@ -2,8 +2,8 @@ import React, {useState, useEffect} from "react"
 import {Modal, Form, Input, List, Select, Checkbox, Avatar, message, DatePicker, TimePicker, Button} from "antd"
 import {FooterButton, AvatarContainer} from "./StyledComponents/productDetails-styledComponents";
 import {makeOffer, checkName} from "Utils/utils";
-import { useSelector } from "react-redux";
-import { getAccountTokens, getWalletConnected, getMetaConnected } from "store/action/accountSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { getAccountTokens, getWalletConnected, getMetaConnected, setDisplayWalletModal, getDisplayWalletModal } from "store/action/accountSlice";
 import { getAuctionPriceDetails } from "/Constants/constants";
 const { Option } = Select;
 import Link from "next/link"
@@ -58,9 +58,11 @@ const [balance, setBalance] = useState(null)
     const [responseMessage, setResponseMessage] = useState([""])
     const [step, setStep] = useState(false)
     const [makingOffer, setMakingOffer] = useState(false)
+    const dispatch = useDispatch();
+    const isDisplayWalletModal = useSelector(getDisplayWalletModal)
     const showModal = () => {
       (isWalletConnected || isMetaConnected) ?  
-      setIsModalVisible(true) : setNotConnected(true)
+      setIsModalVisible(true) : dispatch(setDisplayWalletModal(true))
     };
     const handleCancel = () => {
       setMakingOffer(false)
@@ -124,14 +126,13 @@ const [balance, setBalance] = useState(null)
             footer={false}>
                 {step ? offer() : showInfo(asset)}
         </Modal>
-       {/* <ConnectWalletModal displayModal={notConnected} /> */}
-         <Modal title={<strong>{"You are not connect to any wallet!"}</strong>} footer={false} visible={notConnected} onCancel={handleCancel}>
+       <ConnectWalletModal displayModal={isDisplayWalletModal} />
+         {/* <Modal title={<strong>{"You are not connect to any wallet!"}</strong>} footer={false} visible={notConnected} onCancel={handleCancel}>
            <ModalContainer>
              <ModalTextContainer>{"You need to connect your Ethereum wallet to sign messages and send transactions to Ethereum blockchain"}</ModalTextContainer>
            <Link style={{textAlign: "center"}} href="/wallet" passHref><a><ConnectButton color={"white"} background={"#0066ff"} marginBottom={"15px"} > Connect Wallet </ConnectButton></a></Link>
-           {/* <ConnectButton color={"black"} background={"white"} > Create Wallet </ConnectButton> */}
            </ModalContainer>
-         </Modal>
+         </Modal> */}
     </>
 
 function showInfo(asset)
