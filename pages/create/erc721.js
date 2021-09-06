@@ -25,7 +25,6 @@ import {
 import { useSelector } from "react-redux";
 import { getMetaConnected, getMetaToken } from "store/action/accountSlice";
 import { isMobileDevice } from "Constants/constants";
-import Onboard from "bnc-onboard";
 import { getCurrentAccount } from "Utils/utils";
 import { useRouter } from "next/router";
 import CustomNotification from "@/components/commons/customNotification";
@@ -63,7 +62,6 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   const [ownerCollections, setOwnerCollections] = useState();
   const isMetaconnected = useSelector(getMetaConnected);
   const metaToken = useSelector(getMetaToken);
-  const [onboard, setOnboard] = useState(null);
   const [nftContract, setNftContract] = useState();
   const [nftTokenId, setNftTokenId] = useState();
   const [displayUploadModal, setDisplayUploadModal] = useState(false);
@@ -199,33 +197,6 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
     }
   };
 
-  const checkMobileMaskUnlocked = async () => {
-    const onboard = Onboard({
-      dappId: process.env.ONBOARD_API_KEY, // [String] The API key created by step one above
-      networkId: 4, // [Integer] The Ethereum network ID your Dapp uses.
-      subscriptions: {
-        wallet: (wallet) => {
-          setWeb3(new Web3(wallet.provider));
-        },
-        address: (addres) => {
-          console.log("adddres is ", address);
-        },
-      },
-      walletSelect: {
-        wallets: [{ walletName: "metamask" }],
-      },
-    });
-    setOnboard(onboard);
-    if (!isMetaconnected) {
-      const data = await onboard.walletSelect();
-      if (data) {
-        const walletCheck = await onboard.walletCheck();
-        console.log("walletselct is ", data);
-        console.log("wallet checi is ", walletCheck);
-      }
-    }
-  };
-
   const isTalentRegistered = async () => {
     if (metaToken != null && metaToken[0]) {
       const account = await metaToken[0];
@@ -270,11 +241,6 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
     refreshData();
     isTalentRegistered();
     getOwnerCollections();
-    if (isMobileDevice()) {
-      checkMobileMaskUnlocked();
-    } else {
-      checkMetamaskUnlocked();
-    }
   }, [isMetaconnected]);
 
   return (

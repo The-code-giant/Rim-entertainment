@@ -34,7 +34,7 @@ const ConnectWalletModal = ({ displayModal }) => {
   const onDesktopConnect = async () => {
     const { ethereum } = window;
 
-    if (ethereum && ethereum.isConnected) {
+    if (ethereum) {
       console.log("wallet is connected from walled modal");
       let web3 = new Web3(ethereum);
       const accounts = await web3.eth.getAccounts();

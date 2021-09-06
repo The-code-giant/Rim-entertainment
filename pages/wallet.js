@@ -15,7 +15,6 @@ import {
 } from "/store/action/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { useOnboard } from "use-onboard";
 
 import Onboard from "bnc-onboard";
 import { getCurrentAccount, registerTalent } from "Utils/utils";
@@ -29,22 +28,6 @@ const Wallet = () => {
   const metaToken = useSelector(getMetaToken);
 
   const [displayInstallModal, setDisplayInstallModal] = useState();
-  const { selectWallet, address, isWalletSelected, disconnectWallet, balance } =
-    useOnboard({
-      options: {
-        dappId: process.env.ONBOARD_API_KEY, // optional API key
-        networkId: 4, // Ethereum network ID
-        walletSelect: {
-          wallets: [
-            {
-              walletName: "metamask",
-              rpcUrl:
-                "https://rinkeby.infura.io/v3/c2dde5d7c0a0465a8e994f711a3a3c31",
-            },
-          ],
-        },
-      },
-    });
 
   const [onboard, setOnboard] = useState(null);
 

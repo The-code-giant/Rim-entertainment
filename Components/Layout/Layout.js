@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import Onboard from "bnc-onboard";
 
 import {
   setMetaToken,
@@ -36,7 +35,6 @@ const Layout = ({ children }) => {
   const [isWrongNet, setIsWrongNet] = useState(false);
   const [network, setNetwork] = useState(null);
   const [displayMematamaskModal, setDisplayMetaMaskModal] = useState(false);
-  const [onboard, setOnboard] = useState(null);
 
   const showHeader = router.pathname.toString().includes("wallet")
     ? false
@@ -98,35 +96,6 @@ const Layout = ({ children }) => {
     }
   };
 
-  const checkMobileMaskUnlocked = async () => {
-    const onboard = Onboard({
-      dappId: process.env.ONBOARD_API_KEY, // [String] The API key created by step one above
-      networkId: 4, // [Integer] The Ethereum network ID your Dapp uses.
-      subscriptions: {
-        wallet: (wallet) => {
-          setWeb3(new Web3(wallet.provider));
-        },
-        address: (addres) => {
-          console.log("adddres is ", address);
-        },
-      },
-      walletSelect: {
-        wallets: [{ walletName: "metamask" }],
-      },
-    });
-    setOnboard(onboard);
-    if (
-      !isMetaconnected &&
-      router.pathname != "/wallet" &&
-      router.pathname != "/"
-    ) {
-      const data = await onboard.walletSelect();
-      if (data) {
-        const walletCheck = await onboard.walletCheck();
-      }
-    }
-  };
-
   const handleOnIdle = (event) => {
     console.log("user is idle", event);
     disconnectUserWallet();
@@ -152,11 +121,6 @@ const Layout = ({ children }) => {
     dispatch(setDisplayWalletModal(displayWalletModal));
 
     subscribeMetamaskProvider();
-    // if (isMobile) {
-    //   // checkMobileMaskUnlocked();
-    // } else {
-    //   checkMetamaskUnlocked();
-    // }
   }, [isMetaconnected, metaToken]);
 
   const displayWalletModal =

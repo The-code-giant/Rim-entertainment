@@ -20,7 +20,6 @@ import {
 } from "store/action/accountSlice";
 
 import { useSelector } from "react-redux";
-import { useOnboard } from "use-onboard";
 import { getCurrentAccount } from "Utils/utils";
 import CustomNotification from "@/components/commons/customNotification";
 
@@ -195,34 +194,6 @@ const ERC721Collection = ({ serverCollections }) => {
     clearForm();
   };
 
-  // const checkMobileMaskUnlocked = async () => {
-  //   const web3 = new Web3(window.ethereum);
-  //   const onboard = Onboard({
-  //     dappId: process.env.ONBOARD_API_KEY, // [String] The API key created by step one above
-  //     networkId: 4, // [Integer] The Ethereum network ID your Dapp uses.
-  //     subscriptions: {
-  //       wallet: (wallet) => {
-  //         console.log("wallet is ", wallet);
-  //       },
-  //       address: (addres) => {
-  //         console.log("adddres is ", address);
-  //       },
-  //     },
-  //     walletSelect: {
-  //       wallets: [{ walletName: "metamask" }],
-  //     },
-  //   });
-  //   setOnboard(onboard);
-  //   if (!isMetaconnected) {
-  //     const data = await onboard.walletSelect();
-  //     if (data) {
-  //       const walletCheck = await onboard.walletCheck();
-  //       console.log("walletselct is ", data);
-  //       console.log("wallet checi is ", walletCheck);
-  //     }
-  //   }
-  // };
-
   const isTalentRegistered = async () => {
     if (metaToken != null && metaToken[0]) {
       const account = await metaToken[0];
@@ -263,9 +234,6 @@ const ERC721Collection = ({ serverCollections }) => {
   useEffect(() => {
     refreshData();
     isTalentRegistered();
-    // if (isMobile && !isMetaconnected) {
-    //   checkMobileMaskUnlocked();
-    // }
   }, []);
 
   return (
