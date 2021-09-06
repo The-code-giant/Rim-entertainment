@@ -70,6 +70,7 @@ const ConnectWalletModal = ({ displayModal }) => {
   const presisMetamask = async (accounts) => {
     let web3 = new Web3(window.ethereum);
     await dispatchMetaConnected(setMetaConnected(true));
+    await dispatch(setDisplayWalletModal(false));
     accounts = accounts.map((account) => web3.utils.toChecksumAddress(account));
 
     await registerTalent(accounts[0]);
@@ -123,7 +124,7 @@ const ConnectWalletModal = ({ displayModal }) => {
   return (
     <Modal
       title="Please Connect your wallet"
-      visible={displayWalletModal}
+      visible={true}
       header={null}
       footer={null}
       closable={false}

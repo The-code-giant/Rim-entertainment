@@ -38,7 +38,7 @@ const Layout = ({ children }) => {
   const [isWrongNet, setIsWrongNet] = useState(false);
   const [network, setNetwork] = useState(null);
   const [displayMematamaskModal, setDisplayMetaMaskModal] = useState(false);
-  const displayModal = useSelector(getDisplayWalletModal);
+  const displayWalletModal = useSelector(getDisplayWalletModal);
 
   const showHeader = router.pathname.toString().includes("wallet")
     ? false
@@ -118,11 +118,12 @@ const Layout = ({ children }) => {
 
   useEffect(() => {
     const displayWalletModal1 =
-      router.pathname != "/wallet" &&
-      (router.pathname.includes("create") ||
-        (router.pathname.includes("sell") && !isMetaconnected));
+      (router.pathname != "/wallet" &&
+        router.pathname.includes("create") &&
+        !isMetaconnected) ||
+      (router.pathname.includes("sell") && !isMetaconnected);
 
-    dispatch(setDisplayWalletModal(displayWalletModal1));
+    // dispatch(setDisplayWalletModal(displayWalletModal1));
 
     subscribeMetamaskProvider();
   }, [isMetaconnected, metaToken]);
@@ -145,7 +146,10 @@ const Layout = ({ children }) => {
 
       <Footer />
 
-      <ConnectWalletModal displayModal={displayModal} />
+      {((router.pathname.includes("create") && !isMetaconnected) ||
+        (router.pathname.includes("sell") && !isMetaconnected)) && (
+        <ConnectWalletModal displayModal={true} />
+      )}
     </>
   );
   async function detectNetwork() {
