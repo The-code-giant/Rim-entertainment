@@ -3,12 +3,8 @@ import styles from "/styles/erc721.module.css";
 import { Input, Button, Form, Spin, Modal } from "antd";
 import { fetch } from "/Utils/strapiApi";
 import Link from "next/link";
-import { isMobile } from "react-device-detect";
-import Onboard from "bnc-onboard";
-import Web3 from "web3";
 import { socket } from "config/websocket";
-import bluebird from "bluebird";
-import uploadingFile from "/public/images/1.png";
+
 import {
   checkFileType,
   checkForDuplicate,
@@ -53,11 +49,11 @@ const ERC721Collection = ({ serverCollections }) => {
   const metaToken = useSelector(getMetaToken);
   const [onboard, setOnboard] = useState(null);
   const [collections, setCollections] = useState(serverCollections);
-  const { selectWallet, address, isWalletSelected, disconnectWallet, balance } =
-    useOnboard({
-      dappId: "2978c0ac-ae01-46c3-8054-9fc9ec2bfc2d", // optional API key
-      networkId: 4, // Ethereum network ID
-    });
+  // const { selectWallet, address, isWalletSelected, disconnectWallet, balance } =
+  //   useOnboard({
+  //     dappId: "2978c0ac-ae01-46c3-8054-9fc9ec2bfc2d", // optional API key
+  //     networkId: 4, // Ethereum network ID
+  //   });
 
   const openLogoFileChooser = (event) => {
     event.preventDefault();
@@ -199,32 +195,33 @@ const ERC721Collection = ({ serverCollections }) => {
     clearForm();
   };
 
-  const checkMobileMaskUnlocked = async () => {
-    const onboard = Onboard({
-      dappId: process.env.ONBOARD_API_KEY, // [String] The API key created by step one above
-      networkId: 4, // [Integer] The Ethereum network ID your Dapp uses.
-      subscriptions: {
-        wallet: (wallet) => {
-          setWeb3(new Web3(wallet.provider));
-        },
-        address: (addres) => {
-          console.log("adddres is ", address);
-        },
-      },
-      walletSelect: {
-        wallets: [{ walletName: "metamask" }],
-      },
-    });
-    setOnboard(onboard);
-    if (!isMetaconnected) {
-      const data = await onboard.walletSelect();
-      if (data) {
-        const walletCheck = await onboard.walletCheck();
-        console.log("walletselct is ", data);
-        console.log("wallet checi is ", walletCheck);
-      }
-    }
-  };
+  // const checkMobileMaskUnlocked = async () => {
+  //   const web3 = new Web3(window.ethereum);
+  //   const onboard = Onboard({
+  //     dappId: process.env.ONBOARD_API_KEY, // [String] The API key created by step one above
+  //     networkId: 4, // [Integer] The Ethereum network ID your Dapp uses.
+  //     subscriptions: {
+  //       wallet: (wallet) => {
+  //         console.log("wallet is ", wallet);
+  //       },
+  //       address: (addres) => {
+  //         console.log("adddres is ", address);
+  //       },
+  //     },
+  //     walletSelect: {
+  //       wallets: [{ walletName: "metamask" }],
+  //     },
+  //   });
+  //   setOnboard(onboard);
+  //   if (!isMetaconnected) {
+  //     const data = await onboard.walletSelect();
+  //     if (data) {
+  //       const walletCheck = await onboard.walletCheck();
+  //       console.log("walletselct is ", data);
+  //       console.log("wallet checi is ", walletCheck);
+  //     }
+  //   }
+  // };
 
   const isTalentRegistered = async () => {
     if (metaToken != null && metaToken[0]) {
@@ -266,9 +263,9 @@ const ERC721Collection = ({ serverCollections }) => {
   useEffect(() => {
     refreshData();
     isTalentRegistered();
-    if (isMobile) {
-      checkMobileMaskUnlocked();
-    }
+    // if (isMobile && !isMetaconnected) {
+    //   checkMobileMaskUnlocked();
+    // }
   }, []);
 
   return (

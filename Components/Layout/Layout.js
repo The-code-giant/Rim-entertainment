@@ -6,6 +6,7 @@ import detectEthereumProvider from "@metamask/detect-provider";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import Onboard from "bnc-onboard";
+import { isMobile } from "react-device-detect";
 
 import {
   setMetaToken,
@@ -143,11 +144,11 @@ const Layout = ({ children }) => {
 
   useEffect(() => {
     subscribeMetamaskProvider();
-    if (isMobileDevice()) {
-      checkMobileMaskUnlocked();
-    } else {
-      checkMetamaskUnlocked();
-    }
+    // if (isMobile) {
+    //   // checkMobileMaskUnlocked();
+    // } else {
+    //   checkMetamaskUnlocked();
+    // }
   }, [isMetaconnected, metaToken]);
 
   return (
@@ -170,8 +171,7 @@ const Layout = ({ children }) => {
 
       {router.pathname != "/wallet" &&
         router.pathname.includes("create") &&
-        !isMetaconnected &&
-        !isMobileDevice() && <ConnectWalletModal displayModal={true} />}
+        !isMetaconnected && <ConnectWalletModal displayModal={true} />}
     </>
   );
   async function detectNetwork() {
