@@ -62,7 +62,7 @@ const [balance, setBalance] = useState(null)
     const isDisplayWalletModal = useSelector(getDisplayWalletModal)
     const showModal = () => {
       (isWalletConnected || isMetaConnected) ?  
-      setIsModalVisible(true) : dispatch(setDisplayWalletModal(true))
+      setIsModalVisible(true) : setNotConnected(true)
     };
     const handleCancel = () => {
       setMakingOffer(false)
@@ -126,13 +126,13 @@ const [balance, setBalance] = useState(null)
             footer={false}>
                 {step ? offer() : showInfo(asset)}
         </Modal>
-       <ConnectWalletModal displayModal={isDisplayWalletModal} />
-         {/* <Modal title={<strong>{"You are not connect to any wallet!"}</strong>} footer={false} visible={notConnected} onCancel={handleCancel}>
+       {/* <ConnectWalletModal displayModal={isDisplayWalletModal} /> */}
+         <Modal title={<strong>{"You are not connect to any wallet!"}</strong>} footer={false} visible={notConnected} onCancel={handleCancel}>
            <ModalContainer>
              <ModalTextContainer>{"You need to connect your Ethereum wallet to sign messages and send transactions to Ethereum blockchain"}</ModalTextContainer>
            <Link style={{textAlign: "center"}} href="/wallet" passHref><a><ConnectButton color={"white"} background={"#0066ff"} marginBottom={"15px"} > Connect Wallet </ConnectButton></a></Link>
            </ModalContainer>
-         </Modal> */}
+         </Modal>
     </>
 
 function showInfo(asset)
