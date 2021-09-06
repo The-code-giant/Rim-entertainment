@@ -385,8 +385,9 @@ function Header(props) {
                 }
               />
             }
+            overlayStyle={{ boxShadow: "0px 1px 2px grey"}}
             placement="bottomRight"
-            trigger={["hover"]}
+            trigger={["click"]}
           >
             <ConnectedButton className={`d-lg-block`}>
               {walletBalance !== null && isWalletConnected == true ? (
