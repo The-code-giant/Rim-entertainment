@@ -17,7 +17,7 @@ const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
 // const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
 const referrerAddress = process.env.REF_ADDRESS;
-
+const NETWORK_NAME = process.env.NETWORK_NAME
 export const seaportProvider = new Web3.providers.HttpProvider(
   "https://rinkeby.infura.io/v3/c2dde5d7c0a0465a8e994f711a3a3c31"
   // 'https://rinkeby-api.opensea.io/api/v1/'
@@ -25,7 +25,7 @@ export const seaportProvider = new Web3.providers.HttpProvider(
 export function seaport() {
   const provider = window.ethereum;
   const seaport = new OpenSeaPort(provider, {
-    networkName: Network.Rinkeby,
+    networkName: NETWORK_NAME,
     // apiKey: "c2dde5d7c0a0465a8e994f711a3a3c31",
   });
   return seaport;
