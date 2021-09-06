@@ -6,7 +6,6 @@ import detectEthereumProvider from "@metamask/detect-provider";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import Onboard from "bnc-onboard";
-import { isMobile } from "react-device-detect";
 
 import {
   setMetaToken,
@@ -22,10 +21,12 @@ import { isMobileDevice } from "Constants/constants";
 import { useIdleTimer } from "react-idle-timer";
 import ConnectWalletModal from "../commons/connectWalletModal";
 import { registerTalent } from "Utils/utils";
+import { setDisplayWalletModal } from "store/action/accountSlice";
 
 const Layout = ({ children }) => {
   const router = useRouter();
 
+  const dispatch = useDispatch();
   const dispatchMetaToken = useDispatch();
   const dispatchMetaConnected = useDispatch();
   const dipsatchMetaBalance = useDispatch();
@@ -143,6 +144,13 @@ const Layout = ({ children }) => {
   });
 
   useEffect(() => {
+    const displayWalletModal =
+      router.pathname != "/wallet" &&
+      (router.pathname.includes("create") ||
+        router.pathname.includes("sell")) &&
+      !isMetaconnected;
+    dispatch(setDisplayWalletModal(displayWalletModal));
+
     subscribeMetamaskProvider();
     // if (isMobile) {
     //   // checkMobileMaskUnlocked();
@@ -150,6 +158,11 @@ const Layout = ({ children }) => {
     //   checkMetamaskUnlocked();
     // }
   }, [isMetaconnected, metaToken]);
+
+  const displayWalletModal =
+    router.pathname != "/wallet" &&
+    (router.pathname.includes("create") || router.pathname.includes("sell")) &&
+    !isMetaconnected;
 
   return (
     <>
@@ -169,9 +182,7 @@ const Layout = ({ children }) => {
 
       <Footer />
 
-      {router.pathname != "/wallet" &&
-        router.pathname.includes("create") &&
-        !isMetaconnected && <ConnectWalletModal displayModal={true} />}
+      <ConnectWalletModal displayModal={displayWalletModal} />
     </>
   );
   async function detectNetwork() {
