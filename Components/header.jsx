@@ -385,6 +385,7 @@ function Header(props) {
                 }
               />
             }
+            overlayStyle={{ boxShadow: "0px 1px 2px grey"}}
             placement="bottomRight"
             trigger={["click"]}
           >
