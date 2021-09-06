@@ -4,6 +4,9 @@ import { Input, Button, Form, Spin, Modal } from "antd";
 import { fetch } from "/Utils/strapiApi";
 import Link from "next/link";
 import { socket } from "config/websocket";
+import WalletConnectProvider from "@walletconnect/web3-provider";
+import WalletConnect from "@walletconnect/client";
+import QRCodeModal from "@walletconnect/qrcode-modal";
 
 import {
   checkFileType,
@@ -13,6 +16,7 @@ import {
   saveFileToPinata,
 } from "Utils/mintApi";
 import { allowedImageTypes } from "Constants/constants";
+import { providerOptions } from "Constants/constants";
 import {
   getMetaConnected,
   getMetaToken,
@@ -22,6 +26,8 @@ import {
 import { useSelector } from "react-redux";
 import { getCurrentAccount } from "Utils/utils";
 import CustomNotification from "@/components/commons/customNotification";
+import Web3 from "web3";
+import Web3Modal from "web3modal";
 
 const ERC721Collection = ({ serverCollections }) => {
   const logoImageInputRef = useRef(null);

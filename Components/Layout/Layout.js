@@ -20,7 +20,10 @@ import { isMobileDevice } from "Constants/constants";
 import { useIdleTimer } from "react-idle-timer";
 import ConnectWalletModal from "../commons/connectWalletModal";
 import { registerTalent } from "Utils/utils";
-import { setDisplayWalletModal } from "store/action/accountSlice";
+import {
+  getDisplayWalletModal,
+  setDisplayWalletModal,
+} from "store/action/accountSlice";
 
 const Layout = ({ children }) => {
   const router = useRouter();
@@ -35,6 +38,7 @@ const Layout = ({ children }) => {
   const [isWrongNet, setIsWrongNet] = useState(false);
   const [network, setNetwork] = useState(null);
   const [displayMematamaskModal, setDisplayMetaMaskModal] = useState(false);
+  const displayModal = useSelector(getDisplayWalletModal);
 
   const showHeader = router.pathname.toString().includes("wallet")
     ? false
@@ -113,20 +117,15 @@ const Layout = ({ children }) => {
   });
 
   useEffect(() => {
-    const displayWalletModal =
+    const displayWalletModal1 =
       router.pathname != "/wallet" &&
       (router.pathname.includes("create") ||
-        router.pathname.includes("sell")) &&
-      !isMetaconnected;
-    dispatch(setDisplayWalletModal(displayWalletModal));
+        (router.pathname.includes("sell") && !isMetaconnected));
+
+    dispatch(setDisplayWalletModal(displayWalletModal1));
 
     subscribeMetamaskProvider();
   }, [isMetaconnected, metaToken]);
-
-  const displayWalletModal =
-    router.pathname != "/wallet" &&
-    (router.pathname.includes("create") || router.pathname.includes("sell")) &&
-    !isMetaconnected;
 
   return (
     <>
@@ -146,7 +145,7 @@ const Layout = ({ children }) => {
 
       <Footer />
 
-      <ConnectWalletModal displayModal={displayWalletModal} />
+      <ConnectWalletModal displayModal={displayModal} />
     </>
   );
   async function detectNetwork() {
