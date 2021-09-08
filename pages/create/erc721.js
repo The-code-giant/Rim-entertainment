@@ -140,34 +140,44 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   const onFinish = (values) => {
     let validationResult = validateImage(nftImageFile, 10);
     if (validationResult.status == true && !duplicateNameError.isDuplicate) {
-      setDisplayUploadModal(true);
-      (async function () {
-        const nftData = createNftData(values);
-        console.log("nft deat ais ", nftData);
-        const ownerAccount = await getCurrentAccount();
-        const result = await uploadNft(nftImageFile, nftData, ownerAccount[0]);
-
-        if (result.data) {
-          setUploadErrorMessage("");
-          setNftContract(result.data.tokenAddress);
-          setNftTokenId(result.data.tokenId);
-          setDisplayUploadModal(true);
-          setDisplayModalButtons(true);
-        } else {
-          if (result.rejected) {
-            setUploadErrorMessage("");
-            setDisplayUploadModal(false);
-            CustomNotification("warning", "Metamask", result.message);
-          } else {
-            setUploadErrorMessage("");
-            setDisplayUploadModal(true);
-            setDisplayModalButtons(false);
-          }
-        }
-      })();
+      if (metaToken.length > 0) {
+        saveNFT(nftImageFile, values);
+      }
     }
   };
 
+  const saveNFT = async (nftImageFile, values) => {
+    const { ethereum } = window;
+    let accounts = await ethereum.request({ method: "eth_accounts" });
+    if (isMetaconnected) {
+      if (accounts != undefined) {
+        setDisplayUploadModal(true);
+        const nftData = createNftData(values);
+        let ownerAccount = metaToken[0];
+        if (ownerAccount) {
+          const result = await uploadNft(nftImageFile, nftData, ownerAccount);
+
+          if (result.success) {
+            setUploadErrorMessage("");
+            setNftContract(result.data.tokenAddress);
+            setNftTokenId(result.data.tokenId);
+            setDisplayUploadModal(true);
+            setDisplayModalButtons(true);
+          } else {
+            CustomNotification("warning", "Metamask", result.message);
+            setDisplayUploadModal(false);
+            setDisplayModalButtons(false);
+          }
+        }
+      } else {
+        CustomNotification(
+          "warning",
+          "Metamask",
+          "Make Sure Metamask wallet is unlocked and refresh the page"
+        );
+      }
+    }
+  };
   const onFinishFailed = () => {
     setDisplayUploadModal(false);
     const validationStatus = validateImage(nftImageFile, 10);
@@ -188,6 +198,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   };
 
   const getOwnerCollections = async () => {
+    console.log("collections are ", collections);
     if (metaToken != null && metaToken[0]) {
       const ownerAccount = await metaToken[0];
       const cols = collections.filter((item) => {

@@ -136,7 +136,6 @@ const ERC721Collection = ({ serverCollections }) => {
     if (!bannerImageFile) {
       setBannerError("Banner Image is Required");
     }
-
     if (
       logoImageFile &&
       bannerImageFile &&
@@ -144,40 +143,47 @@ const ERC721Collection = ({ serverCollections }) => {
       logoError == null &&
       bannerError == null
     ) {
-      setDisplayUploadModal(true);
-      (async function () {
-        let ownerAccount = null;
-        if (metaToken[0]) {
-          ownerAccount = metaToken[0];
-        } else {
-          ownerAccount = await getCurrentAccount();
-          console.log("current account is ", ownerAccount);
-        }
-        if (ownerAccount) {
-          const result = await deployCollection(
-            logoImageFile,
-            bannerImageFile,
-            collectionData,
-            ownerAccount
-          );
-          if (result.success) {
-            const slug = result.data.slug;
-            setNewCollectionSlug(slug);
-            setDisplayModalButtons(true);
-          } else {
-            // if (result.rejected == true) {
-            //   setDisplayUploadModal(false);
-            //   setDisplayModalButtons(false);
-            // }
-            CustomNotification("warn", "Metamask", result.message);
-            setDisplayUploadModal(false);
-            setDisplayModalButtons(false);
-          }
-        }
-      })();
+      if (metaToken.length > 0) {
+        saveCollection(logoImageFile, bannerImageFile, collectionData);
+      }
     }
   };
 
+  const saveCollection = async (
+    logoImageFile,
+    bannerImageFile,
+    collectionData
+  ) => {
+    const { ethereum } = window;
+    if (isMetaconnected) {
+      let accounts = await ethereum.request({ method: "eth_accounts" });
+      if (accounts != undefined) {
+        setDisplayUploadModal(true);
+        let ownerAccount = metaToken[0];
+        const result = await deployCollection(
+          logoImageFile,
+          bannerImageFile,
+          collectionData,
+          ownerAccount
+        );
+        if (result.success) {
+          const slug = result.data.slug;
+          setNewCollectionSlug(slug);
+          setDisplayModalButtons(true);
+        } else {
+          CustomNotification("warn", "Metamask", result.message);
+          setDisplayUploadModal(false);
+          setDisplayModalButtons(false);
+        }
+      } else {
+        CustomNotification(
+          "warning",
+          "Metamask",
+          "Make Sure Metamask wallet is unlocked and refresh the page"
+        );
+      }
+    }
+  };
   const onFinishFailed = (errorInfo) => {
     if (!logoImageFile) {
       setLogoError("Logo Image is Required");
@@ -185,13 +191,15 @@ const ERC721Collection = ({ serverCollections }) => {
     if (!bannerImageFile) {
       setBannerError("Banner Image is Required");
     }
-    const duplicationResult = checkForDuplicate(
-      collections,
-      errorInfo.values.collectionName,
-      "collectionName",
-      "Collection Name"
-    );
-    setDuplicateNameError(duplicationResult);
+    if (!errorInfo.values.collectionName?.toString().trim().length == 0) {
+      const duplicationResult = checkForDuplicate(
+        collections,
+        errorInfo.values.collectionName,
+        "collectionName",
+        "Collection Name"
+      );
+      setDuplicateNameError(duplicationResult);
+    }
   };
 
   const handleNewCollection = () => {
@@ -203,8 +211,6 @@ const ERC721Collection = ({ serverCollections }) => {
   const isTalentRegistered = async () => {
     if (metaToken != null && metaToken[0]) {
       const account = await metaToken[0];
-
-      console.log(account);
       const talentResult = await fetch(`talents/talentexists/${account}`);
       if (talentResult.data) {
         const talentExists = talentResult.data;
@@ -232,23 +238,10 @@ const ERC721Collection = ({ serverCollections }) => {
     socket.on("serverBroadCastNewCollection", (data) => {
       let cols = collections;
       cols.push(data);
-      console.log("new collection data is ", collections);
       setCollections(cols);
     });
   };
-  const pattern = "^[a-zA-Z ]*$";
-  const test = async () => {
-    const seaport = new OpenSeaPort(seaportProvider, {
-      networkName: Network.Main,
-      apiKey: "2e7ef0ac679f4860bbe49a34a98cf5ac",
-    });
-    const result = await seaport.api.getAssets({
-      collection: "123-3",
-    });
-    console.log("result is ", result);
-  };
   useEffect(() => {
-    // test();
     refreshData();
     isTalentRegistered();
   }, []);

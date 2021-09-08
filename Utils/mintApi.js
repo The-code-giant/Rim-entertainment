@@ -273,28 +273,6 @@ export const pinJSONToIPFS = async (metaContent, mediaType) => {
       message: error.message,
     };
   }
-  // const response = await axios
-  //   .post(url, metadata, {
-  //     maxContentLength: "Infinity",
-  //     headers: {
-  //       pinata_api_key: PINATA_API_KEY,
-  //       pinata_secret_api_key: PINATA_SECRET_KEY,
-  //     },
-  //   })
-  //   .then(function (response) {
-  //     return {
-  //       success: true,
-  //       pinataUrl: `https://topnftcollectibles.mypinata.cloud/ipfs/${response.data?.IpfsHash}`,
-  //       ipfsUrl: `https://ipfs.io/ipfs/${response.data.IpfsHash}`,
-  //       data: `${JSON.stringify(response.data)}`,
-  //     };
-  //   })
-  //   .catch(function (error) {
-  //     return {
-  //       success: false,
-  //       message: error.message,
-  //     };
-  //   });
 };
 
 export const deployCollection = async (logo, banner, values, ownerAddress) => {
@@ -530,21 +508,6 @@ export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
     });
 
   return nftResult;
-  // if (nftResult.transactionHash) {
-  //   return nftResult;
-  // } else if (nftResult?.rejected) {
-  //   console.log("in rejected ", nftResult);
-  //   return {
-  //     success: false,
-  //     rejected: true,
-  //     message: "User denied transaction signature",
-  //   };
-  // } else {
-  //   return {
-  //     success: false,
-  //     message: "Can not get NFT Hash",
-  //   };
-  // }
 };
 
 export const uploadCollectionToStrapi = async (
