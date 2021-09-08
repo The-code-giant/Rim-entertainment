@@ -18,7 +18,7 @@ import { fetch, post } from "/Utils/strapiApi";
 import ReactPlayer from "react-player";
 import {
   capitalizeWorkd,
-  checkForDuplicate,
+  checkAssetForDuplicate,
   uploadNft,
   validateImage,
 } from "Utils/mintApi";
@@ -111,7 +111,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   const checkNftNameDuplication = (e) => {
     console.log("nfts are", nfts);
     let input = e.target.value;
-    const nftDuplicationResult = checkForDuplicate(
+    const nftDuplicationResult = checkAssetForDuplicate(
       nfts,
       input,
       "name",
@@ -451,9 +451,15 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
                 ]}
               >
                 <Select
+                  showSearch
                   style={{ width: "100%" }}
-                  placeholder="Please select"
+                  placeholder="Please select collection"
                   onChange={(value) => getSelectedCollection(value)}
+                  filterOption={(input, option) =>
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
                 >
                   {ownerCollections?.map((item) => (
                     <Select.Option
@@ -489,9 +495,13 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
                   mode="multiple"
                   style={{ width: "100%" }}
                   placeholder="Please select"
-                  // defaultValue={categories[9].id}
-                  // value={nftData.categories}
                   onChange={(values) => getSelectedCategories(values)}
+                  showSearch
+                  filterOption={(input, option) =>
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
                 >
                   {categories.map((item) => (
                     <Select.Option

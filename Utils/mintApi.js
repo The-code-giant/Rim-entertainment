@@ -67,6 +67,32 @@ export const checkForDuplicate = (array, input, searchField, label) => {
     }
   }
 };
+export const checkAssetForDuplicate = (array, input, searchField, label) => {
+  if (!input != null && input != "") {
+    if (!input?.replace(/\s/g, "").length) {
+      return {
+        isDuplicate: true,
+        message: `× ${capitalizeWorkd(
+          label
+        )} can not be only whitespace (ie. spaces, tabs or line breaks)`,
+      };
+    }
+    const isDuplicate = array.some(
+      (item) => item[searchField] == input.toString().trim()
+    );
+    if (isDuplicate) {
+      return {
+        isDuplicate,
+        message: `× ${capitalizeWorkd(searchField)} is already taken`,
+      };
+    } else {
+      return {
+        isDuplicate,
+        message: `✔ This ${capitalizeWorkd(searchField)} is available.`,
+      };
+    }
+  }
+};
 
 /**
  * this function is for generating slug for collection
