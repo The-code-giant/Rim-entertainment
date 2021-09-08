@@ -4,7 +4,7 @@ import Web3 from "web3";
 import axios from "axios";
 import { slugify } from "./utils";
 import detectEthereumProvider from "@metamask/detect-provider";
-
+const COLLECTION_SUFFIX = process.env.COLLECTION_SUFFIX;
 const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
 // const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
@@ -28,6 +28,19 @@ export const capitalizeWorkd = (value) => {
  * @param searchField the field name we are looking for in array (firstname, lastname)
  */
 export const checkForDuplicate = (array, input, searchField, label) => {
+  if (
+    !input
+      ?.toString()
+      .trim()
+      .match(/^[a-zA-Z ]*$/)
+  ) {
+    return {
+      isDuplicate: true,
+      message: `× ${capitalizeWorkd(
+        label
+      )} Must contain Only Alphabet Characters`,
+    };
+  }
   if (!input != null && input != "") {
     if (!input?.replace(/\s/g, "").length) {
       return {
@@ -38,7 +51,8 @@ export const checkForDuplicate = (array, input, searchField, label) => {
       };
     }
     const isDuplicate = array.some(
-      (item) => item[searchField] == input.toString().trim()
+      (item) =>
+        item[searchField] == input.toString().trim() + " " + COLLECTION_SUFFIX
     );
     if (isDuplicate) {
       return {
@@ -267,11 +281,12 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
   // let nonceValue;
   const nonceValue = await web3.eth.getTransactionCount(owner);
 
+  console.log("collection suffix is ", COLLECTION_SUFFIX);
   if (logoFileResult.success && bannerFileResult.success) {
     const logoIpfsUrl = logoFileResult.pinataUrl;
     const bannerIpfsUrl = bannerFileResult.pinataUrl;
     const metadata = {
-      name: values.collectionName,
+      name: values.collectionName + " " + COLLECTION_SUFFIX,
       description: values.description,
       image: logoIpfsUrl,
       banner: bannerIpfsUrl,
@@ -327,7 +342,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
               success: false,
               rejected: false,
               message:
-                "Metamask Transaction Failed Make Sure Your Metamask wallet is connected",
+                "Metamask Transaction Failed Make Sure Your Metamask wallet is connected and unlocked",
             };
           }
         });
@@ -339,12 +354,22 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
           rejected: true,
           message: "User denied transaction signature",
         };
+      } else if (deployResult.success == false) {
+        return {
+          success: false,
+          rejected: false,
+          message:
+            "Metamask Transaction Failed Make Sure Your Metamask wallet is connected and unlocked",
+        };
       } else {
         collectionData.contractAddress = deployResult._address;
         collectionData.talentAddress = ownerAddress;
         collectionData.talent = values.talent;
-        collectionData.collectionName = values.collectionName;
-        collectionData.slug = slugify(values.collectionName.toString());
+        collectionData.collectionName =
+          values.collectionName + " " + COLLECTION_SUFFIX;
+        collectionData.slug = slugify(
+          values.collectionName.toString() + " " + COLLECTION_SUFFIX
+        );
         collectionData.metadata = metadata;
         return await uploadCollectionToStrapi(logo, banner, collectionData);
       }
@@ -469,12 +494,11 @@ export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
           message: "Metamask Internal error",
         };
       } else {
-        console.log("in try error ", error);
         return {
           success: false,
           rejected: false,
           message:
-            "Metamask Transaction Failed Make Sure Your Metamask wallet is connected",
+            "Metamask Transaction Failed Make Sure Your Metamask wallet is connected and unlocked",
         };
       }
     });

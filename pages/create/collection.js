@@ -22,13 +22,14 @@ import {
   getMetaToken,
   getWalletConnected,
 } from "store/action/accountSlice";
-
+import { OpenSeaPort, Network } from "opensea-js";
 import { useSelector } from "react-redux";
 import { getCurrentAccount } from "Utils/utils";
 import CustomNotification from "@/components/commons/customNotification";
 import Web3 from "web3";
-import Web3Modal from "web3modal";
-
+const seaportProvider = new Web3.providers.HttpProvider(
+  "https://mainnet.infura.io/v3/c2dde5d7c0a0465a8e994f711a3a3c31"
+);
 const ERC721Collection = ({ serverCollections }) => {
   const logoImageInputRef = useRef(null);
   const bannerImageInputRef = useRef(null);
@@ -164,14 +165,13 @@ const ERC721Collection = ({ serverCollections }) => {
             setNewCollectionSlug(slug);
             setDisplayModalButtons(true);
           } else {
-            if (result.rejected == true) {
-              setDisplayUploadModal(false);
-              setDisplayModalButtons(false);
-            }
-            CustomNotification("warn", "Metamask", result.message);
-            // else {
-            //   setDisplayUnlockModal(true);
+            // if (result.rejected == true) {
+            //   setDisplayUploadModal(false);
+            //   setDisplayModalButtons(false);
             // }
+            CustomNotification("warn", "Metamask", result.message);
+            setDisplayUploadModal(false);
+            setDisplayModalButtons(false);
           }
         }
       })();
@@ -236,15 +236,19 @@ const ERC721Collection = ({ serverCollections }) => {
       setCollections(cols);
     });
   };
-
+  const pattern = "^[a-zA-Z ]*$";
   const test = async () => {
-    let web3 = new Web3(window.ethereum);
-
-    const address = "0xff6539f953eb682d442c70ae0a9e186dd9668ca2";
-    console.log("original address is ", web3.utils.toChecksumAddress(address));
+    const seaport = new OpenSeaPort(seaportProvider, {
+      networkName: Network.Main,
+      apiKey: "2e7ef0ac679f4860bbe49a34a98cf5ac",
+    });
+    const result = await seaport.api.getAssets({
+      collection: "123-3",
+    });
+    console.log("result is ", result);
   };
   useEffect(() => {
-    test();
+    // test();
     refreshData();
     isTalentRegistered();
   }, []);
@@ -397,6 +401,9 @@ const ERC721Collection = ({ serverCollections }) => {
                 {
                   required: true,
                   message: "Please input your Collection Name!",
+                  // validate: (value) => {
+                  //   return value.toString().trim().match("/^[a-zA-Z ]*$/");
+                  // },
                 },
               ]}
               onInput={checkCollectionNameDuplication}
