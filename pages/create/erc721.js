@@ -1,31 +1,18 @@
 import Link from "next/link";
-import React, { useEffect, useRef, useState, useReducer } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "/styles/erc721.module.css";
 import { socket } from "config/websocket";
-import {
-  Input,
-  Tooltip,
-  Select,
-  Progress,
-  Button,
-  Form,
-  Upload,
-  message,
-  Modal,
-  Spin,
-} from "antd";
+import { Input, Select, Button, Form, Modal, Spin } from "antd";
 import { fetch, post } from "/Utils/strapiApi";
 import ReactPlayer from "react-player";
 import {
-  capitalizeWorkd,
-  checkForDuplicate,
+  capitalizeWord,
+  checkAssetForDuplicate,
   uploadNft,
   validateImage,
 } from "Utils/mintApi";
 import { useSelector } from "react-redux";
 import { getMetaConnected, getMetaToken } from "store/action/accountSlice";
-import { isMobileDevice } from "Constants/constants";
-import { getCurrentAccount } from "Utils/utils";
 import { useRouter } from "next/router";
 import CustomNotification from "@/components/commons/customNotification";
 
@@ -111,7 +98,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   const checkNftNameDuplication = (e) => {
     console.log("nfts are", nfts);
     let input = e.target.value;
-    const nftDuplicationResult = checkForDuplicate(
+    const nftDuplicationResult = checkAssetForDuplicate(
       nfts,
       input,
       "name",
@@ -140,34 +127,44 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   const onFinish = (values) => {
     let validationResult = validateImage(nftImageFile, 10);
     if (validationResult.status == true && !duplicateNameError.isDuplicate) {
-      setDisplayUploadModal(true);
-      (async function () {
-        const nftData = createNftData(values);
-        console.log("nft deat ais ", nftData);
-        const ownerAccount = await getCurrentAccount();
-        const result = await uploadNft(nftImageFile, nftData, ownerAccount[0]);
-
-        if (result.data) {
-          setUploadErrorMessage("");
-          setNftContract(result.data.tokenAddress);
-          setNftTokenId(result.data.tokenId);
-          setDisplayUploadModal(true);
-          setDisplayModalButtons(true);
-        } else {
-          if (result.rejected) {
-            setUploadErrorMessage("");
-            setDisplayUploadModal(false);
-            CustomNotification("warning", "Metamask", result.message);
-          } else {
-            setUploadErrorMessage("");
-            setDisplayUploadModal(true);
-            setDisplayModalButtons(false);
-          }
-        }
-      })();
+      if (metaToken.length > 0) {
+        saveNFT(nftImageFile, values);
+      }
     }
   };
 
+  const saveNFT = async (nftImageFile, values) => {
+    console.log("values is ", values);
+    const { ethereum } = window;
+    let accounts = await ethereum.request({ method: "eth_accounts" });
+    if (isMetaconnected) {
+      if (accounts != undefined) {
+        setDisplayUploadModal(true);
+        const nftData = createNftData(values);
+        let ownerAccount = metaToken[0];
+        if (ownerAccount) {
+          const result = await uploadNft(nftImageFile, nftData, ownerAccount);
+          if (result.success) {
+            setUploadErrorMessage("");
+            setNftContract(result.data.tokenAddress);
+            setNftTokenId(result.data.tokenId);
+            setDisplayUploadModal(true);
+            setDisplayModalButtons(true);
+          } else {
+            CustomNotification("warning", "Metamask", result.message);
+            setDisplayUploadModal(false);
+            setDisplayModalButtons(false);
+          }
+        }
+      } else {
+        CustomNotification(
+          "warning",
+          "Metamask",
+          "Make Sure Metamask wallet is unlocked and refresh the page"
+        );
+      }
+    }
+  };
   const onFinishFailed = () => {
     setDisplayUploadModal(false);
     const validationStatus = validateImage(nftImageFile, 10);
@@ -188,6 +185,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   };
 
   const getOwnerCollections = async () => {
+    console.log("collections are ", collections);
     if (metaToken != null && metaToken[0]) {
       const ownerAccount = await metaToken[0];
       const cols = collections.filter((item) => {
@@ -451,9 +449,15 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
                 ]}
               >
                 <Select
+                  showSearch
                   style={{ width: "100%" }}
-                  placeholder="Please select"
+                  placeholder="Please select collection"
                   onChange={(value) => getSelectedCollection(value)}
+                  filterOption={(input, option) =>
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
                 >
                   {ownerCollections?.map((item) => (
                     <Select.Option
@@ -489,9 +493,13 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
                   mode="multiple"
                   style={{ width: "100%" }}
                   placeholder="Please select"
-                  // defaultValue={categories[9].id}
-                  // value={nftData.categories}
                   onChange={(values) => getSelectedCategories(values)}
+                  showSearch
+                  filterOption={(input, option) =>
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
                 >
                   {categories.map((item) => (
                     <Select.Option
@@ -499,7 +507,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
                       key={item.id}
                       style={{ height: 50, padding: 10 }}
                     >
-                      {capitalizeWorkd(item.category)}
+                      {capitalizeWord(item.category)}
                     </Select.Option>
                   ))}
                 </Select>

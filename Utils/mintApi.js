@@ -3,8 +3,6 @@ import collectionArtifact from "./../build/contracts/Rimable.json";
 import Web3 from "web3";
 import axios from "axios";
 import { slugify } from "./utils";
-import detectEthereumProvider from "@metamask/detect-provider";
-
 const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
 // const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
@@ -16,8 +14,62 @@ const RINKEBY_NODE = `${RINKEBY_NODE_URL_WSS}${RINKEBY_API_KEY}`;
 const PINATA_API_KEY = process.env.PINATA_API_KEY;
 const PINATA_SECRET_KEY = process.env.PINATA_SECRET_KEY;
 
-export const capitalizeWorkd = (value) => {
+export const capitalizeWord = (value) => {
   return value.charAt(0).toUpperCase() + value.slice(1);
+};
+
+export const getCollectionIdenfifier = (collectionName) => {
+  let words = collectionName.trim().split(" ");
+  return words[words.length - 1];
+};
+/**
+ * this function is for searching duplicate entry in array, return true if duplicate found and
+ * also return a message for more information
+ * @param array the array want to search for duplicate
+ * @param input the value we are searching for duplicate
+ * @param searchField the field name we are looking for in array (firstname, lastname)
+ * @param label capitalize searchfield as we need it in error messages
+ */
+export const checkForDuplicate = (array, input, searchField, label) => {
+  if (
+    !input
+      ?.toString()
+      .trim()
+      .match(/^[a-zA-Z ]*$/)
+  ) {
+    return {
+      isDuplicate: true,
+      message: `× ${capitalizeWord(
+        label
+      )} Must contain Only Alphabet Characters`,
+    };
+  }
+  if (!input != null && input != "") {
+    if (!input?.replace(/\s/g, "").length) {
+      return {
+        isDuplicate: true,
+        message: `× ${capitalizeWord(
+          label
+        )} can not be only whitespace (ie. spaces, tabs or line breaks)`,
+      };
+    }
+    const isDuplicate = array.some(
+      (item) =>
+        item[searchField].toLowerCase() ==
+        input?.toString().trim().toLowerCase()
+    );
+    if (isDuplicate) {
+      return {
+        isDuplicate,
+        message: `× ${capitalizeWord(searchField)} is already taken`,
+      };
+    } else {
+      return {
+        isDuplicate,
+        message: `✔ This ${capitalizeWord(searchField)} is available.`,
+      };
+    }
+  }
 };
 
 /**
@@ -26,13 +78,51 @@ export const capitalizeWorkd = (value) => {
  * @param array the array want to search for duplicate
  * @param input the value we are searching for duplicate
  * @param searchField the field name we are looking for in array (firstname, lastname)
+ * @param label capitalize searchfield as we need it in error messages
  */
-export const checkForDuplicate = (array, input, searchField, label) => {
+export const validateCollectionIdetifier = (input, label) => {
+  const words = input.trim().split(" ");
+  if (words.length > 1) {
+    return {
+      isDuplicate: true,
+      message: `× ${capitalizeWord(label)} can not be more than one word`,
+    };
+  }
+  if (
+    !input
+      ?.toString()
+      .trim()
+      .match(/^[a-zA-Z ]*$/)
+  ) {
+    return {
+      isDuplicate: true,
+      message: `× ${capitalizeWord(
+        label
+      )} Must contain Only Alphabet Characters`,
+    };
+  }
   if (!input != null && input != "") {
     if (!input?.replace(/\s/g, "").length) {
       return {
         isDuplicate: true,
-        message: `× ${capitalizeWorkd(
+        message: `× ${capitalizeWord(
+          label
+        )} can not be only whitespace (ie. spaces, tabs or line breaks)`,
+      };
+    }
+  }
+  return {
+    isDuplicate: false,
+    message: "",
+  };
+};
+
+export const checkAssetForDuplicate = (array, input, searchField, label) => {
+  if (!input != null && input != "") {
+    if (!input?.replace(/\s/g, "").length) {
+      return {
+        isDuplicate: true,
+        message: `× ${capitalizeWord(
           label
         )} can not be only whitespace (ie. spaces, tabs or line breaks)`,
       };
@@ -43,15 +133,75 @@ export const checkForDuplicate = (array, input, searchField, label) => {
     if (isDuplicate) {
       return {
         isDuplicate,
-        message: `× ${capitalizeWorkd(searchField)} is already taken`,
+        message: `× ${capitalizeWord(searchField)} is already taken`,
       };
     } else {
       return {
         isDuplicate,
-        message: `✔ This ${capitalizeWorkd(searchField)} is available.`,
+        message: `✔ This ${capitalizeWord(searchField)} is available.`,
       };
     }
   }
+};
+
+export const validateCompleteCollectionName = (array, name, identifier) => {
+  let input = name.toString().trim() + " " + identifier.toString().trim();
+
+  if (
+    !input
+      ?.toString()
+      .trim()
+      .match(/^[a-zA-Z ]*$/)
+  ) {
+    return {
+      isDuplicate: true,
+      message: `× Collection name and identifier should be Alphabet Characters`,
+    };
+  }
+
+  let isDuplicate = array.some(
+    (item) =>
+      item.collectionName.toLowerCase() ==
+      input?.toString().trim().toLowerCase()
+  );
+  if (isDuplicate) {
+    return {
+      isDuplicate: true,
+      message: `× Collection name is already taken, please change collection name or identifier`,
+    };
+  } else {
+    return {
+      isDuplicate: false,
+      message: "",
+    };
+  }
+};
+
+export const validateCollectionName = (searchField, label) => {
+  let input = searchField.toString().trim();
+  if (
+    !input
+      ?.toString()
+      .trim()
+      .match(/^[a-zA-Z ]*$/)
+  ) {
+    return {
+      isDuplicate: true,
+      message: `× ${capitalizeWord(label)} should be Alphabet Characters`,
+    };
+  }
+  if (!input?.replace(/\s/g, "").length) {
+    return {
+      isDuplicate: true,
+      message: `× ${capitalizeWord(
+        label
+      )} can not be only whitespace (ie. spaces, tabs or line breaks)`,
+    };
+  }
+  return {
+    isDuplicate: false,
+    message: "",
+  };
 };
 
 /**
@@ -233,28 +383,6 @@ export const pinJSONToIPFS = async (metaContent, mediaType) => {
       message: error.message,
     };
   }
-  // const response = await axios
-  //   .post(url, metadata, {
-  //     maxContentLength: "Infinity",
-  //     headers: {
-  //       pinata_api_key: PINATA_API_KEY,
-  //       pinata_secret_api_key: PINATA_SECRET_KEY,
-  //     },
-  //   })
-  //   .then(function (response) {
-  //     return {
-  //       success: true,
-  //       pinataUrl: `https://topnftcollectibles.mypinata.cloud/ipfs/${response.data?.IpfsHash}`,
-  //       ipfsUrl: `https://ipfs.io/ipfs/${response.data.IpfsHash}`,
-  //       data: `${JSON.stringify(response.data)}`,
-  //     };
-  //   })
-  //   .catch(function (error) {
-  //     return {
-  //       success: false,
-  //       message: error.message,
-  //     };
-  //   });
 };
 
 export const deployCollection = async (logo, banner, values, ownerAddress) => {
@@ -271,7 +399,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
     const logoIpfsUrl = logoFileResult.pinataUrl;
     const bannerIpfsUrl = bannerFileResult.pinataUrl;
     const metadata = {
-      name: values.collectionName,
+      name: values.collectionName + " " + values.collectionIdentifier,
       description: values.description,
       image: logoIpfsUrl,
       banner: bannerIpfsUrl,
@@ -327,24 +455,33 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
               success: false,
               rejected: false,
               message:
-                "Metamask Transaction Failed Make Sure Your Metamask wallet is connected",
+                "Metamask Transaction Failed Make Sure Your Metamask wallet is connected and unlocked",
             };
           }
         });
 
-      console.log("deploy reslt is ", deployResult);
       if (deployResult.rejected == true) {
         return {
           success: false,
           rejected: true,
           message: "User denied transaction signature",
         };
+      } else if (deployResult.success == false) {
+        return {
+          success: false,
+          rejected: false,
+          message:
+            "Metamask Transaction Failed Make Sure Your Metamask wallet is connected and unlocked",
+        };
       } else {
         collectionData.contractAddress = deployResult._address;
         collectionData.talentAddress = ownerAddress;
         collectionData.talent = values.talent;
-        collectionData.collectionName = values.collectionName;
-        collectionData.slug = slugify(values.collectionName.toString());
+        collectionData.collectionName =
+          values.collectionName + " " + values.collectionIdentifier;
+        collectionData.slug = slugify(
+          values.collectionName.toString() + " " + values.collectionIdentifier
+        );
         collectionData.metadata = metadata;
         return await uploadCollectionToStrapi(logo, banner, collectionData);
       }
@@ -469,32 +606,16 @@ export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
           message: "Metamask Internal error",
         };
       } else {
-        console.log("in try error ", error);
         return {
           success: false,
           rejected: false,
           message:
-            "Metamask Transaction Failed Make Sure Your Metamask wallet is connected",
+            "Metamask Transaction Failed Make Sure Your Metamask wallet is connected and unlocked",
         };
       }
     });
 
   return nftResult;
-  // if (nftResult.transactionHash) {
-  //   return nftResult;
-  // } else if (nftResult?.rejected) {
-  //   console.log("in rejected ", nftResult);
-  //   return {
-  //     success: false,
-  //     rejected: true,
-  //     message: "User denied transaction signature",
-  //   };
-  // } else {
-  //   return {
-  //     success: false,
-  //     message: "Can not get NFT Hash",
-  //   };
-  // }
 };
 
 export const uploadCollectionToStrapi = async (

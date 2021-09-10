@@ -4,6 +4,7 @@ const CustomNotification = (type, title, text, postion = "topRight") => {
     message: title,
     placement: postion,
     description: text,
+    duration: 10,
   });
 };
 export default CustomNotification;

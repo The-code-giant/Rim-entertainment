@@ -46,6 +46,7 @@ export const ProfileContainer = styled.div`
       transform: translateX(-50%);
       left: 50%;
       position: relative;
+      object-fit: cover;
     }
   }
 `;
