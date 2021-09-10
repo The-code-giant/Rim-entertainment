@@ -1,31 +1,18 @@
 import Link from "next/link";
-import React, { useEffect, useRef, useState, useReducer } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "/styles/erc721.module.css";
 import { socket } from "config/websocket";
-import {
-  Input,
-  Tooltip,
-  Select,
-  Progress,
-  Button,
-  Form,
-  Upload,
-  message,
-  Modal,
-  Spin,
-} from "antd";
+import { Input, Select, Button, Form, Modal, Spin } from "antd";
 import { fetch, post } from "/Utils/strapiApi";
 import ReactPlayer from "react-player";
 import {
-  capitalizeWorkd,
+  capitalizeWord,
   checkAssetForDuplicate,
   uploadNft,
   validateImage,
 } from "Utils/mintApi";
 import { useSelector } from "react-redux";
 import { getMetaConnected, getMetaToken } from "store/action/accountSlice";
-import { isMobileDevice } from "Constants/constants";
-import { getCurrentAccount } from "Utils/utils";
 import { useRouter } from "next/router";
 import CustomNotification from "@/components/commons/customNotification";
 
@@ -147,6 +134,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   };
 
   const saveNFT = async (nftImageFile, values) => {
+    console.log("values is ", values);
     const { ethereum } = window;
     let accounts = await ethereum.request({ method: "eth_accounts" });
     if (isMetaconnected) {
@@ -156,7 +144,6 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
         let ownerAccount = metaToken[0];
         if (ownerAccount) {
           const result = await uploadNft(nftImageFile, nftData, ownerAccount);
-
           if (result.success) {
             setUploadErrorMessage("");
             setNftContract(result.data.tokenAddress);
@@ -520,7 +507,7 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
                       key={item.id}
                       style={{ height: 50, padding: 10 }}
                     >
-                      {capitalizeWorkd(item.category)}
+                      {capitalizeWord(item.category)}
                     </Select.Option>
                   ))}
                 </Select>

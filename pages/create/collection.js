@@ -4,39 +4,37 @@ import { Input, Button, Form, Spin, Modal } from "antd";
 import { fetch } from "/Utils/strapiApi";
 import Link from "next/link";
 import { socket } from "config/websocket";
-import WalletConnectProvider from "@walletconnect/web3-provider";
-import WalletConnect from "@walletconnect/client";
-import QRCodeModal from "@walletconnect/qrcode-modal";
 
 import {
   checkFileType,
-  checkForDuplicate,
   deployCollection,
-  pinJSONToIPFS,
-  saveFileToPinata,
+  validateCollectionIdetifier,
+  validateCollectionName,
+  validateCompleteCollectionName,
 } from "Utils/mintApi";
 import { allowedImageTypes } from "Constants/constants";
-import { providerOptions } from "Constants/constants";
 import {
   getMetaConnected,
   getMetaToken,
   getWalletConnected,
 } from "store/action/accountSlice";
-import { OpenSeaPort, Network } from "opensea-js";
 import { useSelector } from "react-redux";
-import { getCurrentAccount } from "Utils/utils";
 import CustomNotification from "@/components/commons/customNotification";
-import Web3 from "web3";
-const seaportProvider = new Web3.providers.HttpProvider(
-  "https://mainnet.infura.io/v3/c2dde5d7c0a0465a8e994f711a3a3c31"
-);
+
+let collectionCompleteName = {
+  collectionName: "",
+  collectionIdentifier: "",
+};
 const ERC721Collection = ({ serverCollections }) => {
   const logoImageInputRef = useRef(null);
   const bannerImageInputRef = useRef(null);
   const formRef = React.createRef();
   const [logoError, setLogoError] = useState();
   const [bannerError, setBannerError] = useState();
-  const [duplicateNameError, setDuplicateNameError] = useState();
+  const [collectionNameError, setCollectionNameError] = useState("");
+  const [collectionIdentifierError, setCollectionIdentifierError] =
+    useState("");
+  const [duplicateIdentifierError, setDuplicateIdentifierError] = useState();
   const [logoImageUrl, setLogoImageUrl] = useState("");
   const [bannerImageUrl, setBannerImageUrl] = useState("");
   const [logoImageFile, setLogoImageFile] = useState();
@@ -55,12 +53,53 @@ const ERC721Collection = ({ serverCollections }) => {
   const metaToken = useSelector(getMetaToken);
   const [onboard, setOnboard] = useState(null);
   const [collections, setCollections] = useState(serverCollections);
-  // const { selectWallet, address, isWalletSelected, disconnectWallet, balance } =
-  //   useOnboard({
-  //     dappId: "2978c0ac-ae01-46c3-8054-9fc9ec2bfc2d", // optional API key
-  //     networkId: 4, // Ethereum network ID
-  //   });
+  const [completeCollectionNameError, setCompleteCollectionNameError] =
+    useState("");
 
+  const handleCollectionCompleteName = (e) => {
+    const value = e.target.value;
+
+    collectionCompleteName = {
+      ...collectionCompleteName,
+      [e.target.name]: value,
+    };
+
+    const nameResult = validateCollectionName(
+      collectionCompleteName.collectionName,
+      "Collection Name"
+    );
+    if (collectionCompleteName.collectionName != "") {
+      setCollectionNameError(nameResult);
+    } else {
+      setCollectionNameError("");
+    }
+
+    const identifierResult = validateCollectionIdetifier(
+      collectionCompleteName.collectionIdentifier,
+      "Identifier"
+    );
+
+    if (collectionCompleteName.collectionIdentifier != "") {
+      setCollectionIdentifierError(identifierResult);
+    } else {
+      setCollectionIdentifierError("");
+    }
+
+    const result = validateCompleteCollectionName(
+      collections,
+      collectionCompleteName.collectionName,
+      collectionCompleteName.collectionIdentifier
+    );
+
+    if (
+      collectionCompleteName.collectionName != "" &&
+      collectionCompleteName.collectionIdentifier != ""
+    ) {
+      setCompleteCollectionNameError(result);
+    } else {
+      setCompleteCollectionNameError("");
+    }
+  };
   const openLogoFileChooser = (event) => {
     event.preventDefault();
     logoImageInputRef.current.click();
@@ -98,37 +137,18 @@ const ERC721Collection = ({ serverCollections }) => {
     }
   };
 
-  const checkCollectionNameDuplication = (e) => {
-    let input = e.target.value;
-    const duplicationResult = checkForDuplicate(
-      collections,
-      input,
-      "collectionName",
-      "Collection Name"
-    );
-    setDuplicateNameError(duplicationResult);
-  };
-
   const clearForm = () => {
     setLogoImageUrl(null);
     setBannerImageUrl(null);
     setLogoImageFile(null);
     setBannerImageFile(null);
     setUploadPrecentage(0);
-    setDuplicateNameError("");
     form.resetFields();
   };
 
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
-    const duplicationResult = checkForDuplicate(
-      collections,
-      values.collectionName,
-      "collectionName",
-      "Collection Name"
-    );
-    setDuplicateNameError(duplicationResult);
     const collectionData = createCollectinData(values);
     if (!logoImageFile) {
       setLogoError("Logo Image is Required");
@@ -139,13 +159,24 @@ const ERC721Collection = ({ serverCollections }) => {
     if (
       logoImageFile &&
       bannerImageFile &&
-      !duplicateNameError.isDuplicate &&
+      !completeCollectionNameError.isDuplicate &&
+      !collectionNameError.isDuplicate &&
+      !collectionIdentifierError.isDuplicate &&
       logoError == null &&
       bannerError == null
     ) {
       if (metaToken.length > 0) {
         saveCollection(logoImageFile, bannerImageFile, collectionData);
       }
+    }
+  };
+
+  const onFinishFailed = (errorInfo) => {
+    if (!logoImageFile) {
+      setLogoError("Logo Image is Required");
+    }
+    if (!bannerImageFile) {
+      setBannerError("Banner Image is Required");
     }
   };
 
@@ -182,23 +213,6 @@ const ERC721Collection = ({ serverCollections }) => {
           "Make Sure Metamask wallet is unlocked and refresh the page"
         );
       }
-    }
-  };
-  const onFinishFailed = (errorInfo) => {
-    if (!logoImageFile) {
-      setLogoError("Logo Image is Required");
-    }
-    if (!bannerImageFile) {
-      setBannerError("Banner Image is Required");
-    }
-    if (!errorInfo.values.collectionName?.toString().trim().length == 0) {
-      const duplicationResult = checkForDuplicate(
-        collections,
-        errorInfo.values.collectionName,
-        "collectionName",
-        "Collection Name"
-      );
-      setDuplicateNameError(duplicationResult);
     }
   };
 
@@ -241,6 +255,7 @@ const ERC721Collection = ({ serverCollections }) => {
       setCollections(cols);
     });
   };
+
   useEffect(() => {
     refreshData();
     isTalentRegistered();
@@ -316,7 +331,6 @@ const ERC721Collection = ({ serverCollections }) => {
               <div className={styles.logoImageBox}>
                 <img
                   src={logoImageUrl}
-                  // className={"img-fluid"}
                   className={styles.logoImage}
                   onClick={openLogoFileChooser}
                 />
@@ -348,7 +362,7 @@ const ERC721Collection = ({ serverCollections }) => {
           {/* ------------------------------------------------------Banner------------------------ */}
           <h3 className={styles.nftSubHeader}>{`Banner image`}</h3>
           <p className={styles.fileTypes}>
-            {`(optional) This image will appear at the top of your collection page. Avoid including too much text in this banner image, as the dimensions change on different devices. 1400 x 400 recommended.`}
+            {`This image will appear at the top of your collection page. Avoid including too much text in this banner image, as the dimensions change on different devices. 1400 x 400 recommended.`}
           </p>
           <div className={styles.bannerFileContainer}>
             {bannerImageUrl ? (
@@ -387,7 +401,7 @@ const ERC721Collection = ({ serverCollections }) => {
           </div>
           <div className={styles.nftFormErrors}>{bannerError}</div>
           <div className={styles.nftInputComponent}>
-            <h3 className={styles.nftSubHeader}>Collection Name *</h3>
+            <h3 className={styles.nftSubHeader}>{"Collection Name *"}</h3>
             <Form.Item
               name="collectionName"
               rules={[
@@ -399,45 +413,58 @@ const ERC721Collection = ({ serverCollections }) => {
                   // },
                 },
               ]}
-              onInput={checkCollectionNameDuplication}
+              onInput={handleCollectionCompleteName}
             >
               <Input
+                name="collectionName"
                 id="collection"
                 placeholder="Collection Name"
                 className={styles.nftInput}
               />
             </Form.Item>
+            <div className={styles.nftFormErrors}>
+              {collectionNameError?.message}
+            </div>
+          </div>
+          <div className={styles.nftInputComponent}>
+            <h3 className={styles.nftSubHeader}>{"Collection Identifier"}</h3>
+            <p className={styles.nfgParagraph}>
+              {
+                "This will be used as last part of your collection name. It might be your brand name or some arbitrary but unique word."
+              }
+            </p>
+            <Form.Item
+              name="collectionIdentifier"
+              rules={[
+                {
+                  required: true,
+                  message: "Collection Identifier is required",
+                },
+              ]}
+              onInput={handleCollectionCompleteName}
+            >
+              <Input
+                name="collectionIdentifier"
+                id="collectionIdentifier"
+                placeholder="Please enter some uniqu value"
+                className={styles.nftInput}
+              />
+            </Form.Item>
+            <div className={styles.nftFormErrors}>
+              {collectionIdentifierError?.message}
+            </div>
             <div
               className={
-                duplicateNameError?.message?.includes("×")
+                completeCollectionNameError?.message?.includes("×")
                   ? styles.nftFormErrors
                   : styles.nftFormValid
               }
             >
-              {duplicateNameError?.message}
+              {completeCollectionNameError?.message}
             </div>
           </div>
-          {/* <div className={styles.nftInputComponent}>
-            <h3 className={styles.nftSubHeader}>External Link</h3>
-            <p className={styles.nfgParagraph}>
-              {
-                "OpenSea will include a link to this URL. You are welcome to link to your own webpage with more details."
-              }
-            </p>
-            <Form.Item
-              name="external_link"
-              rules={[{ required: true, message: "External Link is required" }]}
-            >
-              <Input
-                name="external_link"
-                id="external_link"
-                placeholder="https://yoursite.com"
-                className={styles.nftInput}
-              />
-            </Form.Item>
-          </div> */}
           <div className={styles.nftInputComponent}>
-            <h3 className={styles.nftSubHeader}>Description</h3>
+            <h3 className={styles.nftSubHeader}>{"Description"}</h3>
             <p className={styles.nfgParagraph}>
               {
                 "The description will be included on the for All Assets in this Collection"

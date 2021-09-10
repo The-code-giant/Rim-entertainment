@@ -3,8 +3,6 @@ import collectionArtifact from "./../build/contracts/Rimable.json";
 import Web3 from "web3";
 import axios from "axios";
 import { slugify } from "./utils";
-import detectEthereumProvider from "@metamask/detect-provider";
-const COLLECTION_SUFFIX = process.env.COLLECTION_SUFFIX;
 const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
 // const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
@@ -16,16 +14,21 @@ const RINKEBY_NODE = `${RINKEBY_NODE_URL_WSS}${RINKEBY_API_KEY}`;
 const PINATA_API_KEY = process.env.PINATA_API_KEY;
 const PINATA_SECRET_KEY = process.env.PINATA_SECRET_KEY;
 
-export const capitalizeWorkd = (value) => {
+export const capitalizeWord = (value) => {
   return value.charAt(0).toUpperCase() + value.slice(1);
 };
 
+export const getCollectionIdenfifier = (collectionName) => {
+  let words = collectionName.trim().split(" ");
+  return words[words.length - 1];
+};
 /**
  * this function is for searching duplicate entry in array, return true if duplicate found and
  * also return a message for more information
  * @param array the array want to search for duplicate
  * @param input the value we are searching for duplicate
  * @param searchField the field name we are looking for in array (firstname, lastname)
+ * @param label capitalize searchfield as we need it in error messages
  */
 export const checkForDuplicate = (array, input, searchField, label) => {
   if (
@@ -36,7 +39,7 @@ export const checkForDuplicate = (array, input, searchField, label) => {
   ) {
     return {
       isDuplicate: true,
-      message: `× ${capitalizeWorkd(
+      message: `× ${capitalizeWord(
         label
       )} Must contain Only Alphabet Characters`,
     };
@@ -45,34 +48,81 @@ export const checkForDuplicate = (array, input, searchField, label) => {
     if (!input?.replace(/\s/g, "").length) {
       return {
         isDuplicate: true,
-        message: `× ${capitalizeWorkd(
+        message: `× ${capitalizeWord(
           label
         )} can not be only whitespace (ie. spaces, tabs or line breaks)`,
       };
     }
     const isDuplicate = array.some(
       (item) =>
-        item[searchField] == input.toString().trim() + " " + COLLECTION_SUFFIX
+        item[searchField].toLowerCase() ==
+        input?.toString().trim().toLowerCase()
     );
     if (isDuplicate) {
       return {
         isDuplicate,
-        message: `× ${capitalizeWorkd(searchField)} is already taken`,
+        message: `× ${capitalizeWord(searchField)} is already taken`,
       };
     } else {
       return {
         isDuplicate,
-        message: `✔ This ${capitalizeWorkd(searchField)} is available.`,
+        message: `✔ This ${capitalizeWord(searchField)} is available.`,
       };
     }
   }
 };
+
+/**
+ * this function is for searching duplicate entry in array, return true if duplicate found and
+ * also return a message for more information
+ * @param array the array want to search for duplicate
+ * @param input the value we are searching for duplicate
+ * @param searchField the field name we are looking for in array (firstname, lastname)
+ * @param label capitalize searchfield as we need it in error messages
+ */
+export const validateCollectionIdetifier = (input, label) => {
+  const words = input.trim().split(" ");
+  if (words.length > 1) {
+    return {
+      isDuplicate: true,
+      message: `× ${capitalizeWord(label)} can not be more than one word`,
+    };
+  }
+  if (
+    !input
+      ?.toString()
+      .trim()
+      .match(/^[a-zA-Z ]*$/)
+  ) {
+    return {
+      isDuplicate: true,
+      message: `× ${capitalizeWord(
+        label
+      )} Must contain Only Alphabet Characters`,
+    };
+  }
+  if (!input != null && input != "") {
+    if (!input?.replace(/\s/g, "").length) {
+      return {
+        isDuplicate: true,
+        message: `× ${capitalizeWord(
+          label
+        )} can not be only whitespace (ie. spaces, tabs or line breaks)`,
+      };
+    }
+  }
+  return {
+    isDuplicate: false,
+    message: "",
+  };
+};
+
 export const checkAssetForDuplicate = (array, input, searchField, label) => {
   if (!input != null && input != "") {
     if (!input?.replace(/\s/g, "").length) {
       return {
         isDuplicate: true,
-        message: `× ${capitalizeWorkd(
+        message: `× ${capitalizeWord(
           label
         )} can not be only whitespace (ie. spaces, tabs or line breaks)`,
       };
@@ -83,15 +133,75 @@ export const checkAssetForDuplicate = (array, input, searchField, label) => {
     if (isDuplicate) {
       return {
         isDuplicate,
-        message: `× ${capitalizeWorkd(searchField)} is already taken`,
+        message: `× ${capitalizeWord(searchField)} is already taken`,
       };
     } else {
       return {
         isDuplicate,
-        message: `✔ This ${capitalizeWorkd(searchField)} is available.`,
+        message: `✔ This ${capitalizeWord(searchField)} is available.`,
       };
     }
   }
+};
+
+export const validateCompleteCollectionName = (array, name, identifier) => {
+  let input = name.toString().trim() + " " + identifier.toString().trim();
+
+  if (
+    !input
+      ?.toString()
+      .trim()
+      .match(/^[a-zA-Z ]*$/)
+  ) {
+    return {
+      isDuplicate: true,
+      message: `× Collection name and identifier should be Alphabet Characters`,
+    };
+  }
+
+  let isDuplicate = array.some(
+    (item) =>
+      item.collectionName.toLowerCase() ==
+      input?.toString().trim().toLowerCase()
+  );
+  if (isDuplicate) {
+    return {
+      isDuplicate: true,
+      message: `× Collection name is already taken, please change collection name or identifier`,
+    };
+  } else {
+    return {
+      isDuplicate: false,
+      message: "",
+    };
+  }
+};
+
+export const validateCollectionName = (searchField, label) => {
+  let input = searchField.toString().trim();
+  if (
+    !input
+      ?.toString()
+      .trim()
+      .match(/^[a-zA-Z ]*$/)
+  ) {
+    return {
+      isDuplicate: true,
+      message: `× ${capitalizeWord(label)} should be Alphabet Characters`,
+    };
+  }
+  if (!input?.replace(/\s/g, "").length) {
+    return {
+      isDuplicate: true,
+      message: `× ${capitalizeWord(
+        label
+      )} can not be only whitespace (ie. spaces, tabs or line breaks)`,
+    };
+  }
+  return {
+    isDuplicate: false,
+    message: "",
+  };
 };
 
 /**
@@ -285,12 +395,11 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
   // let nonceValue;
   const nonceValue = await web3.eth.getTransactionCount(owner);
 
-  console.log("collection suffix is ", COLLECTION_SUFFIX);
   if (logoFileResult.success && bannerFileResult.success) {
     const logoIpfsUrl = logoFileResult.pinataUrl;
     const bannerIpfsUrl = bannerFileResult.pinataUrl;
     const metadata = {
-      name: values.collectionName + " " + COLLECTION_SUFFIX,
+      name: values.collectionName + " " + values.collectionIdentifier,
       description: values.description,
       image: logoIpfsUrl,
       banner: bannerIpfsUrl,
@@ -351,7 +460,6 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
           }
         });
 
-      console.log("deploy reslt is ", deployResult);
       if (deployResult.rejected == true) {
         return {
           success: false,
@@ -370,9 +478,9 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
         collectionData.talentAddress = ownerAddress;
         collectionData.talent = values.talent;
         collectionData.collectionName =
-          values.collectionName + " " + COLLECTION_SUFFIX;
+          values.collectionName + " " + values.collectionIdentifier;
         collectionData.slug = slugify(
-          values.collectionName.toString() + " " + COLLECTION_SUFFIX
+          values.collectionName.toString() + " " + values.collectionIdentifier
         );
         collectionData.metadata = metadata;
         return await uploadCollectionToStrapi(logo, banner, collectionData);

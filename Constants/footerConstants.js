@@ -16,7 +16,7 @@ export const FOOTER_WEBSITE_LINKS = {
       websiteLinkTitle: "How it works",
       link: "https://savory-vulcanodon-748.notion.site/Top-NFT-Collectibles-ece713f206cb48838e4cd0d1113bcd14",
     },
-    { websiteLinkTitle: "Create", link: "/create" },
+    { websiteLinkTitle: "Create", link: "/create/collection" },
     { websiteLinkTitle: "Support", link: "https://m.me/topNFTcollectibles" },
   ],
   allRightReserved: "All rights reserved.",
@@ -29,6 +29,5 @@ export const FOOTER_COMMUNITY = {
       link: "https://www.facebook.com/topNFTcollectibles",
     },
     { communityLinktitle: "Twitter", link: "www.facebook.com" },
-
   ],
 };
