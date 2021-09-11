@@ -23,9 +23,6 @@ import { registerTalent } from "Utils/utils";
 import { useRouter } from "next/router";
 
 const ConnectWalletModal = ({ displayModal }) => {
-  const router = useRouter();
-  let closable = router.pathname.includes("nft");
-  console.log("closeable is ", closable);
   const dispatch = useDispatch();
   const displayWalletModal = useSelector(getDisplayWalletModal);
   const isMetaconnected = useSelector(getMetaConnected);
@@ -128,7 +125,7 @@ const ConnectWalletModal = ({ displayModal }) => {
   return (
     <Modal
       title="Please Connect your wallet"
-      visible={true}
+      visible={displayWalletModal}
       header={null}
       footer={null}
       closable={false}
@@ -150,7 +147,6 @@ const ConnectWalletModal = ({ displayModal }) => {
             <span className={styles.linkSpan}>{"Go Home"}</span>
           </Link>
         </div>
-        {/* {!isMobile && ( */}
         <div className={styles.walletCard} onClick={onDesktopConnect}>
           <img
             className={styles.walletIcon}
@@ -160,33 +156,6 @@ const ConnectWalletModal = ({ displayModal }) => {
           />
           <div className={styles.metamaskButton}>{"Connect with metamask"}</div>
         </div>
-        {/* )} */}
-
-        {/* {isMobile && (
-          <div className={styles.walletCard} onClick={onMobileConnect}>
-            <div>
-              <img
-                className={styles.walletIcon}
-                width={28}
-                height={28}
-                src={"/images/walletIcons/walletconnect-1.svg"}
-              />
-              <img
-                className={styles.walletIcon}
-                width={28}
-                height={28}
-                src={"/images/walletIcons/walletconnect-2.svg"}
-              />
-              <img
-                className={styles.walletIcon}
-                width={28}
-                height={28}
-                src={"/images/walletIcons/walletconnect-3.png"}
-              />
-            </div>
-            <div className={styles.walletDetails}>WalletConnect</div>
-          </div>
-        )} */}
       </div>
     </Modal>
   );
