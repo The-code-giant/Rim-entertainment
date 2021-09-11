@@ -62,9 +62,11 @@ const Layout = ({ children }) => {
       await dispatchMetaConnected(setMetaConnected(false));
       await dispatchMetaToken(setMetaToken([]));
       await dipsatchMetaBalance(setMetaBalance(0));
+      await dispatch(setDisplayWalletModal(true));
       setDisplayMetaMaskModal(true);
     } else {
       await dispatchMetaConnected(setMetaConnected(true));
+      await dispatch(setDisplayWalletModal(false));
       accounts = accounts.map((account) =>
         web3.utils.toChecksumAddress(account)
       );
@@ -147,9 +149,9 @@ const Layout = ({ children }) => {
       <Footer />
 
       {((router.pathname.includes("create") && !isMetaconnected) ||
-        (router.pathname.includes("sell") && !isMetaconnected)) && (
-        <ConnectWalletModal displayModal={true} />
-      )}
+        (router.pathname.includes("sell") &&
+          !isMetaconnected &&
+          !displayWalletModal)) && <ConnectWalletModal displayModal={true} />}
     </>
   );
   async function detectNetwork() {

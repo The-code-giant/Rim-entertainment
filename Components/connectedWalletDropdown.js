@@ -23,6 +23,7 @@ import {
   getMetaConnected,
   getWalletConnected,
   getIsDisconnectedFromServer,
+  setDisplayWalletModal,
 } from "/store/action/accountSlice";
 const Label = styled.div`
   margin: 0px;
@@ -97,6 +98,7 @@ const CONSTANTS = {
   disconnect: "Disconnect",
 };
 function WalletInfoDropdown({ data }) {
+  const dispatch = useDispatch();
   const dispatchMetaConnected = useDispatch();
   const dispatchWalletConnected = useDispatch();
   const dispatchWalletToken = useDispatch();
@@ -122,6 +124,7 @@ function WalletInfoDropdown({ data }) {
     await dispatchWalletConnected(setWalletConnected(false));
     await dispatchWalletToken(setWalletToken(null));
     await dispatchWalletBalance(setWalletBalance(""));
+    await dispatch(setDisplayWalletModal(true));
   };
   const displayAddress = () => {
     const add =
