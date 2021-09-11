@@ -95,7 +95,6 @@ const ConnectWalletModal = ({ displayModal }) => {
   };
 
   const onMobileConnect = async () => {
-    console.log("connnecting with mobile");
     const onboard = new Onboard({
       dappId: process.env.ONBOARD_API_KEY, // [String] The API key created by step one above
       networkId: 4, // [Integer] The Ethereum network ID your Dapp uses.
