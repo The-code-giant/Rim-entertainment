@@ -26,6 +26,7 @@ import {
 } from "store/action/accountSlice";
 
 const Layout = ({ children }) => {
+  const { ethereum } = window;
   const router = useRouter();
 
   const dispatch = useDispatch();
