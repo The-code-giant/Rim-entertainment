@@ -155,6 +155,9 @@ const Layout = ({ children }) => {
         displayWalletModal) ||
         (router.pathname.includes("sell") &&
           !isMetaconnected &&
+          displayWalletModal) ||
+        (router.pathname.includes("nft") &&
+          !isMetaconnected &&
           displayWalletModal)) && <ConnectWalletModal displayModal={true} />}
     </>
   );
