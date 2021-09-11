@@ -106,9 +106,7 @@ const Layout = ({ children }) => {
   };
 
   const handleOnIdle = (event) => {
-    console.log("user is idle", event);
     disconnectUserWallet();
-    console.log("last active", getLastActiveTime());
   };
 
   const disconnectUserWallet = async () => {
@@ -123,11 +121,11 @@ const Layout = ({ children }) => {
   });
 
   useEffect(() => {
-    const displayWalletModal1 =
-      (router.pathname != "/wallet" &&
-        router.pathname.includes("create") &&
-        !isMetaconnected) ||
-      (router.pathname.includes("sell") && !isMetaconnected);
+    // const displayWalletModal1 =
+    //   (router.pathname != "/wallet" &&
+    //     router.pathname.includes("create") &&
+    //     !isMetaconnected) ||
+    //   (router.pathname.includes("sell") && !isMetaconnected);
 
     // dispatch(setDisplayWalletModal(displayWalletModal1));
 
