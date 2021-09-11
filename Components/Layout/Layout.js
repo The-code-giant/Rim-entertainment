@@ -148,10 +148,18 @@ const Layout = ({ children }) => {
 
       <Footer />
 
-      {((router.pathname.includes("create") && !isMetaconnected) ||
-        (router.pathname.includes("sell") &&
+      {(
+        (
+          router.pathname.includes("create") &&
+        !isMetaconnected &&
+        displayWalletModal
+        ) ||
+        (
+          router.pathname.includes("sell") &&
           !isMetaconnected &&
-          !displayWalletModal)) && <ConnectWalletModal displayModal={true} />}
+          displayWalletModal
+          )
+          ) && <ConnectWalletModal displayModal={true} />}
     </>
   );
   async function detectNetwork() {
