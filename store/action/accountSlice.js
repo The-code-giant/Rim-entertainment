@@ -16,7 +16,7 @@ const accountSlice = createSlice({
     requestMetaOpen: false,
     requestMetaClose: false,
     requestWalletOpen: false,
-    displayWalletModal: false,
+    displayWalletModal: true,
   },
   reducers: {
     setAccountTokens: (state, action) => {
