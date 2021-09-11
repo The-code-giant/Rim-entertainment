@@ -20,8 +20,12 @@ import {
 } from "store/action/accountSlice";
 import Web3 from "web3";
 import { registerTalent } from "Utils/utils";
+import { useRouter } from "next/router";
 
 const ConnectWalletModal = ({ displayModal }) => {
+  const router = useRouter();
+  let closable = router.pathname.includes("nft");
+  console.log("closeable is ", closable);
   const dispatch = useDispatch();
   const displayWalletModal = useSelector(getDisplayWalletModal);
   const isMetaconnected = useSelector(getMetaConnected);

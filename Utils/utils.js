@@ -11,7 +11,6 @@ import { OpenSeaPort, Network, EventType } from "opensea-js";
 import { OrderSide } from "opensea-js/lib/types";
 import { isMobileDevice } from "Constants/constants";
 import Onboard from "bnc-onboard";
-import detectEthereumProvider from "@metamask/detect-provider";
 import { fetch, post } from "./strapiApi";
 const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
