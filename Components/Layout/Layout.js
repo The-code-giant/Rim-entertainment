@@ -150,15 +150,22 @@ const Layout = ({ children }) => {
 
       <Footer />
 
-      {((router.pathname.includes("create") &&
-        !isMetaconnected &&
-        displayWalletModal) ||
-        (router.pathname.includes("sell") &&
+      {ethereum &&
+        ((router.pathname.includes("create") &&
           !isMetaconnected &&
           displayWalletModal) ||
-        (router.pathname.includes("nft") &&
-          !isMetaconnected &&
-          displayWalletModal)) && <ConnectWalletModal displayModal={true} />}
+          (router.pathname.includes("sell") &&
+            !isMetaconnected &&
+            displayWalletModal) ||
+          (router.pathname.includes("nft") &&
+            !isMetaconnected &&
+            displayWalletModal)) && <ConnectWalletModal displayModal={true} />}
+
+      {((!ethereum && router.pathname.includes("create")) ||
+        (!ethereum && router.pathname.includes("sell")) ||
+        (!ethereum && router.pathname.includes("nft"))) && (
+        <ConnectWalletModal displayModal={true} />
+      )}
     </>
   );
   async function detectNetwork() {
