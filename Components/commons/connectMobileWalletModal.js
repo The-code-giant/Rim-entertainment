@@ -41,7 +41,13 @@ const ConnectMobileWalletModal = ({ displayModal }) => {
     });
     const data = await onboard.walletSelect();
     if (!data) {
-      router.reload(window.location.pathname);
+      if (
+        router.pathname.includes("create") ||
+        router.pathname.includes("sell") ||
+        router.pathname.includes("nft")
+      ) {
+        router.reload(window.location.pathname);
+      }
     }
   };
 

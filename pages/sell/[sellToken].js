@@ -729,7 +729,7 @@ function SellNft() {
                           <h5>{"Fees"}</h5>
                           <p style={{ marginTop: "20px" }}>
                             {
-                              "Listing is free! At the time of the sale, the following fees will be deducted."
+                              "Listing Fee will be deducted at the time of listing"
                             }
                           </p>
                         </Card>
