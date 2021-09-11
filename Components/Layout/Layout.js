@@ -163,8 +163,8 @@ const Layout = ({ children }) => {
             displayWalletModal)) && <ConnectWalletModal displayModal={true} />}
 
       {((isMobile && router.pathname.includes("create")) ||
-        (!isMobile && router.pathname.includes("sell")) ||
-        (!isMobile && router.pathname.includes("nft"))) && (
+        (isMobile && router.pathname.includes("sell")) ||
+        (isMobile && router.pathname.includes("nft"))) && (
         <ConnectWalletModal displayModal={true} />
       )}
     </>
