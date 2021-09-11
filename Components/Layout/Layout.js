@@ -110,6 +110,7 @@ const Layout = ({ children }) => {
 
   const disconnectUserWallet = async () => {
     await dispatchMetaConnected(setMetaConnected(false));
+    await dispatch(setDisplayWalletModal(true));
   };
 
   const { getLastActiveTime } = useIdleTimer({
@@ -148,18 +149,12 @@ const Layout = ({ children }) => {
 
       <Footer />
 
-      {(
-        (
-          router.pathname.includes("create") &&
+      {((router.pathname.includes("create") &&
         !isMetaconnected &&
-        displayWalletModal
-        ) ||
-        (
-          router.pathname.includes("sell") &&
+        displayWalletModal) ||
+        (router.pathname.includes("sell") &&
           !isMetaconnected &&
-          displayWalletModal
-          )
-          ) && <ConnectWalletModal displayModal={true} />}
+          displayWalletModal)) && <ConnectWalletModal displayModal={true} />}
     </>
   );
   async function detectNetwork() {
