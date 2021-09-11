@@ -25,6 +25,7 @@ import {
   setDisplayWalletModal,
 } from "store/action/accountSlice";
 import { isMobile } from "react-device-detect";
+import ConnectMobileWalletModal from "../commons/connectMobileWalletModal";
 
 const Layout = ({ children }) => {
   const { ethereum } = window;
@@ -151,21 +152,23 @@ const Layout = ({ children }) => {
 
       <Footer />
 
-      {ethereum &&
-        ((router.pathname.includes("create") &&
+      {((ethereum &&
+        router.pathname.includes("create") &&
+        !isMetaconnected &&
+        displayWalletModal) ||
+        (ethereum &&
+          router.pathname.includes("sell") &&
           !isMetaconnected &&
           displayWalletModal) ||
-          (router.pathname.includes("sell") &&
-            !isMetaconnected &&
-            displayWalletModal) ||
-          (router.pathname.includes("nft") &&
-            !isMetaconnected &&
-            displayWalletModal)) && <ConnectWalletModal displayModal={true} />}
+        (ethereum &&
+          router.pathname.includes("nft") &&
+          !isMetaconnected &&
+          displayWalletModal)) && <ConnectWalletModal displayModal={true} />}
 
-      {((isMobile && router.pathname.includes("create")) ||
-        (isMobile && router.pathname.includes("sell")) ||
-        (isMobile && router.pathname.includes("nft"))) && (
-        <ConnectWalletModal displayModal={true} />
+      {((!ethereum && router.pathname.includes("create")) ||
+        (!ethereum && router.pathname.includes("sell")) ||
+        (!ethereum && router.pathname.includes("nft"))) && (
+        <ConnectMobileWalletModal displayModal={true} />
       )}
     </>
   );
