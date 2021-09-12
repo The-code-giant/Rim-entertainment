@@ -215,10 +215,6 @@ export const getTokenId = async (txHash) => {
   try {
     const receipt = await web3.eth.getTransactionReceipt(txHash);
     const tokenId = await web3.utils.hexToNumber(receipt.logs[0].topics[3]);
-    console.log(
-      "token id from hash is here::::",
-      web3.utils.hexToNumber(receipt.logs[0].topics[3])
-    );
     return {
       tokenId,
       success: true,
@@ -450,7 +446,6 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
               message: "Metamask Internal error",
             };
           } else {
-            console.log("in try error ", error);
             return {
               success: false,
               rejected: false,
@@ -554,8 +549,6 @@ export const uploadNft = async (file, values, ownerAddress) => {
 };
 
 export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
-  console.log("owner address of NFT owner is ", ownerAddress);
-  console.log("proxy address is ", RINKEBY_PROXY_ADDRESS);
   const web3 = new Web3(window.ethereum);
   const nftContract = new web3.eth.Contract(
     collectionArtifact.abi,
@@ -567,18 +560,11 @@ export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
   const nftResult = await nftContract.methods
     .mintTo(owner, metadataUri)
     .send({ from: owner, type: "0x2", nonce: nonceValue })
-    .once("transactionHash", function (hash) {
-      console.log("here is transaction nft hash ", hash);
-    })
-    .once("receipt", function (receipt) {
-      console.log("transaction onf nft receipt ", receipt);
-    })
-    .once("confirmation", function (confirmationNumber, receipt) {
-      console.log("configrmation nft number", confirmationNumber);
-    })
+    .once("transactionHash", function (hash) {})
+    .once("receipt", function (receipt) {})
+    .once("confirmation", function (confirmationNumber, receipt) {})
     .once("error", (error) => {
       if (error.code == 4001) {
-        console.log("returning from code");
         return {
           success: false,
           rejected: true,
@@ -627,7 +613,6 @@ export const uploadCollectionToStrapi = async (
   formData.append("files.collectionImageURL", logo);
   formData.append("files.collectionBanner", banner);
   formData.append("data", JSON.stringify(collectionData));
-  console.log("uploading to strapi...");
 
   try {
     const response = await axios.post(
