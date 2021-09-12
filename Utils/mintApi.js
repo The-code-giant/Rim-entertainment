@@ -450,6 +450,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
               message: "Metamask Internal error",
             };
           } else {
+            alert(error.message);
             return {
               success: false,
               rejected: false,
@@ -465,6 +466,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
           message: "User denied transaction signature",
         };
       } else if (deployResult.success == false) {
+        alert(error.message);
         return {
           success: false,
           rejected: false,
