@@ -414,27 +414,68 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
       const collectionUri = collectionMetadataResult.pinataUrl;
       const proxyAddress = web3.utils.toChecksumAddress(RINKEBY_PROXY_ADDRESS);
 
-      try {
-        const deployResult = await new web3.eth.Contract(collectionArtifact.abi)
-          .deploy({
-            name: metadata.name,
-            data: collectionArtifact.bytecode,
-            arguments: [
-              proxyAddress,
-              metadata.name,
-              metadata.name.toUpperCase(),
-              collectionUri,
-            ],
-          })
-          .send({
-            type: "0x2",
-            from: owner,
-            nonce: nonceValue,
-            // gas: 4700000,
-            // gasPrice: 30000000000,
-          });
+      const deployResult = await new web3.eth.Contract(collectionArtifact.abi)
+        .deploy({
+          name: metadata.name,
+          data: collectionArtifact.bytecode,
+          arguments: [
+            proxyAddress,
+            metadata.name,
+            metadata.name.toUpperCase(),
+            collectionUri,
+          ],
+        })
+        .send({
+          // type: "0x2",
+          from: owner,
+          nonce: nonceValue,
+          gas: 4700000,
+          gasPrice: 30000000000,
+        })
+        .catch((error) => {
+          if (error.code == 4001) {
+            return {
+              success: false,
+              rejected: true,
+              message: "User denied transaction signature",
+            };
+          } else if (error.code == 32602) {
+            return {
+              success: false,
+              rejected: false,
+              message: "Metamask, The parameters were invalid",
+            };
+          } else if (error.code == 32603) {
+            return {
+              success: false,
+              rejected: false,
+              message: "Metamask Internal error",
+            };
+          } else {
+            console.log("in try error ", error);
+            return {
+              success: false,
+              rejected: false,
+              message:
+                "Metamask Transaction Failed Make Sure Your Metamask wallet is connected and unlocked",
+            };
+          }
+        });
 
-        console.log("deploy result is ", deployResult);
+      if (deployResult.rejected == true) {
+        return {
+          success: false,
+          rejected: true,
+          message: "User denied transaction signature",
+        };
+      } else if (deployResult.success == false) {
+        return {
+          success: false,
+          rejected: false,
+          message:
+            "Metamask Transaction Failed Make Sure Your Metamask wallet is connected and unlocked",
+        };
+      } else {
         collectionData.contractAddress = deployResult._address;
         collectionData.talentAddress = ownerAddress;
         collectionData.talent = values.talent;
@@ -445,20 +486,6 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
         );
         collectionData.metadata = metadata;
         return await uploadCollectionToStrapi(logo, banner, collectionData);
-      } catch (error) {
-        if (error.code == 4001) {
-          return {
-            success: false,
-            rejected: true,
-            message: "User denied transaction signature",
-          };
-        } else {
-          return {
-            success: false,
-            rejected: false,
-            message: error.message,
-          };
-        }
       }
     } else {
       return collectionMetadataResult;

@@ -201,13 +201,8 @@ const ERC721Collection = ({ serverCollections }) => {
           const slug = result.data.slug;
           setNewCollectionSlug(slug);
           setDisplayModalButtons(true);
-          setDisplayUploadModal(true);
-        } else if (result.rejected && !result.success) {
-          CustomNotification("warning", "Metamask", result.message);
-          setDisplayUploadModal(false);
-          setDisplayModalButtons(false);
         } else {
-          CustomNotification("warning", "Metamask", result.message);
+          CustomNotification("warn", "Metamask", result.message);
           setDisplayUploadModal(false);
           setDisplayModalButtons(false);
         }
@@ -217,8 +212,6 @@ const ERC721Collection = ({ serverCollections }) => {
           "Metamask",
           "Make Sure Metamask wallet is unlocked and refresh the page"
         );
-        setDisplayUploadModal(true);
-        setDisplayModalButtons(false);
       }
     }
   };
