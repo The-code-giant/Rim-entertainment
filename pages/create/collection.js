@@ -216,6 +216,8 @@ const ERC721Collection = ({ serverCollections }) => {
           "Metamask",
           "Make Sure Metamask wallet is unlocked and refresh the page"
         );
+        setDisplayUploadModal(true);
+        setDisplayModalButtons(false);
       }
     }
   };
