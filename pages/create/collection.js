@@ -201,13 +201,14 @@ const ERC721Collection = ({ serverCollections }) => {
           const slug = result.data.slug;
           setNewCollectionSlug(slug);
           setDisplayModalButtons(true);
+          setDisplayUploadModal(true);
         } else if (result.rejected && !result.success) {
           CustomNotification("warning", "Metamask", result.message);
           setDisplayUploadModal(false);
           setDisplayModalButtons(false);
         } else {
           CustomNotification("warning", "Metamask", result.message);
-          setDisplayUploadModal(true);
+          setDisplayUploadModal(false);
           setDisplayModalButtons(false);
         }
       } else {

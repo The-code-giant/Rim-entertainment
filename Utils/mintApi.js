@@ -414,65 +414,27 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
       const collectionUri = collectionMetadataResult.pinataUrl;
       const proxyAddress = web3.utils.toChecksumAddress(RINKEBY_PROXY_ADDRESS);
 
-      const deployResult = await new web3.eth.Contract(collectionArtifact.abi)
-        .deploy({
-          name: metadata.name,
-          data: collectionArtifact.bytecode,
-          arguments: [
-            proxyAddress,
-            metadata.name,
-            metadata.name.toUpperCase(),
-            collectionUri,
-          ],
-        })
-        .send({
-          type: "0x2",
-          from: owner,
-          nonce: nonceValue,
-        })
-        .catch((error) => {
-          if (error.code == 4001) {
-            return {
-              success: false,
-              rejected: true,
-              message: "User denied transaction signature",
-            };
-          } else if (error.code == 32602) {
-            return {
-              success: false,
-              rejected: false,
-              message: "Metamask, The parameters were invalid",
-            };
-          } else if (error.code == 32603) {
-            return {
-              success: false,
-              rejected: false,
-              message: "Metamask Internal error",
-            };
-          } else {
-            alert(error.message);
-            return {
-              success: false,
-              rejected: false,
-              message: error.message,
-            };
-          }
-        });
+      try {
+        const deployResult = await new web3.eth.Contract(collectionArtifact.abi)
+          .deploy({
+            name: metadata.name,
+            data: collectionArtifact.bytecode,
+            arguments: [
+              proxyAddress,
+              metadata.name,
+              metadata.name.toUpperCase(),
+              collectionUri,
+            ],
+          })
+          .send({
+            type: "0x2",
+            from: owner,
+            nonce: nonceValue,
+            // gas: 4700000,
+            // gasPrice: 30000000000,
+          });
 
-      if (deployResult.rejected == true) {
-        return {
-          success: false,
-          rejected: true,
-          message: "User denied transaction signature",
-        };
-      } else if (deployResult.success == false) {
-        alert(error.message + " hello");
-        return {
-          success: false,
-          rejected: false,
-          message: error.message,
-        };
-      } else {
+        console.log("deploy result is ", deployResult);
         collectionData.contractAddress = deployResult._address;
         collectionData.talentAddress = ownerAddress;
         collectionData.talent = values.talent;
@@ -483,6 +445,20 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
         );
         collectionData.metadata = metadata;
         return await uploadCollectionToStrapi(logo, banner, collectionData);
+      } catch (error) {
+        if (error.code == 4001) {
+          return {
+            success: false,
+            rejected: true,
+            message: "User denied transaction signature",
+          };
+        } else {
+          return {
+            success: false,
+            rejected: false,
+            message: error.message,
+          };
+        }
       }
     } else {
       return collectionMetadataResult;
