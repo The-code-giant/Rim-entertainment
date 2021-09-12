@@ -431,6 +431,8 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
           nonce: nonceValue,
           gas: 4700000,
           gasPrice: 30000000000,
+          maxFeePerGas: 30000000000,
+          maxPriorityFeePerGas: 30000000000,
         })
         .catch((error) => {
           if (error.code == 4001) {
