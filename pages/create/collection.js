@@ -143,6 +143,9 @@ const ERC721Collection = ({ serverCollections }) => {
     setLogoImageFile(null);
     setBannerImageFile(null);
     setUploadPrecentage(0);
+    setCollectionIdentifierError("");
+    setCollectionNameError("");
+    setCompleteCollectionNameError("");
     form.resetFields();
   };
 
@@ -201,13 +204,9 @@ const ERC721Collection = ({ serverCollections }) => {
           const slug = result.data.slug;
           setNewCollectionSlug(slug);
           setDisplayModalButtons(true);
-        } else if (result.rejected && !result.success) {
-          CustomNotification("warning", "Metamask", result.message);
-          setDisplayUploadModal(false);
-          setDisplayModalButtons(false);
         } else {
-          CustomNotification("warning", "Metamask", result.message);
-          setDisplayUploadModal(true);
+          CustomNotification("warn", "Metamask", result.message);
+          setDisplayUploadModal(false);
           setDisplayModalButtons(false);
         }
       } else {
@@ -216,8 +215,6 @@ const ERC721Collection = ({ serverCollections }) => {
           "Metamask",
           "Make Sure Metamask wallet is unlocked and refresh the page"
         );
-        setDisplayUploadModal(true);
-        setDisplayModalButtons(false);
       }
     }
   };
