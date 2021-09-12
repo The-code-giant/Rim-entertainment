@@ -570,7 +570,15 @@ export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
 
   const nftResult = await nftContract.methods
     .mintTo(owner, metadataUri)
-    .send({ from: owner, type: "0x2", nonce: nonceValue })
+    .send({
+      from: owner,
+      // type: "0x2",
+      gas: 4700000,
+      gasPrice: 30000000000,
+      maxFeePerGas: 30000000000,
+      maxPriorityFeePerGas: 30000000000,
+      nonce: nonceValue,
+    })
     .once("transactionHash", function (hash) {
       console.log("here is transaction nft hash ", hash);
     })

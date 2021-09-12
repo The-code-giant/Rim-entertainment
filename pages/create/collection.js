@@ -143,6 +143,9 @@ const ERC721Collection = ({ serverCollections }) => {
     setLogoImageFile(null);
     setBannerImageFile(null);
     setUploadPrecentage(0);
+    setCollectionIdentifierError("");
+    setCollectionNameError("");
+    setCompleteCollectionNameError("");
     form.resetFields();
   };
 
