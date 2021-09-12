@@ -150,9 +150,13 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
             setNftTokenId(result.data.tokenId);
             setDisplayUploadModal(true);
             setDisplayModalButtons(true);
-          } else {
+          } else if (result.rejected && !result.success) {
             CustomNotification("warning", "Metamask", result.message);
             setDisplayUploadModal(false);
+            setDisplayModalButtons(false);
+          } else {
+            CustomNotification("warning", "Metamask", result.message);
+            setDisplayUploadModal(true);
             setDisplayModalButtons(false);
           }
         }
