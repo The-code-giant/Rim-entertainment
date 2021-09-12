@@ -466,7 +466,7 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
           message: "User denied transaction signature",
         };
       } else if (deployResult.success == false) {
-        alert(error.message);
+        alert(error.message + " hello");
         return {
           success: false,
           rejected: false,
