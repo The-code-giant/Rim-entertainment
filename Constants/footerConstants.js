@@ -9,7 +9,7 @@ export const FOOTER = {
   policyLink: "www.facebook.com",
 };
 export const FOOTER_WEBSITE_LINKS = {
-  websiteTitle: "Aty4",
+  websiteTitle: "Atixi",
   websiteLinks: [
     { websiteLinkTitle: "Explore", link: "www.facebook.com" },
     {
