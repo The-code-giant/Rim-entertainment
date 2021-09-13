@@ -4,7 +4,7 @@ import { FOOTER } from "/Constants/footerConstants";
 import { FOOTER_WEBSITE_LINKS } from "/Constants/footerConstants";
 import { FOOTER_COMMUNITY } from "/Constants/footerConstants";
 import { FOOTER_LANGUAGES } from "/Constants/footerConstants";
-import Link from "next/link"
+import Link from "next/link";
 import React from "react";
 const {
   updatesMessage,
@@ -157,11 +157,21 @@ function Footer() {
             <hr />
             <FooterExtraLinkContainer>
               <CopyRightAndPolicyContainer>
-                <CopyRight>{`© `} <Link href={"https://aty4.com/"}><a target={"_blank"}>{FOOTER_WEBSITE_LINKS.websiteTitle}</a></Link>{`, Inc. `} {FOOTER_WEBSITE_LINKS.allRightReserved}</CopyRight>
+                <CopyRight>
+                  {`© `}{" "}
+                  <Link href={"https://atixi.com/"}>
+                    <a target={"_blank"}>{FOOTER_WEBSITE_LINKS.websiteTitle}</a>
+                  </Link>
+                  {`, Inc. `} {FOOTER_WEBSITE_LINKS.allRightReserved}
+                </CopyRight>
               </CopyRightAndPolicyContainer>
               <TermAndPolicy>
-                <span><a href={"/docs/terms.pdf"}>{terms}</a></span>
-                <span><a href={"/docs/privacy.pdf"}>{`${privacy} ${policy}`}</a></span>
+                <span>
+                  <a href={"/docs/terms.pdf"}>{terms}</a>
+                </span>
+                <span>
+                  <a href={"/docs/privacy.pdf"}>{`${privacy} ${policy}`}</a>
+                </span>
               </TermAndPolicy>
             </FooterExtraLinkContainer>
           </Col>

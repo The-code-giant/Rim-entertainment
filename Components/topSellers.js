@@ -34,7 +34,7 @@ function TopSellers() {
   return (
     <>
       <div className="pt-3">
-        <SectionHeading>{"Top Sellers"}</SectionHeading>
+        <SectionHeading>{"Recent talents"}</SectionHeading>
         {/* {topSelers[0]?.assets?.length ? (
           <SectionHeading>{"Top Sellers"}</SectionHeading>
         ) : (

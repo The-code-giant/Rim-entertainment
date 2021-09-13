@@ -43,7 +43,7 @@ export default function HotCollections() {
   }, []);
   return (
     <div className={"mt-5"}>
-      <SectionHeading>{"Hot collections"} 💥</SectionHeading>
+      <SectionHeading>{"Recent collections"} 💥</SectionHeading>
       <Carousel
         breakPoints={breakPoints}
         pagination={false}
