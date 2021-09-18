@@ -31,8 +31,6 @@ import { useRouter } from "next/router";
 
 const { TabPane } = Tabs;
 
-
-
 function CollectionDetails() {
   const router = useRouter();
   const { slug } = router.query;
@@ -124,8 +122,8 @@ function CollectionDetails() {
     slug != undefined
       ? (async function fetchCollection() {
           const { data } = await api.get(
-            // `${process.env.HEROKU_BASE_URL}/collections/${slug}`
-            `${process.env.STRAPI_LOCAL_BASE_URL}/collections/${slug}`
+            `${process.env.HEROKU_BASE_URL}/collections/${slug}`
+            // `${process.env.STRAPI_LOCAL_BASE_URL}/collections/${slug}`
           );
           console.log("came", await data);
           setCollect(await data);
