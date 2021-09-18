@@ -1,20 +1,5 @@
-import {
-  Dropdown,
-  Image,
-  Menu,
-  message,
-  Modal,
-  Statistic,
-  Tabs,
-  Avatar,
-  Result,
-  Button,
-  Spin,
-} from "antd";
-import { socket } from "config/websocket";
+import * as Web3 from "web3";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
 import {
   Auction,
   AuctionLabel,
@@ -28,9 +13,11 @@ import {
   BidPriceValue,
   ButtonContainer,
   Content,
+  DetailTabDiv,
   DropdownMenu,
   FooterButton,
   ImageCon,
+  ImageListContainer,
   ItemDescriptionText,
   ItemDetails,
   ItemDetailsHeader,
@@ -43,45 +30,68 @@ import {
   LastBidder,
   PriceInCryptoContainer,
   PriceInDollarContainer,
-  Wrapper,
-  DetailTabDiv,
   SaleEnd,
-  ImageListContainer,
+  Wrapper,
 } from "../../Components/StyledComponents/productDetails-styledComponents";
-import { getAuctionPriceDetails } from "/Constants/constants";
-import CONSTANTS from "/Constants/productDetailsConstants";
-import { useQueryParam } from "/Components/hooks/useQueryParam";
-import { fetchOne, fetchBundle } from "/Utils/strapiApi";
 import {
-  unixToHumanDate,
+  Avatar,
+  Button,
+  Dropdown,
+  Image,
+  Menu,
+  Modal,
+  Result,
+  Spin,
+  Statistic,
+  Tabs,
+  message,
+} from "antd";
+import {
+  acceptThisOffer,
   buyOrder,
   cancelThisOffer,
-  acceptThisOffer,
-  displayAddress,
-  detectVideo,
-  unixToMilSeconds,
   checkName,
-  prevImage,
-  findHighestOffer,
   convertToUsd,
+  detectVideo,
+  displayAddress,
+  findHighestOffer,
+  prevImage,
+  unixToHumanDate,
+  unixToMilSeconds,
 } from "/Utils/utils";
-const { TabPane } = Tabs;
-import { FieldTimeOutlined } from "@ant-design/icons";
-import ReactPlayer from "react-player";
-import MakeOfferModal from "/Components/makeOfferModal";
-import BuyNftModal from "/Components/buyNftModal";
-import { useSelector } from "react-redux";
+import { fetchBundle, fetchOne } from "/Utils/strapiApi";
 import {
   getAccountTokens,
-  getWalletConnected,
   getMetaConnected,
+  getWalletConnected,
 } from "store/action/accountSlice";
+import { useEffect, useState } from "react";
+
+import BuyNftModal from "/Components/buyNftModal";
+import CONSTANTS from "/Constants/productDetailsConstants";
+import { FieldTimeOutlined } from "@ant-design/icons";
+import Link from "next/link";
+import MakeOfferModal from "/Components/makeOfferModal";
+import ReactPlayer from "react-player";
+import { getAuctionPriceDetails } from "/Constants/constants";
+import { socket } from "config/websocket";
+import { useQueryParam } from "/Components/hooks/useQueryParam";
 import { useRouter } from "next/router";
-import * as Web3 from "web3";
+import { useSelector } from "react-redux";
+
+const { TabPane } = Tabs;
+
+
+
+
+
+
+
+
 const { Countdown } = Statistic;
 function ProductPage() {
   const { ethereum } = window;
-let web3 = new Web3(ethereum);
+  let web3 = new Web3(ethereum);
   const router = useRouter();
   const queryParam = useQueryParam();
   const [asset, setAsset] = useState({});
@@ -105,6 +115,7 @@ let web3 = new Web3(ethereum);
   const [mainImage, setMainImage] = useState(null);
   const [assets, setAssets] = useState(null);
   const [order, setOrder] = useState(null);
+
   const loadAgain = () => {
     setLoading(true);
     loadNft();
@@ -124,8 +135,10 @@ let web3 = new Web3(ethereum);
         setOrder(bundle.data);
         const nft = bundle.data;
         setAssets(nft.assetBundle.assets);
-        let owner =  nft?.assetBundle?.maker;
-        owner.makerAccount.address = web3.utils.toChecksumAddress(owner.makerAccount.address)
+        let owner = nft?.assetBundle?.maker;
+        owner.makerAccount.address = web3.utils.toChecksumAddress(
+          owner.makerAccount.address
+        );
         let imgUrl = [nft.assetBundle.assets];
         nft.assetBundle.assets.map((asset, index) => {
           imgUrl[index] = {
@@ -174,7 +187,7 @@ let web3 = new Web3(ethereum);
 
       if (data.status == 200) {
         const nft = data.data;
-        nft.owner.address = web3.utils.toChecksumAddress(nft.owner.address)
+        nft.owner.address = web3.utils.toChecksumAddress(nft.owner.address);
         setAsset({
           name: nft.name,
           description: nft.description,

@@ -1,40 +1,42 @@
-import React, { useEffect, useState } from "react";
-import { getAuctionPriceDetails } from "/Constants/constants";
-import Carousel from "react-elastic-carousel";
-import { socket } from "config/websocket";
 import {
-  Menu,
-  Dropdown,
   Avatar,
-  Tooltip,
-  Statistic,
-  Spin,
-  Space,
   Card,
+  Dropdown,
+  Menu,
+  Space,
+  Spin,
+  Statistic,
+  Tooltip,
 } from "antd";
-import Link from "next/link";
-import CONSTANTS from "/Constants/fixedSellsConstants";
 import {
-  Button,
-  CardTitle,
-  ProductPrice,
   BidsStatus,
-  ProductCard,
-  ProductList,
-  ProductCardHeader,
-  ProductDescriptionBottom,
-  ProductDescription,
-  CountDownContainer,
+  Button,
+  CardImage,
+  CardTitle,
   CountDown,
+  CountDownContainer,
+  ProductCard,
+  ProductCardHeader,
   ProductCardHeaderButton,
   ProductCardHeaderOwners,
-  CardImage,
+  ProductDescription,
+  ProductDescriptionBottom,
+  ProductList,
+  ProductPrice,
 } from "./StyledComponents/liveAuctions-styledComponents";
-import { SectionHeading } from "./StyledComponents/globalStyledComponents";
-import { unixToMilSeconds, checkName } from "/Utils/utils";
-import { fetch } from "Utils/strapiApi";
-import styles from "/styles/ui.module.css";
+import React, { useEffect, useState } from "react";
+import { checkName, unixToMilSeconds } from "/Utils/utils";
+
+import CONSTANTS from "/Constants/fixedSellsConstants";
+import Carousel from "react-elastic-carousel";
 import CustomNotification from "./commons/customNotification";
+import Link from "next/link";
+import { SectionHeading } from "./StyledComponents/globalStyledComponents";
+import { fetch } from "Utils/strapiApi";
+import { getAuctionPriceDetails } from "/Constants/constants";
+import { socket } from "config/websocket";
+import styles from "/styles/ui.module.css";
+
 const breakPoints = [
   { width: 1, itemsToShow: 1 },
   { width: 550, itemsToShow: 2, itemsToScroll: 2 },
@@ -46,7 +48,7 @@ const deadline = Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30;
 
 const { Countdown } = Statistic;
 function FixedSells() {
-  const [serverFixedPriceSells, setServerFixedPriceSells] = useState([]);
+  const [serverFixedPriceSells, setServerFixedPriceSells] = useState();
 
   const loadServerFixedPriceSells = async () => {
     await fetch("/nfts/fixed")
@@ -57,7 +59,11 @@ function FixedSells() {
       })
       .catch((e) => {
         console.log("error in loading collection", e);
-        // CustomNotification("warning", "Fixed Price", JSON.stringify(e));
+        CustomNotification(
+          "warning",
+          "Fixed Price",
+          "Error loading Fix Price sell, try later"
+        );
       });
   };
 
@@ -70,20 +76,23 @@ function FixedSells() {
     loadServerFixedPriceSells();
   }, []);
 
-  if (!serverFixedPriceSells) {
+  if (serverFixedPriceSells == null) {
     return (
-      <Carousel
-        breakPoints={breakPoints}
-        pagination={false}
-        transitionMs={1000}
-        className={styles.loadingCardContainer}
-      >
-        {[...Array(10).keys()].map((item, index) => (
-          <Card key={index} size="middle" className={styles.loadingCard}>
-            <Spin size="large" />
-          </Card>
-        ))}
-      </Carousel>
+      <>
+        <SectionHeading>{CONSTANTS.fixedSells}</SectionHeading>
+        <Carousel
+          breakPoints={breakPoints}
+          pagination={false}
+          transitionMs={1000}
+          className={styles.loadingCardContainer}
+        >
+          {[...Array(10).keys()].map((item, index) => (
+            <Card key={index} size="middle" className={styles.loadingCard}>
+              <Spin size="large" />
+            </Card>
+          ))}
+        </Carousel>
+      </>
     );
   } else {
     return (

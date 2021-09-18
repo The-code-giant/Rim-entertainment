@@ -1,4 +1,5 @@
 import request from "./axios";
+
 export const fetchOne = (tokenAddress, tokenId) => {
   console.log("feching single nft");
   return request(`nfts/${tokenId}/${tokenAddress}`, {

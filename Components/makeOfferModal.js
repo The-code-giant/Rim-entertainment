@@ -1,35 +1,37 @@
-import React, { useState, useEffect } from "react";
 import {
-  Modal,
+  Avatar,
+  Button,
+  Checkbox,
+  DatePicker,
   Form,
   Input,
   List,
+  Modal,
   Select,
-  Checkbox,
-  Avatar,
-  message,
-  DatePicker,
   TimePicker,
-  Button,
+  message,
 } from "antd";
 import {
-  FooterButton,
   AvatarContainer,
+  FooterButton,
 } from "./StyledComponents/productDetails-styledComponents";
-import { makeOffer, checkName } from "Utils/utils";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { checkName, makeOffer } from "Utils/utils";
 import {
   getAccountTokens,
-  getWalletConnected,
-  getMetaConnected,
-  setDisplayWalletModal,
   getDisplayWalletModal,
+  getMetaConnected,
+  getWalletConnected,
+  setDisplayWalletModal,
 } from "store/action/accountSlice";
-import { getAuctionPriceDetails } from "/Constants/constants";
-const { Option } = Select;
-import Link from "next/link";
-import styled from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+
 import ConnectWalletModal from "./commons/connectWalletModal";
+import Link from "next/link";
+import { getAuctionPriceDetails } from "/Constants/constants";
+import styled from "styled-components";
+
+const { Option } = Select;
 
 const SubmitButton = styled(Button)`
   margin: auto;
@@ -81,35 +83,40 @@ function MakeOfferModal({ asset, assets, isBundle, loadAgain }) {
   const dispatch = useDispatch();
   const isDisplayWalletModal = useSelector(getDisplayWalletModal);
   const showModal = () => {
+    console.log("calling show modal");
     isWalletConnected || isMetaConnected
       ? setIsModalVisible(true)
       : setNotConnected(true);
   };
   const handleCancel = () => {
-    setMakingOffer(false);
-    setStep(false);
     setIsModalVisible(false);
+    setResponseMessage("");
+    setStep(false);
+    setMakingOffer(false);
     setNotConnected(false);
   };
 
   const [error, setError] = useState();
   const onFinish = async (values) => {
-    try {
-      setMakingOffer(true);
-      let offer = await makeOffer(
-        values,
-        asset,
-        isBundle,
-        assets,
-        address && address
-      );
+    setResponseMessage("");
+    setMakingOffer(true);
+    let offerResult = await makeOffer(
+      values,
+      asset,
+      isBundle,
+      assets,
+      address && address
+    );
 
+    if (offerResult.success) {
+      setMakingOffer(false);
       setIsModalVisible(false);
       loadAgain(true);
       message.success("Offer is saved");
-    } catch (e) {
+    } else {
+      setIsModalVisible(true);
       setMakingOffer(false);
-      setResponseMessage(e.toString());
+      setResponseMessage(offerResult.message);
     }
   };
 
@@ -144,14 +151,16 @@ function MakeOfferModal({ asset, assets, isBundle, loadAgain }) {
       >
         Make Offer
       </FooterButton>
-      <Modal
-        title="Make an Offer"
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        footer={false}
-      >
-        {step ? offer() : showInfo(asset)}
-      </Modal>
+      {isModalVisible && (
+        <Modal
+          title="Make an Offer"
+          visible={isModalVisible}
+          onCancel={handleCancel}
+          footer={false}
+        >
+          {step ? offer() : showInfo(asset)}
+        </Modal>
+      )}
       {/* <ConnectWalletModal displayModal={isDisplayWalletModal} /> */}
       {/* {!isMetaConnected && <ConnectWalletModal />} */}
       {/* <Modal title={<strong>{"You are not connect to any wallet!"}</strong>} footer={false} visible={notConnected} onCancel={handleCancel}>
