@@ -16,7 +16,7 @@ import {
   FooterButton,
 } from "./StyledComponents/productDetails-styledComponents";
 import React, { useEffect, useState } from "react";
-import { checkName, makeOffer } from "Utils/utils";
+import { checkName, makeOffer, signTransaction } from "Utils/utils";
 import {
   getAccountTokens,
   getDisplayWalletModal,
@@ -98,25 +98,38 @@ function MakeOfferModal({ asset, assets, isBundle, loadAgain }) {
 
   const [error, setError] = useState();
   const onFinish = async (values) => {
-    setResponseMessage("");
-    setMakingOffer(true);
-    let offerResult = await makeOffer(
-      values,
-      asset,
-      isBundle,
-      assets,
-      address && address
-    );
+    const enableAccount = await ethereum.enable();
+    if (enableAccount) {
+      console.log("enable account ", enableAccount);
+      if (enableAccount.length > 0) {
+        const offerSign = await signTransaction(
+          enableAccount[0],
+          "Making offer",
+          asset
+        );
+        if (offerSign.success) {
+          setResponseMessage("");
+          setMakingOffer(true);
+          let offerResult = await makeOffer(
+            values,
+            asset,
+            isBundle,
+            assets,
+            address && address
+          );
 
-    if (offerResult.success) {
-      setMakingOffer(false);
-      setIsModalVisible(false);
-      loadAgain(true);
-      message.success("Offer is saved");
-    } else {
-      setIsModalVisible(true);
-      setMakingOffer(false);
-      setResponseMessage(offerResult.message);
+          if (offerResult.success) {
+            setMakingOffer(false);
+            setIsModalVisible(false);
+            loadAgain(true);
+            message.success("Offer is saved");
+          } else {
+            setIsModalVisible(true);
+            setMakingOffer(false);
+            setResponseMessage(offerResult.message);
+          }
+        }
+      }
     }
   };
 

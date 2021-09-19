@@ -387,6 +387,7 @@ export const pinJSONToIPFS = async (metaContent, mediaType) => {
 
 export const deployCollection = async (logo, banner, values, ownerAddress) => {
   const { ethereum } = window;
+  console.log("entherim", ethereum);
   let web3 = new Web3(ethereum);
   let collectionData = new Object();
   const logoFileResult = await pinFileToPinata(logo);

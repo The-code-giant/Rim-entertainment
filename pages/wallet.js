@@ -1,25 +1,23 @@
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import Web3 from "web3";
-import styles from "/styles/wallet.module.css";
-import { isMobile } from "react-device-detect";
-
-// const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
-// const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
+import { getCurrentAccount, registerTalent } from "Utils/utils";
 import {
-  setMetaConnected,
   getMetaToken,
   setMetaBalance,
+  setMetaConnected,
   setMetaToken,
 } from "/store/action/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
+
+import CustomNotification from "/Components/commons/customNotification";
+import InstallMetamaskModal from "/Components/commons/InstallMetamaskModal";
+import Link from "next/link";
+import Onboard from "bnc-onboard";
+import Web3 from "web3";
+import { getMetaConnected } from "store/action/accountSlice";
+import { isMobile } from "react-device-detect";
+import styles from "/styles/wallet.module.css";
 import { useRouter } from "next/router";
 
-import Onboard from "bnc-onboard";
-import { getCurrentAccount, registerTalent } from "Utils/utils";
-import InstallMetamaskModal from "/Components/commons/InstallMetamaskModal";
-import CustomNotification from "/Components/commons/customNotification";
-import { getMetaConnected } from "store/action/accountSlice";
 const Wallet = () => {
   const router = useRouter();
   const dispatchMetaConnected = useDispatch();
