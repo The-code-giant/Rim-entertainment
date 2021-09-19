@@ -1,11 +1,4 @@
 import React, { useState } from "react";
-import { Modal } from "antd";
-import Link from "next/link";
-import styles from "/styles/connectWalletModal.module.css";
-import { isMobile } from "react-device-detect";
-import CustomNotification from "/Components/commons/customNotification";
-import { useDispatch, useSelector } from "react-redux";
-import Onboard from "bnc-onboard";
 import {
   getAccountTokens,
   getDisplayWalletModal,
@@ -18,8 +11,16 @@ import {
   setMetaConnected,
   setMetaToken,
 } from "store/action/accountSlice";
+import { useDispatch, useSelector } from "react-redux";
+
+import CustomNotification from "/Components/commons/customNotification";
+import Link from "next/link";
+import { Modal } from "antd";
+import Onboard from "bnc-onboard";
 import Web3 from "web3";
+import { isMobile } from "react-device-detect";
 import { registerTalent } from "Utils/utils";
+import styles from "/styles/connectWalletModal.module.css";
 import { useRouter } from "next/router";
 
 const ConnectWalletModal = ({ displayModal }) => {
@@ -40,10 +41,8 @@ const ConnectWalletModal = ({ displayModal }) => {
       let web3 = new Web3(ethereum);
       const accounts = await web3.eth.getAccounts();
       if (accounts.length > 0) {
-        console.log("accounts are", accounts);
         presisMetamask(accounts);
       } else {
-        console.log("request to connect to metamask from walled modal");
         if (ethereum && ethereum.isMetaMask) {
           ethereum
             .request({ method: "eth_requestAccounts" })

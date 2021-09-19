@@ -1,33 +1,36 @@
-import { Tabs, Spin, Dropdown } from "antd";
-import React, { useEffect, useState } from "react";
 import {
+  BioDescription,
+  BiographyContainer,
+  ProfileButton,
   ProfileContainer,
   ShareButton,
-  BiographyContainer,
-  BioDescription,
-  ProfileButton,
   ShareProfile,
 } from "/Components/StyledComponents/talentPage-styledComponents";
-import Products from "/Components/nfts";
+import { Dropdown, Spin, Tabs } from "antd";
+import {
+  FacebookIcon,
+  FacebookShareButton,
+  TelegramIcon,
+  TelegramShareButton,
+  TwitterIcon,
+  TwitterShareButton,
+  WhatsappIcon,
+  WhatsappShareButton,
+} from "next-share";
 import {
   LoadMoreButton,
   MainWrapper,
 } from "/Components/StyledComponents/globalStyledComponents";
+import React, { useEffect, useState } from "react";
+
 import CollectionLoader from "@/components/collectionLoader";
-import { useRouter } from "next/router";
-const { TabPane } = Tabs;
-import {
-  FacebookShareButton,
-  FacebookIcon,
-  TwitterShareButton,
-  TwitterIcon,
-  TelegramShareButton,
-  TelegramIcon,
-  WhatsappShareButton,
-  WhatsappIcon,
-} from "next-share";
-import { displayAddress } from "/Utils/utils";
+import Products from "/Components/nfts";
 import api from "/Components/axiosRequest";
+import { displayAddress } from "/Utils/utils";
+import { useRouter } from "next/router";
+
+const { TabPane } = Tabs;
+
 function CollectionDetails() {
   const router = useRouter();
   const { slug } = router.query;

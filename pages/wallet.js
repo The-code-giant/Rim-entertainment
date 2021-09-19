@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import Web3 from "web3";
 import styles from "/styles/wallet.module.css";
 import { isMobile } from "react-device-detect";
-import MetaMaskOnboarding from "@metamask/onboarding";
 
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;

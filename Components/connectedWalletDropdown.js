@@ -1,30 +1,27 @@
+import { Avatar, List, Menu } from "antd";
 import React, { useEffect, useState } from "react";
-import { Menu, List, Avatar } from "antd";
-import { SwapOutlined, QuestionCircleOutlined } from "@ant-design/icons";
-import styled from "styled-components";
-import Link from "next/link";
-import { Button } from "./StyledComponents/header-styledComponents";
-import { useDispatch, useSelector } from "react-redux";
-import WalletConnect from "@walletconnect/client";
-import QRCodeModal from "@walletconnect/qrcode-modal";
-
 import {
-  setAccountTokens,
-  setMetaToken,
-  setWalletToken,
-  setMetaConnected,
-  setWalletConnected,
-  setWalletBalance,
   getAccountTokens,
-  getMetaToken,
-  getMetaBalance,
-  getWalletToken,
-  getWalletBalance,
-  getMetaConnected,
-  getWalletConnected,
   getIsDisconnectedFromServer,
+  getMetaBalance,
+  getMetaConnected,
+  getMetaToken,
+  getWalletBalance,
+  getWalletConnected,
+  getWalletToken,
+  setAccountTokens,
   setDisplayWalletModal,
+  setMetaConnected,
+  setMetaToken,
+  setWalletBalance,
+  setWalletConnected,
+  setWalletToken,
 } from "/store/action/accountSlice";
+import { useDispatch, useSelector } from "react-redux";
+
+import Link from "next/link";
+import styled from "styled-components";
+
 const Label = styled.div`
   margin: 0px;
   padding: 0px;
@@ -112,14 +109,14 @@ function WalletInfoDropdown({ data }) {
   const [address, setAddress] = useState(data[0]);
 
   const disconnectWallet = async () => {
-    const bridge = "https://bridge.walletconnect.org";
+    // const bridge = "https://bridge.walletconnect.org";
 
-    const connector = new WalletConnect({ bridge, qrcodeModal: QRCodeModal });
+    // const connector = new WalletConnect({ bridge, qrcodeModal: QRCodeModal });
 
-    if (!connector.connected) {
-    } else {
-      await connector.killSession();
-    }
+    // if (!connector.connected) {
+    // } else {
+    //   await connector.killSession();
+    // }
     await dispatchMetaConnected(setMetaConnected(false));
     await dispatchWalletConnected(setWalletConnected(false));
     await dispatchWalletToken(setWalletToken(null));

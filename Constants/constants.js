@@ -1,10 +1,9 @@
 import * as Web3 from "web3";
+
 import BigNumber from "bignumber.js";
+import { fetch } from "Utils/strapiApi";
 import moment from "moment";
 
-import { InjectedConnector } from "@web3-react/injected-connector";
-import WalletConnectProvider from "@walletconnect/web3-provider";
-import { fetch } from "Utils/strapiApi";
 export const GOOGLE_ANALYTICS_ID = "UA-111688253-4";
 export const OPENSEA_URL = "https://opensea.io";
 export const OPENSEA_JS_URL = "https://github.com/ProjectOpenSea/opensea-js";
@@ -147,13 +146,13 @@ export const providerOptions = {
   injected: {
     display: {
       // logo: "data:image/gif;base64,INSERT_BASE64_STRING",
-      name: InjectedConnector,
+      // name: InjectedConnector,
       description: "Connect with the provider in your Browser",
     },
     package: null,
   },
   walletconnect: {
-    package: WalletConnectProvider,
+    // package: WalletConnectProvider,
     options: {
       infuraId: "7ca37bed6f77481eb889a45bc8520e6c", // required
       qrcode: true,

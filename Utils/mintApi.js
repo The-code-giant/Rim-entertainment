@@ -1,8 +1,8 @@
-import collectionArtifact from "./../build/contracts/Rimable.json";
-
 import Web3 from "web3";
 import axios from "axios";
+import collectionArtifact from "./../build/contracts/Rimable.json";
 import { slugify } from "./utils";
+
 const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
 // const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;

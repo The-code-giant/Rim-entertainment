@@ -1,21 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { Modal, Form, List, Avatar, Checkbox, message, Button } from "antd";
+import { Avatar, Button, Checkbox, Form, List, Modal, message } from "antd";
 import {
-  FooterButton,
   AvatarContainer,
+  FooterButton,
 } from "./StyledComponents/productDetails-styledComponents";
-import { buyOrder, checkName } from "Utils/utils";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { buyOrder, checkName, getBuyErrorMessage } from "Utils/utils";
 import {
   getAccountTokens,
-  getWalletConnected,
-  getMetaConnected,
-  setDisplayWalletModal,
   getDisplayWalletModal,
+  getMetaConnected,
+  getWalletConnected,
+  setDisplayWalletModal,
 } from "store/action/accountSlice";
+import { useDispatch, useSelector } from "react-redux";
+
 import Link from "next/link";
-import styled from "styled-components";
+import { capitalize } from "lodash";
+import { capitalizeWord } from "Utils/mintApi";
 import { getAuctionPriceDetails } from "/Constants/constants";
+import styled from "styled-components";
+
 const ConnectButton = styled.button`
   margin: auto;
   width: 200px;
@@ -61,7 +65,7 @@ function BuyNftModal({ asset, isBundle, order, loadAgain }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [notConnected, setNotConnected] = useState(false);
   const [timeInput, setTime] = useState(true);
-  const [responseMessage, setResponseMessage] = useState([""]);
+  const [responseMessage, setResponseMessage] = useState("");
   const dispatch = useDispatch();
   const isDisplayWalletModal = useSelector(getDisplayWalletModal);
   const showModal = () => {
@@ -70,22 +74,26 @@ function BuyNftModal({ asset, isBundle, order, loadAgain }) {
       : setNotConnected(true);
   };
   const handleCancel = () => {
+    setResponseMessage("");
     setStep(true);
     setIsModalVisible(false);
     setNotConnected(false);
   };
 
   const onFinish = async (values) => {
-    try {
-      setBuying(true);
-      let buy = await buyOrder(asset, isBundle, order, address && address);
+    setBuying(true);
+    let buyResult = await buyOrder(asset, isBundle, order, address && address);
 
+    console.log("Buy result is ", buyResult);
+    if (buyResult.success) {
+      setResponseMessage("");
       setIsModalVisible(false);
       loadAgain(true);
       message.success("You bought this token");
-    } catch (e) {
+    } else {
       setBuying(false);
-      setResponseMessage(e.toString());
+      setIsModalVisible(true);
+      setResponseMessage(getBuyErrorMessage(buyResult.message));
     }
   };
 
@@ -125,14 +133,16 @@ function BuyNftModal({ asset, isBundle, order, loadAgain }) {
       >
         Buy
       </FooterButton>
-      <Modal
-        title="Buy this token "
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        footer={false}
-      >
-        {step ? showInfo(asset) : buy()}
-      </Modal>
+      {isModalVisible && (
+        <Modal
+          title="Buy this token "
+          visible={isModalVisible}
+          onCancel={handleCancel}
+          footer={false}
+        >
+          {step ? showInfo(asset) : buy()}
+        </Modal>
+      )}
       {/* <ConnectWalletModal displayModal={isDisplayWalletModal} /> */}
       <Modal
         title={<strong>{"You are not connect to any wallet!"}</strong>}
@@ -240,7 +250,7 @@ function BuyNftModal({ asset, isBundle, order, loadAgain }) {
         {" "}
         <Form
           name="complex-form"
-          id={"makeOffer"}
+          id={"makeBuy"}
           onFinish={onFinish}
           labelCol={{ span: 24 }}
           wrapperCol={{ span: 24 }}
@@ -292,7 +302,7 @@ function BuyNftModal({ asset, isBundle, order, loadAgain }) {
               color={"white"}
               marginBottom={"15px"}
               background={"#0066ff"}
-              form={"makeOffer"}
+              form={"makeBuy"}
               htmlType={"submit"}
               type="primary"
             >

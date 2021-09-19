@@ -1,34 +1,35 @@
-import moment from "moment";
-import { getAuctionPriceDetails } from "/Constants/constants";
+import * as Web3 from "web3";
+
+import { EventType, Network, OpenSeaPort } from "opensea-js";
 import {
   differenceInSeconds,
   intervalToDuration,
   secondsToMilliseconds,
 } from "date-fns";
-import fromUnix from "date-fns/fromUnixTime";
-import * as Web3 from "web3";
-import { OpenSeaPort, Network, EventType } from "opensea-js";
-import { OrderSide } from "opensea-js/lib/types";
-import { isMobileDevice } from "Constants/constants";
-import Onboard from "bnc-onboard";
 import { fetch, post } from "./strapiApi";
+
+import Onboard from "bnc-onboard";
+import { OrderSide } from "opensea-js/lib/types";
+import { capitalizeWord } from "./mintApi";
+import fromUnix from "date-fns/fromUnixTime";
+import { getAuctionPriceDetails } from "/Constants/constants";
+import { isMobileDevice } from "Constants/constants";
+import moment from "moment";
+
 const STRAPI_BASE_URL = process.env.HEROKU_BASE_URL;
 // const STRAPI_BASE_URL = process.env.HEROKU_BASE_TNC;
 // const STRAPI_BASE_URL = process.env.STRAPI_LOCAL_BASE_URL;
 const referrerAddress = process.env.REF_ADDRESS;
 const NETWORK_NAME = process.env.NETWORK_NAME; //here
 export const seaportProvider = new Web3.providers.HttpProvider(
-  "https://rinkeby.infura.io/v3/c2dde5d7c0a0465a8e994f711a3a3c31"
+  "https://mainnet.infura.io"
   // 'https://rinkeby-api.opensea.io/api/v1/'
 );
 export function seaport() {
   const provider = window.ethereum;
   const seaport = new OpenSeaPort(provider, {
-    networkName: NETWORK_NAME,
-    ...(NETWORK_NAME == "main" && {
-      apiKey: "c2dde5d7c0a0465a8e994f711a3a3c31",
-    }),
-    // apiKey: "c2dde5d7c0a0465a8e994f711a3a3c31",
+    networkName: Network.Main,
+    apiKey: "c2dde5d7c0a0465a8e994f711a3a3c31",
   });
   return seaport;
 }
@@ -53,57 +54,89 @@ export async function makeOffer(
         "seconds"
       );
       expirationTime = Math.round(
-        Date.now() / 1000 + (offerData.dateTime.days * 24 * 60 * 60 + timme)
+        Date.now() / 1000 + (offerData.dateTime.days * 24 * 60 * 60 + time)
       );
     }
-    return await seaport().createBundleBuyOrder({
-      assets,
-      accountAddress,
-      startAmount: offerData.price.amount,
-      expirationTime: parseInt(expirationTime),
-      referrerAddress,
-    });
+    try {
+      let bundleResult = await seaport().createBundleBuyOrder({
+        assets,
+        accountAddress,
+        startAmount: offerData.price.amount,
+        expirationTime: parseInt(expirationTime),
+        referrerAddress,
+      });
+      return {
+        success: true,
+        message: "Offer is saved",
+        transactionHash: bundleResult?.transactionHash,
+      };
+    } catch (e) {
+      return {
+        success: false,
+        message: e.message,
+      };
+    }
   } else {
-    return await seaport().createBuyOrder({
-      asset: {
-        tokenId,
-        tokenAddress,
-      },
-      accountAddress,
-      // Value of the offer, in units of the payment token (or wrapped ETH if none is specified):
-      startAmount: offerData.price.amount,
-      referrerAddress,
-    });
+    try {
+      let directOffer = await seaport().createBuyOrder({
+        asset: {
+          tokenId,
+          tokenAddress,
+        },
+        accountAddress,
+        startAmount: offerData.price.amount,
+        referrerAddress,
+      });
+      return {
+        success: true,
+        message: "Offer is saved",
+        transactionHash: directOffer.transactionHash,
+      };
+    } catch (e) {
+      return {
+        success: false,
+        message: e.message,
+      };
+    }
   }
 }
 export async function buyOrder(asset, isBundle, order, accountAddress) {
-  try {
-    if (isBundle) {
-      const transactionHash = await seaport()
-        .fulfillOrder({ order, accountAddress, referrerAddress })
-        .catch(() => {
-          return "Error on buying the bundle";
-        });
-      return transactionHash;
-    } else {
-      const order = await seaport()
-        .api.getOrder({
-          side: OrderSide.Sell,
-          asset_contract_address: asset.tokenAddress,
-          token_id: asset.tokenId,
-        })
-        .catch(() => {
-          return "Error getting order";
-        });
-      const transactionHash = await seaport()
-        .fulfillOrder({ order, accountAddress, referrerAddress })
-        .catch(() => {
-          return "Error on buying the token";
-        });
-      return transactionHash;
+  if (isBundle) {
+    try {
+      const transactionHash = await seaport().fulfillOrder({
+        order,
+        accountAddress,
+        referrerAddress,
+      });
+      return {
+        success: true,
+        transactionHash,
+      };
+    } catch (e) {
+      return {
+        success: false,
+        message: e.message,
+      };
     }
-  } catch (e) {
-    return e;
+  } else {
+    try {
+      const order = await seaport().api.getOrder({
+        side: OrderSide.Sell,
+        asset_contract_address: asset.tokenAddress,
+        token_id: asset.tokenId,
+      });
+      const transactionHash = await seaport().fulfillOrder({
+        order,
+        accountAddress,
+        referrerAddress,
+      });
+      return { success: true, transactionHash };
+    } catch (e) {
+      return {
+        success: false,
+        message: e.message,
+      };
+    }
   }
 }
 export async function acceptThisOffer(order, address) {
@@ -455,4 +488,26 @@ export const registerTalent = async (account) => {
       });
     }
   }
+};
+
+export const getBuyErrorMessage = (value) => {
+  let errorMessage = "";
+
+  if (value.includes("insufficient")) {
+    errorMessage = value.split("err: ")[1].toString();
+    errorMessage =
+      capitalizeWord(errorMessage.substring(0, errorMessage.length - 4)) +
+      " gas fees";
+  } else if (
+    value.includes(
+      "401" ||
+        value.includes("Invalid API key") ||
+        value.includes("Unauthorized")
+    )
+  ) {
+    return "Invalid API key";
+  } else {
+    errorMessage = "Unknown message";
+  }
+  return errorMessage;
 };

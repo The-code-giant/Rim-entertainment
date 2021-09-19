@@ -1,31 +1,30 @@
-import Header from "/Components/header";
-import Footer from "/Components/footer";
-import Head from "next/head";
-import { useEffect, useState } from "react";
-import detectEthereumProvider from "@metamask/detect-provider";
-import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "next/router";
-
-import {
-  setMetaToken,
-  setMetaBalance,
-  setMetaConnected,
-  getMetaToken,
-  getMetaConnected,
-} from "/store/action/accountSlice";
-import Web3 from "web3";
-import { providers } from "/Constants/constants";
-import { Modal } from "antd";
-import { isMobileDevice } from "Constants/constants";
-import { useIdleTimer } from "react-idle-timer";
-import ConnectWalletModal from "../commons/connectWalletModal";
-import { registerTalent } from "Utils/utils";
 import {
   getDisplayWalletModal,
   setDisplayWalletModal,
 } from "store/action/accountSlice";
-import { isMobile } from "react-device-detect";
+import {
+  getMetaConnected,
+  getMetaToken,
+  setMetaBalance,
+  setMetaConnected,
+  setMetaToken,
+} from "/store/action/accountSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+
 import ConnectMobileWalletModal from "../commons/connectMobileWalletModal";
+import ConnectWalletModal from "../commons/connectWalletModal";
+import Footer from "/Components/footer";
+import Head from "next/head";
+import Header from "/Components/header";
+import { Modal } from "antd";
+import Web3 from "web3";
+import { isMobile } from "react-device-detect";
+import { isMobileDevice } from "Constants/constants";
+import { providers } from "/Constants/constants";
+import { registerTalent } from "Utils/utils";
+import { useIdleTimer } from "react-idle-timer";
+import { useRouter } from "next/router";
 
 const Layout = ({ children }) => {
   const { ethereum } = window;
@@ -121,14 +120,6 @@ const Layout = ({ children }) => {
   });
 
   useEffect(() => {
-    // const displayWalletModal1 =
-    //   (router.pathname != "/wallet" &&
-    //     router.pathname.includes("create") &&
-    //     !isMetaconnected) ||
-    //   (router.pathname.includes("sell") && !isMetaconnected);
-
-    // dispatch(setDisplayWalletModal(displayWalletModal1));
-
     subscribeMetamaskProvider();
   }, [isMetaconnected, metaToken]);
 
@@ -171,7 +162,7 @@ const Layout = ({ children }) => {
     </>
   );
   async function detectNetwork() {
-    let provider = await detectEthereumProvider();
+    // let provider = await detectEthereumProvider();
     if (provider.chainId != "0x1") {
       setIsWrongNet(true);
       setNetwork(provider.chainId);
