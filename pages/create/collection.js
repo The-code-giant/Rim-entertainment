@@ -264,14 +264,7 @@ const ERC721Collection = ({ serverCollections }) => {
     });
   };
 
-  const test = async () => {
-    const signResutl = await signTransaction(
-      "0x8CA35f878fD14992b58a18bEB484f721b1d07A33"
-    );
-    console.log("transaction result is ", signResutl);
-  };
   useEffect(() => {
-    test();
     refreshData();
     isTalentRegistered();
   }, []);
