@@ -66,12 +66,12 @@ function LiveAuctions() {
     }
   };
   useEffect(() => {
+    loadAuctions();
     socket.on("serverBroadCaseNewFixedPriceSell", (data) => {
       if (data.saleKind == 1) {
         setServerLiveAuctions((prev) => [data, ...prev]);
       }
     });
-    loadAuctions();
   }, []);
 
   if (serverLiveAuctions == null) {
@@ -102,7 +102,7 @@ function LiveAuctions() {
           transitionMs={1000}
         >
           {serverLiveAuctions &&
-            serverLiveAuctions.map(
+            serverLiveAuctions?.map(
               (product, index) =>
                 product.expirationTime &&
                 product.expirationTime !== "0" &&

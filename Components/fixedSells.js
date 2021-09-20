@@ -104,7 +104,7 @@ function FixedSells() {
           transitionMs={1000}
         >
           {serverFixedPriceSells &&
-            serverFixedPriceSells.map((product, index) =>
+            serverFixedPriceSells?.map((product, index) =>
               Product(product, index)
             )}
         </Carousel>
