@@ -1,47 +1,51 @@
-import React, { useState, useEffect } from "react";
 import {
-  Switch,
-  Card,
-  Input,
-  Form,
-  Row,
-  message,
-  Col,
-  List,
-  DatePicker,
-  Tabs,
-  Slider,
   Avatar,
-  Result,
   Button,
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  List,
+  Result,
+  Row,
+  Slider,
   Spin,
+  Switch,
+  Tabs,
+  message,
 } from "antd";
-import Link from "next/link";
-import { useQueryParam } from "/Components/hooks/useQueryParam";
-import { fetchOne, fetchBundle } from "/Utils/strapiApi";
-import { getAuctionPriceDetails } from "/Constants/constants";
-import { sellOrder } from "/Utils/utils";
-import { UnorderedListOutlined, CheckCircleTwoTone } from "@ant-design/icons";
-import { MainWrapper } from "/Components/StyledComponents/globalStyledComponents";
+import { CheckCircleTwoTone, UnorderedListOutlined } from "@ant-design/icons";
 import {
-  Wrapper,
   Content,
+  Wrapper,
 } from "../../Components/StyledComponents/productDetails-styledComponents";
 import {
   CustomTapBarElement,
-  SwitchContainer,
-  SummarySection,
-  ListTile,
   ListDescription,
+  ListTile,
+  SummarySection,
+  SwitchContainer,
 } from "../../Components/StyledComponents/sellNft-styledComponents";
-const { TabPane } = Tabs;
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { fetchBundle, fetchOne } from "/Utils/strapiApi";
 import {
   getAccountTokens,
-  getWalletConnected,
   getMetaConnected,
+  getWalletConnected,
 } from "store/action/accountSlice";
+
+import Link from "next/link";
+import { MainWrapper } from "/Components/StyledComponents/globalStyledComponents";
+import { getAuctionPriceDetails } from "/Constants/constants";
+import { sellOrder } from "/Utils/utils";
+import { signTransaction } from "Utils/utils";
 import { socket } from "config/websocket";
+import { useQueryParam } from "/Components/hooks/useQueryParam";
+import { useSelector } from "react-redux";
+
+const { TabPane } = Tabs;
+
 function SellNft() {
   const queryParam = useQueryParam();
   const [asset, setAsset] = useState(null);
@@ -145,29 +149,34 @@ function SellNft() {
     setBountyValue(value);
   };
   const onSubmitForm = async (values) => {
-    setPosting(true);
-    const sell = await sellOrder(
-      queryParam.sellToken,
-      queryParam.tokenId,
-      address,
-      asset?.contractAddress,
-      values,
-      isFixed
-    );
-
-    console.log("priceBase is here", parseFloat(sell.priceBase).toFixed(4));
-    console.log(
-      "currentPrice is here",
-      parseFloat(sell.currentPrice).toFixed(4)
-    );
-    if (sell?.hash) {
-      message.success("Sell order is saved");
-      socket.emit("userCreatedNewFixedSell", sell);
-      setHasOrder(true);
-    } else {
-      message.error(sell.toString());
-
-      setPosting(false);
+    const enableAccount = await ethereum.enable();
+    if (enableAccount) {
+      if (enableAccount.length > 0) {
+        const buySign = await signTransaction(
+          enableAccount[0],
+          "Request to Sell",
+          asset
+        );
+        if (buySign.success) {
+          setPosting(true);
+          const sell = await sellOrder(
+            queryParam.sellToken,
+            queryParam.tokenId,
+            address,
+            asset?.contractAddress,
+            values,
+            isFixed
+          );
+          if (sell?.hash) {
+            message.success("Sell order is saved");
+            socket.emit("userCreatedNewFixedSell", sell);
+            setHasOrder(true);
+          } else {
+            message.error(sell.toString());
+            setPosting(false);
+          }
+        }
+      }
     }
   };
   const onTabClick = (e) => {

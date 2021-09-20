@@ -215,10 +215,6 @@ export const getTokenId = async (txHash) => {
   try {
     const receipt = await web3.eth.getTransactionReceipt(txHash);
     const tokenId = await web3.utils.hexToNumber(receipt.logs[0].topics[3]);
-    console.log(
-      "token id from hash is here::::",
-      web3.utils.hexToNumber(receipt.logs[0].topics[3])
-    );
     return {
       tokenId,
       success: true,
@@ -337,20 +333,6 @@ export const pinFileToPinata = async (file) => {
       message: error.message,
     };
   }
-  // .then(function (response) {
-  //   return {
-  //     success: true,
-  //     pinataUrl: `https://topnftcollectibles.mypinata.cloud/ipfs/${response.data.IpfsHash}`,
-  //     ipfsUrl: `https://ipfs.io/ipfs/${response.data.IpfsHash}`,
-  //     data: `${JSON.stringify(response.data)}`,
-  //   };
-  // })
-  // .catch(function (error) {
-  //   return {
-  //     success: false,
-  //     message: error.message,
-  //   };
-  // });
 };
 
 export const pinJSONToIPFS = async (metaContent, mediaType) => {
@@ -387,180 +369,200 @@ export const pinJSONToIPFS = async (metaContent, mediaType) => {
 
 export const deployCollection = async (logo, banner, values, ownerAddress) => {
   const { ethereum } = window;
-  console.log("entherim", ethereum);
-  let web3 = new Web3(ethereum);
-  let collectionData = new Object();
-  const logoFileResult = await pinFileToPinata(logo);
-  const bannerFileResult = await pinFileToPinata(banner);
-  const owner = web3.utils.toChecksumAddress(ownerAddress);
-  // let nonceValue;
-  const nonceValue = await web3.eth.getTransactionCount(owner);
+  const enableAccount = await ethereum.enable();
+  if (enableAccount) {
+    let web3 = new Web3(ethereum);
+    let collectionData = new Object();
+    const logoFileResult = await pinFileToPinata(logo);
+    const bannerFileResult = await pinFileToPinata(banner);
+    const owner = web3.utils.toChecksumAddress(enableAccount[0]);
+    // let nonceValue;
+    const nonceValue = await web3.eth.getTransactionCount(owner);
 
-  if (logoFileResult.success && bannerFileResult.success) {
-    const logoIpfsUrl = logoFileResult.pinataUrl;
-    const bannerIpfsUrl = bannerFileResult.pinataUrl;
-    const metadata = {
-      name: values.collectionName + " " + values.collectionIdentifier,
-      description: values.description,
-      image: logoIpfsUrl,
-      banner: bannerIpfsUrl,
-      external_link: EXTERNAL_LINK,
-    };
+    if (logoFileResult.success && bannerFileResult.success) {
+      const logoIpfsUrl = logoFileResult.pinataUrl;
+      const bannerIpfsUrl = bannerFileResult.pinataUrl;
+      const metadata = {
+        name: values.collectionName + " " + values.collectionIdentifier,
+        description: values.description,
+        image: logoIpfsUrl,
+        banner: bannerIpfsUrl,
+        external_link: EXTERNAL_LINK,
+      };
 
-    const collectionMetadataResult = await pinJSONToIPFS(
-      metadata,
-      "collection"
-    );
-    if (collectionMetadataResult.success == true) {
-      const collectionUri = collectionMetadataResult.pinataUrl;
-      const proxyAddress = web3.utils.toChecksumAddress(RINKEBY_PROXY_ADDRESS);
-
-      const deployResult = await new web3.eth.Contract(collectionArtifact.abi)
-        .deploy({
-          name: metadata.name,
-          data: collectionArtifact.bytecode,
-          arguments: [
-            proxyAddress,
-            metadata.name,
-            metadata.name.toUpperCase(),
-            collectionUri,
-          ],
-        })
-        .send({
-          // type: "0x2",
-          from: owner,
-          nonce: nonceValue,
-          gas: 4700000,
-          gasPrice: 1500000000,
-          maxFeePerGas: 1500000020,
-          maxPriorityFeePerGas: 1500000020,
-        })
-        .catch((error) => {
-          if (error.code == 4001) {
-            return {
-              success: false,
-              rejected: true,
-              message: "User denied transaction signature",
-            };
-          } else if (error.code == 32602) {
-            return {
-              success: false,
-              rejected: false,
-              message: "Metamask, The parameters were invalid",
-            };
-          } else if (error.code == 32603) {
-            return {
-              success: false,
-              rejected: false,
-              message: "Metamask Internal error",
-            };
-          } else {
-            console.log("in try error ", error);
-            return {
-              success: false,
-              rejected: false,
-              message:
-                "Metamask Transaction Failed Make Sure Your Metamask wallet is connected and unlocked",
-            };
-          }
-        });
-
-      if (deployResult.rejected == true) {
-        return {
-          success: false,
-          rejected: true,
-          message: "User denied transaction signature",
-        };
-      } else if (deployResult.success == false) {
-        return {
-          success: false,
-          rejected: false,
-          message:
-            "Metamask Transaction Failed Make Sure Your Metamask wallet is connected and unlocked",
-        };
-      } else {
-        collectionData.contractAddress = deployResult._address;
-        collectionData.talentAddress = ownerAddress;
-        collectionData.talent = values.talent;
-        collectionData.collectionName =
-          values.collectionName + " " + values.collectionIdentifier;
-        collectionData.slug = slugify(
-          values.collectionName.toString() + " " + values.collectionIdentifier
+      const collectionMetadataResult = await pinJSONToIPFS(
+        metadata,
+        "collection"
+      );
+      if (collectionMetadataResult.success == true) {
+        const collectionUri = collectionMetadataResult.pinataUrl;
+        const proxyAddress = web3.utils.toChecksumAddress(
+          RINKEBY_PROXY_ADDRESS
         );
-        collectionData.metadata = metadata;
-        return await uploadCollectionToStrapi(logo, banner, collectionData);
+
+        const deployResult = await new web3.eth.Contract(collectionArtifact.abi)
+          .deploy({
+            name: metadata.name,
+            data: collectionArtifact.bytecode,
+            arguments: [
+              proxyAddress,
+              metadata.name,
+              metadata.name.toUpperCase(),
+              collectionUri,
+            ],
+          })
+          .send({
+            // type: "0x2",
+            from: owner,
+            nonce: nonceValue,
+            gas: 4700000,
+            gasPrice: 1500000000,
+            maxFeePerGas: 1500000020,
+            maxPriorityFeePerGas: 1500000020,
+          })
+          .catch((error) => {
+            if (error.code == 4001) {
+              return {
+                success: false,
+                rejected: true,
+                message: "User denied transaction signature",
+              };
+            } else if (error.code == 32602) {
+              return {
+                success: false,
+                rejected: false,
+                message: "Metamask, The parameters were invalid",
+              };
+            } else if (error.code == 32603) {
+              return {
+                success: false,
+                rejected: false,
+                message: "Metamask Internal error",
+              };
+            } else {
+              console.log("in try error ", error);
+              return {
+                success: false,
+                rejected: false,
+                message:
+                  "Metamask Transaction Failed Make Sure Your Metamask wallet is connected and unlocked",
+              };
+            }
+          });
+
+        if (deployResult.rejected == true) {
+          return {
+            success: false,
+            rejected: true,
+            message: "User denied transaction signature",
+          };
+        } else if (deployResult.success == false) {
+          return {
+            success: false,
+            rejected: false,
+            message:
+              "Metamask Transaction Failed Make Sure Your Metamask wallet is connected and unlocked",
+          };
+        } else {
+          collectionData.contractAddress = deployResult._address;
+          collectionData.talentAddress = ownerAddress;
+          collectionData.talent = values.talent;
+          collectionData.collectionName =
+            values.collectionName + " " + values.collectionIdentifier;
+          collectionData.slug = slugify(
+            values.collectionName.toString() + " " + values.collectionIdentifier
+          );
+          collectionData.metadata = metadata;
+          collectionData.metadata.collectionUri = collectionUri;
+          return await uploadCollectionToStrapi(logo, banner, collectionData);
+        }
+      } else {
+        return collectionMetadataResult;
       }
     } else {
-      return collectionMetadataResult;
+      return {
+        success: false,
+        rejected: false,
+        message: "Your File is not uploaded to blockchain",
+      };
     }
   } else {
     return {
       success: false,
-      rejected: false,
-      message: "Your File is not uploaded to blockchain",
+      rejected: true,
+      message: "Your Denied Wallet Permission",
     };
   }
 };
 
 export const uploadNft = async (file, values, ownerAddress) => {
-  let nftData = new Object();
-  let metadata = new Object();
+  const enableAccount = await ethereum.enable();
+  if (enableAccount) {
+    let nftData = new Object();
+    let metadata = new Object();
 
-  const fileType = checkFileType(file);
+    const fileType = checkFileType(file);
 
-  const nftImageUploadResult = await pinFileToPinata(file);
+    const nftImageUploadResult = await pinFileToPinata(file);
 
-  if (nftImageUploadResult.success == true) {
-    metadata = {
-      name: values.name.trim(),
-      description: values.description.trim(),
-      image: nftImageUploadResult.pinataUrl,
-      ...(fileType.mediaType == "video" && {
-        animation_url: nftImageUploadResult.pinataUrl,
-      }),
-      external_link: EXTERNAL_LINK,
-    };
+    if (nftImageUploadResult.success == true) {
+      metadata = {
+        name: values.name.trim(),
+        description: values.description.trim(),
+        image: nftImageUploadResult.pinataUrl,
+        ...(fileType.mediaType == "video" && {
+          animation_url: nftImageUploadResult.pinataUrl,
+        }),
+        external_link: EXTERNAL_LINK,
+      };
 
-    const metadataUploadResult = await pinJSONToIPFS(metadata, "asset");
+      const metadataUploadResult = await pinJSONToIPFS(metadata, "asset");
 
-    if (metadataUploadResult.success == true) {
-      const nftMintingResult = await mintNft(
-        values.collections.contractAddress,
-        ownerAddress,
-        metadataUploadResult.pinataUrl
-      );
-
-      if (nftMintingResult.transactionHash) {
-        const tokenIdResult = await getTokenId(
-          nftMintingResult.transactionHash
+      if (metadataUploadResult.success == true) {
+        const nftMintingResult = await mintNft(
+          values.collections.contractAddress,
+          ownerAddress,
+          metadataUploadResult.pinataUrl
         );
-        if (tokenIdResult.tokenId) {
-          nftData.tokenId = tokenIdResult.tokenId.toString();
-          nftData.tokenAddress = values.collections.contractAddress;
-          nftData.collections = values.collections;
-          nftData.name = values.name;
-          nftData.categories = values.categories;
-          nftData.talent = values.talent;
-          nftData.metadata = metadata;
-          return await uploadNftToStrapi(file, nftData);
+
+        if (nftMintingResult.transactionHash) {
+          const tokenIdResult = await getTokenId(
+            nftMintingResult.transactionHash
+          );
+          if (tokenIdResult.tokenId) {
+            nftData.tokenId = tokenIdResult.tokenId.toString();
+            nftData.tokenAddress = values.collections.contractAddress;
+            nftData.collections = values.collections;
+            nftData.name = values.name;
+            nftData.categories = values.categories;
+            nftData.talent = values.talent;
+            nftData.metadata = metadata;
+            nftData.metadata.pinataUrl = metadataUploadResult.pinataUrl;
+            return await uploadNftToStrapi(file, nftData);
+          } else {
+            return tokenIdResult;
+          }
         } else {
-          return tokenIdResult;
+          return nftMintingResult;
         }
-      } else {
-        return nftMintingResult;
       }
+    } else {
+      return {
+        success: false,
+        rejected: false,
+        message: "NFT data is not uploaded to blockchain",
+      };
     }
+  } else {
+    return {
+      success: false,
+      rejected: false,
+      message: "Your Denied Wallet Permission",
+    };
   }
-  return {
-    success: false,
-    rejected: false,
-    message: "NFT data is not uploaded to blockchain",
-  };
 };
 
 export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
-  console.log("owner address of NFT owner is ", ownerAddress);
-  console.log("proxy address is ", RINKEBY_PROXY_ADDRESS);
   const web3 = new Web3(window.ethereum);
   const nftContract = new web3.eth.Contract(
     collectionArtifact.abi,
@@ -580,18 +582,11 @@ export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
       maxPriorityFeePerGas: 1500000020,
       nonce: nonceValue,
     })
-    .once("transactionHash", function (hash) {
-      console.log("here is transaction nft hash ", hash);
-    })
-    .once("receipt", function (receipt) {
-      console.log("transaction onf nft receipt ", receipt);
-    })
-    .once("confirmation", function (confirmationNumber, receipt) {
-      console.log("configrmation nft number", confirmationNumber);
-    })
+    .once("transactionHash", function (hash) {})
+    .once("receipt", function (receipt) {})
+    .once("confirmation", function (confirmationNumber, receipt) {})
     .once("error", (error) => {
       if (error.code == 4001) {
-        console.log("returning from code");
         return {
           success: false,
           rejected: true,

@@ -149,14 +149,13 @@ const ERC721Collection = ({ serverCollections }) => {
     setCollectionNameError("");
     setCompleteCollectionNameError("");
     form.resetFields();
+    logoImageInputRef.current.value = null;
+    bannerImageInputRef.current.value = null;
   };
 
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
-    const { ethereum } = window;
-    console.log("etherm", ethereum);
-
     const collectionData = createCollectinData(values);
     if (!logoImageFile) {
       setLogoError("Logo Image is Required");
