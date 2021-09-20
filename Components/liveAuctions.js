@@ -50,21 +50,6 @@ const { Countdown } = Statistic;
 function LiveAuctions({ data }) {
   const [serverLiveAuctions, setServerLiveAuctions] = useState(data);
 
-  // const loadAuctions = async () => {
-  //   try {
-  //     const auctionResult = await fetch("/nfts/auction");
-  //     if (auctionResult.data) {
-  //       const auctionsData = auctionResult.data;
-  //       setServerLiveAuctions(auctionsData);
-  //     }
-  //   } catch (e) {
-  //     CustomNotification(
-  //       "warning",
-  //       "Live Auction ",
-  //       "Error Loading Live Auctions try later"
-  //     );
-  //   }
-  // };
   useEffect(() => {
     console.log("live uaction data is ", data);
     socket.on("serverBroadCaseNewFixedPriceSell", (data) => {

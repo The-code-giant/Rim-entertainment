@@ -50,30 +50,12 @@ const { Countdown } = Statistic;
 function FixedSells({ data }) {
   const [serverFixedPriceSells, setServerFixedPriceSells] = useState(data);
 
-  // const loadServerFixedPriceSells = async () => {
-  //   await fetch("/nfts/fixed")
-  //     .then((response) => {
-  //       console.log("seeting collection data");
-  //       const fixed = response.data;
-  //       setServerFixedPriceSells(fixed);
-  //     })
-  //     .catch((e) => {
-  //       console.log("error in loading collection", e);
-  //       CustomNotification(
-  //         "warning",
-  //         "Fixed Price",
-  //         "Error loading Fix Price sell, try later"
-  //       );
-  //     });
-  // };
-
   useEffect(() => {
     socket.on("serverBroadCaseNewFixedPriceSell", (data) => {
       if (data.saleKind == 0) {
         setServerFixedPriceSells((prev) => [data, ...prev]);
       }
     });
-    // loadServerFixedPriceSells();
   }, []);
 
   return (
