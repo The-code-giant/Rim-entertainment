@@ -431,9 +431,9 @@ export const deployCollection = async (logo, banner, values, ownerAddress) => {
           from: owner,
           nonce: nonceValue,
           gas: 4700000,
-          gasPrice: 30000000000,
-          maxFeePerGas: 30000000000,
-          maxPriorityFeePerGas: 30000000000,
+          gasPrice: 1500000000,
+          maxFeePerGas: 1500000020,
+          maxPriorityFeePerGas: 1500000020,
         })
         .catch((error) => {
           if (error.code == 4001) {
@@ -575,9 +575,9 @@ export const mintNft = async (contractAddress, ownerAddress, metadataUri) => {
       from: owner,
       // type: "0x2",
       gas: 4700000,
-      gasPrice: 30000000000,
-      maxFeePerGas: 30000000000,
-      maxPriorityFeePerGas: 30000000000,
+      gasPrice: 1500000000,
+      maxFeePerGas: 1500000020,
+      maxPriorityFeePerGas: 1500000020,
       nonce: nonceValue,
     })
     .once("transactionHash", function (hash) {
