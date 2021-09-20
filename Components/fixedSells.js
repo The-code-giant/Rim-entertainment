@@ -47,25 +47,8 @@ const breakPoints = [
 const deadline = Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30;
 
 const { Countdown } = Statistic;
-function FixedSells() {
-  const [serverFixedPriceSells, setServerFixedPriceSells] = useState();
-
-  const loadServerFixedPriceSells = async () => {
-    await fetch("/nfts/fixed")
-      .then((response) => {
-        console.log("seeting collection data");
-        const fixed = response.data;
-        setServerFixedPriceSells(fixed);
-      })
-      .catch((e) => {
-        console.log("error in loading collection", e);
-        CustomNotification(
-          "warning",
-          "Fixed Price",
-          "Error loading Fix Price sell, try later"
-        );
-      });
-  };
+function FixedSells({ data }) {
+  const [serverFixedPriceSells, setServerFixedPriceSells] = useState(data);
 
   useEffect(() => {
     socket.on("serverBroadCaseNewFixedPriceSell", (data) => {
@@ -73,44 +56,23 @@ function FixedSells() {
         setServerFixedPriceSells((prev) => [data, ...prev]);
       }
     });
-    loadServerFixedPriceSells();
   }, []);
 
-  if (serverFixedPriceSells == null) {
-    return (
-      <>
-        <SectionHeading>{CONSTANTS.fixedSells}</SectionHeading>
-        <Carousel
-          breakPoints={breakPoints}
-          pagination={false}
-          transitionMs={1000}
-          className={styles.loadingCardContainer}
-        >
-          {[...Array(10).keys()].map((item, index) => (
-            <Card key={index} size="middle" className={styles.loadingCard}>
-              <Spin size="large" />
-            </Card>
-          ))}
-        </Carousel>
-      </>
-    );
-  } else {
-    return (
-      <>
-        <SectionHeading>{CONSTANTS.fixedSells}</SectionHeading>
-        <Carousel
-          breakPoints={breakPoints}
-          pagination={false}
-          transitionMs={1000}
-        >
-          {serverFixedPriceSells &&
-            serverFixedPriceSells?.map((product, index) =>
-              Product(product, index)
-            )}
-        </Carousel>
-      </>
-    );
-  }
+  return (
+    <>
+      <SectionHeading>{CONSTANTS.fixedSells}</SectionHeading>
+      <Carousel
+        breakPoints={breakPoints}
+        pagination={false}
+        transitionMs={1000}
+      >
+        {serverFixedPriceSells &&
+          serverFixedPriceSells?.map((product, index) =>
+            Product(product, index)
+          )}
+      </Carousel>
+    </>
+  );
 }
 
 function Product(product, index) {

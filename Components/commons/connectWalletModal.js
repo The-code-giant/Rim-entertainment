@@ -31,7 +31,7 @@ const ConnectWalletModal = ({ displayModal }) => {
   const dispatchMetaToken = useDispatch();
   const dipsatchMetaBalance = useDispatch();
   const metaToken = useSelector(getMetaToken);
-
+  const router = useRouter();
   const [onboard, setOnboard] = useState(null);
   const onDesktopConnect = async () => {
     const { ethereum } = window;
@@ -85,6 +85,9 @@ const ConnectWalletModal = ({ displayModal }) => {
         );
       }
     });
+    if (router.pathname.toString().includes("nft")) {
+      router.replace(router.asPath);
+    }
   };
 
   const handleNewAccounts = (newAccounts) => {

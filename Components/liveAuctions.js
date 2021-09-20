@@ -47,26 +47,11 @@ const breakPoints = [
 const deadline = Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30;
 
 const { Countdown } = Statistic;
-function LiveAuctions() {
-  const [serverLiveAuctions, setServerLiveAuctions] = useState();
+function LiveAuctions({ data }) {
+  const [serverLiveAuctions, setServerLiveAuctions] = useState(data);
 
-  const loadAuctions = async () => {
-    try {
-      const auctionResult = await fetch("/nfts/auction");
-      if (auctionResult.data) {
-        const auctionsData = auctionResult.data;
-        setServerLiveAuctions(auctionsData);
-      }
-    } catch (e) {
-      CustomNotification(
-        "warning",
-        "Live Auction ",
-        "Error Loading Live Auctions try later"
-      );
-    }
-  };
   useEffect(() => {
-    loadAuctions();
+    console.log("live uaction data is ", data);
     socket.on("serverBroadCaseNewFixedPriceSell", (data) => {
       if (data.saleKind == 1) {
         setServerLiveAuctions((prev) => [data, ...prev]);
@@ -74,44 +59,24 @@ function LiveAuctions() {
     });
   }, []);
 
-  if (serverLiveAuctions == null) {
-    return (
-      <>
-        <SectionHeading>{CONSTANTS.liveAuctions}</SectionHeading>
-        <Carousel
-          breakPoints={breakPoints}
-          pagination={false}
-          transitionMs={1000}
-          className={styles.loadingCardContainer}
-        >
-          {[...Array(10).keys()].map((item, index) => (
-            <Card key={index} size="middle" className={styles.loadingCard}>
-              <Spin size="large" />
-            </Card>
-          ))}
-        </Carousel>
-      </>
-    );
-  } else {
-    return (
-      <>
-        <SectionHeading>{CONSTANTS.liveAuctions}</SectionHeading>
-        <Carousel
-          breakPoints={breakPoints}
-          pagination={false}
-          transitionMs={1000}
-        >
-          {serverLiveAuctions &&
-            serverLiveAuctions?.map(
-              (product, index) =>
-                product.expirationTime &&
-                product.expirationTime !== "0" &&
-                Product(product, index)
-            )}
-        </Carousel>
-      </>
-    );
-  }
+  return (
+    <>
+      <SectionHeading>{CONSTANTS.liveAuctions}</SectionHeading>
+      <Carousel
+        breakPoints={breakPoints}
+        pagination={false}
+        transitionMs={1000}
+      >
+        {serverLiveAuctions &&
+          serverLiveAuctions?.map(
+            (product, index) =>
+              product.expirationTime &&
+              product.expirationTime !== "0" &&
+              Product(product, index)
+          )}
+      </Carousel>
+    </>
+  );
 }
 
 function Product(product, index) {

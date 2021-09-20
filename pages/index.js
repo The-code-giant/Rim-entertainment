@@ -1,29 +1,38 @@
-import FixedSells from "@/components/fixedSells";
-import Head from "next/head";
-import { useState, useEffect } from "react";
-import { fetch } from "Utils/strapiApi";
+import { useEffect, useState } from "react";
+
 import Explore from "/Components/explore";
+import FixedSells from "@/components/fixedSells";
 import HotCollections from "/Components/HotCollections";
 import LiveAuctions from "/Components/liveAuctions";
-import Slide from "/Components/slider/slide";
 import { MainWrapper } from "/Components/StyledComponents/globalStyledComponents";
+import Slide from "/Components/slider/slide";
 import TopSellers from "/Components/topSellers";
+import { fetch } from "Utils/strapiApi";
 
-function Home() {
+function Home({ sells }) {
   const [topSellers, setTopSellers] = useState([]);
+  const [auctionPrice, setAuctionPrice] = useState();
+  const [fixedPrice, setFixedPrice] = useState();
+  const loadData = () => {
+    let auctions = [];
+    let fixeds = [];
+    sells.map((item) =>
+      item.side == 1 ? auctions.push(item) : fixeds.push(item)
+    );
+    console.log("auctions", auctions);
+    console.log("fixed", fixeds);
+    setAuctionPrice(auctions);
+    setFixedPrice(fixeds);
+  };
   useEffect(() => {
-    // async function fetchingTopSellers() {
-    //   const data = await request.get("/talents");
-    //   setTopSellers(await data.data);
-    // }
-    // fetchingTopSellers();
+    loadData();
   }, []);
   return (
     <MainWrapper>
       <Slide />
       <TopSellers />
-      <LiveAuctions />
-      <FixedSells />
+      {auctionPrice && <LiveAuctions data={auctionPrice} />}
+      {fixedPrice && <FixedSells data={fixedPrice} />}
       <HotCollections />
       <Explore />
     </MainWrapper>
@@ -31,12 +40,8 @@ function Home() {
 }
 
 export const getServerSideProps = async () => {
-  // const auctionResult = await fetch("/nfts/auction");
-  // const auctions = auctionResult.data;
-  // let auctions = [];
-  // if (auctionResult) {
-  //   auctions = auctionResult.data;
-  // }
+  const sellsResult = await fetch("/sells");
+  const sells = sellsResult.data[0].sells;
   // // const bundles = await OpenSeaAPI.getBundles()
   // const assets = await OpenSeaAPI.getCollections();
   // const topSellers = OpenSeaAPI.getTopSellersDetails(orders.orders);
@@ -49,7 +54,7 @@ export const getServerSideProps = async () => {
   // const explores = OpenSeaAPI.getExploresDetails(data?.assets);
   return {
     props: {
-      // topSellers: JSON.parse(JSON.stringify(topSellers)),
+      sells: JSON.parse(JSON.stringify(sells)),
       // liveAuctions: JSON.parse(JSON.stringify(auctions)),
       // serverFixedPriceSells: JSON.parse(JSON.stringify(fixPriceSells)),
       // serverCollections: JSON.parse(JSON.stringify(collections)),
