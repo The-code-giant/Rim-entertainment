@@ -8,6 +8,7 @@ import {
 } from "date-fns";
 import { fetch, post } from "./strapiApi";
 
+import CustomNotification from "@/components/commons/customNotification";
 import Onboard from "bnc-onboard";
 import { OrderSide } from "opensea-js/lib/types";
 import { capitalizeWord } from "./mintApi";
@@ -27,11 +28,10 @@ export const seaportProvider = new Web3.providers.HttpProvider(
 );
 export function seaport() {
   const provider = window.ethereum;
-  const seaport = new OpenSeaPort(provider, {
+  return new OpenSeaPort(provider, {
     networkName: Network.Main,
-    apiKey: "c2dde5d7c0a0465a8e994f711a3a3c31",
+    apiKey: "2e7ef0ac679f4860bbe49a34a98cf5ac",
   });
-  return seaport;
 }
 export async function makeOffer(
   offerData,
@@ -510,4 +510,30 @@ export const getBuyErrorMessage = (value) => {
     errorMessage = "Unknown message";
   }
   return errorMessage;
+};
+
+export const signTransaction = async (publicAddress, action, asset) => {
+  try {
+    const { ethereum } = window;
+    let web3 = new Web3(ethereum);
+    const signResult = await web3.eth.personal.sign(
+      `${action} on: asset ${asset?.name}`,
+      publicAddress
+    );
+    return {
+      success: true,
+      message: action,
+      signResult,
+    };
+  } catch (e) {
+    if (e.code == 4001) {
+      CustomNotification("warning", "Metamask", e.message);
+    } else {
+      console.log("some shit error has happened");
+    }
+    return {
+      success: false,
+      message: e.message,
+    };
+  }
 };

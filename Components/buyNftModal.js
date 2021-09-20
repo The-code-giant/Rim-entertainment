@@ -4,7 +4,12 @@ import {
   FooterButton,
 } from "./StyledComponents/productDetails-styledComponents";
 import React, { useEffect, useState } from "react";
-import { buyOrder, checkName, getBuyErrorMessage } from "Utils/utils";
+import {
+  buyOrder,
+  checkName,
+  getBuyErrorMessage,
+  signTransaction,
+} from "Utils/utils";
 import {
   getAccountTokens,
   getDisplayWalletModal,
@@ -81,19 +86,36 @@ function BuyNftModal({ asset, isBundle, order, loadAgain }) {
   };
 
   const onFinish = async (values) => {
-    setBuying(true);
-    let buyResult = await buyOrder(asset, isBundle, order, address && address);
+    const enableAccount = await ethereum.enable();
+    if (enableAccount) {
+      if (enableAccount.length > 0) {
+        const offerSign = await signTransaction(
+          enableAccount[0],
+          "Request to Buy",
+          asset
+        );
+        if (offerSign.success) {
+          setResponseMessage("");
+          setBuying(true);
+          let buyResult = await buyOrder(
+            asset,
+            isBundle,
+            order,
+            address && address
+          );
 
-    console.log("Buy result is ", buyResult);
-    if (buyResult.success) {
-      setResponseMessage("");
-      setIsModalVisible(false);
-      loadAgain(true);
-      message.success("You bought this token");
-    } else {
-      setBuying(false);
-      setIsModalVisible(true);
-      setResponseMessage(getBuyErrorMessage(buyResult.message));
+          if (buyResult.success) {
+            setResponseMessage("");
+            setIsModalVisible(false);
+            loadAgain(true);
+            message.success("You bought this token");
+          } else {
+            setBuying(false);
+            setIsModalVisible(true);
+            setResponseMessage(getBuyErrorMessage(buyResult.message));
+          }
+        }
+      }
     }
   };
 

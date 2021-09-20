@@ -1,10 +1,5 @@
+import { Button, Form, Input, Modal, Spin } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import styles from "/styles/erc721.module.css";
-import { Input, Button, Form, Spin, Modal } from "antd";
-import { fetch } from "/Utils/strapiApi";
-import Link from "next/link";
-import { socket } from "config/websocket";
-
 import {
   checkFileType,
   deployCollection,
@@ -12,14 +7,21 @@ import {
   validateCollectionName,
   validateCompleteCollectionName,
 } from "Utils/mintApi";
-import { allowedImageTypes } from "Constants/constants";
 import {
   getMetaConnected,
   getMetaToken,
   getWalletConnected,
 } from "store/action/accountSlice";
-import { useSelector } from "react-redux";
+
 import CustomNotification from "@/components/commons/customNotification";
+import Link from "next/link";
+import Web3 from "web3";
+import { allowedImageTypes } from "Constants/constants";
+import { fetch } from "/Utils/strapiApi";
+import { signTransaction } from "Utils/utils";
+import { socket } from "config/websocket";
+import styles from "/styles/erc721.module.css";
+import { useSelector } from "react-redux";
 
 let collectionCompleteName = {
   collectionName: "",
@@ -152,6 +154,9 @@ const ERC721Collection = ({ serverCollections }) => {
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
+    const { ethereum } = window;
+    console.log("etherm", ethereum);
+
     const collectionData = createCollectinData(values);
     if (!logoImageFile) {
       setLogoError("Logo Image is Required");
