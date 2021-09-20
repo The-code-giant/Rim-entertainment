@@ -1,20 +1,21 @@
-import Link from "next/link";
+import { Button, Form, Input, Modal, Select, Spin } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import styles from "/styles/erc721.module.css";
-import { socket } from "config/websocket";
-import { Input, Select, Button, Form, Modal, Spin } from "antd";
-import { fetch, post } from "/Utils/strapiApi";
-import ReactPlayer from "react-player";
 import {
   capitalizeWord,
   checkAssetForDuplicate,
   uploadNft,
   validateImage,
 } from "Utils/mintApi";
-import { useSelector } from "react-redux";
+import { fetch, post } from "/Utils/strapiApi";
 import { getMetaConnected, getMetaToken } from "store/action/accountSlice";
-import { useRouter } from "next/router";
+
 import CustomNotification from "@/components/commons/customNotification";
+import Link from "next/link";
+import ReactPlayer from "react-player";
+import { socket } from "config/websocket";
+import styles from "/styles/erc721.module.css";
+import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
 
 const initNft = {
   tokenId: null,
@@ -61,7 +62,6 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
 
   const getSelectedCollection = (colId) => {
     const selected = collections.filter((item) => item.id === colId)[0];
-    console.log("selected collection is", selected);
     setSelectedCollection(selected);
     return selectedCollection;
   };
@@ -134,7 +134,6 @@ const ERC721 = ({ serverCollections, categories, serverNfts }) => {
   };
 
   const saveNFT = async (nftImageFile, values) => {
-    console.log("values is ", values);
     const { ethereum } = window;
     let accounts = await ethereum.request({ method: "eth_accounts" });
     if (isMetaconnected) {
