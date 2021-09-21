@@ -14,8 +14,8 @@ function Home({ fixPricesData, acutionPricesData }) {
     <MainWrapper>
       <Slide />
       <TopSellers />
-      {acutionPricesData && <LiveAuctions data={acutionPricesData} />}
-      {fixPricesData && <FixedSells data={fixPricesData} />}
+      <LiveAuctions />
+      <FixedSells />
       <HotCollections />
       <Explore />
     </MainWrapper>
@@ -23,14 +23,14 @@ function Home({ fixPricesData, acutionPricesData }) {
 }
 
 export const getServerSideProps = async () => {
-  const auctionResult = await fetch("/auctions");
-  const fixedResult = await fetch("/fixeds");
-  const acutions = auctionResult.data[0].data;
-  const fixeds = fixedResult.data[0].data;
+  // const auctionResult = await fetch("/auctions");
+  // const fixedResult = await fetch("/fixeds");
+  // const acutions = auctionResult.data[0].data;
+  // const fixeds = fixedResult.data[0].data;
   return {
     props: {
-      fixPricesData: JSON.parse(JSON.stringify(fixeds)),
-      acutionPricesData: JSON.parse(JSON.stringify(acutions)),
+      // fixPricesData: JSON.parse(JSON.stringify(fixeds)),
+      // acutionPricesData: JSON.parse(JSON.stringify(acutions)),
     },
   };
 };

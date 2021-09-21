@@ -47,11 +47,18 @@ const breakPoints = [
 const deadline = Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30;
 
 const { Countdown } = Statistic;
-function LiveAuctions({ data }) {
-  const [serverLiveAuctions, setServerLiveAuctions] = useState(data);
+function LiveAuctions() {
+  const [serverLiveAuctions, setServerLiveAuctions] = useState();
 
+  const loadServerAuctions = async () => {
+    const auctionResult = await fetch("/auctions");
+    if (auctionResult.data) {
+      const acutions = await auctionResult.data[0].data;
+      setServerLiveAuctions(acutions);
+    }
+  };
   useEffect(() => {
-    console.log("live uaction data is ", data);
+    loadServerAuctions();
     socket.on("serverBroadCaseNewFixedPriceSell", (data) => {
       if (data.saleKind == 1) {
         setServerLiveAuctions((prev) => [data, ...prev]);
