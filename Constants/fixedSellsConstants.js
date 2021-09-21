@@ -1,5 +1,5 @@
 const CONSTANTS = {
-  fixedSells: "Fix prices sells",
+  fixedSells: "Fix Price Sells",
   purchaseNow: "Purchase Now",
   placeBid: "Place a bid",
   viewOnOpenSea: "View on OpenSea",

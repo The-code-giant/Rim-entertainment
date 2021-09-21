@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from "react";
 import "react-multi-carousel/lib/styles.css";
-import { SectionHeading } from "./StyledComponents/globalStyledComponents";
+
 import {
+  AvatarContainer,
   ListCounter,
-  SellerPrice,
+  SellerDetails,
   SellerName,
+  SellerPrice,
   TopSellerContainer,
   TopSellerItem,
-  AvatarContainer,
-  SellerDetails,
 } from "./StyledComponents/topSeller-styledComponents";
+import React, { useEffect, useState } from "react";
+
 import Link from "next/link";
-import { randomAvatar } from "Utils/utils";
+import { SectionHeading } from "./StyledComponents/globalStyledComponents";
 import { fetch } from "Utils/strapiApi";
+import { randomAvatar } from "Utils/utils";
+
 function TopSellers() {
   const [topSelers, setTopSellers] = useState();
 
@@ -34,7 +37,7 @@ function TopSellers() {
   return (
     <>
       <div className="pt-3">
-        <SectionHeading>{"Recent talents"}</SectionHeading>
+        <SectionHeading>{"Recent Talents"}</SectionHeading>
         {/* {topSelers[0]?.assets?.length ? (
           <SectionHeading>{"Top Sellers"}</SectionHeading>
         ) : (

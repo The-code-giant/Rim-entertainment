@@ -47,10 +47,18 @@ const breakPoints = [
 const deadline = Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 30;
 
 const { Countdown } = Statistic;
-function FixedSells({ data }) {
-  const [serverFixedPriceSells, setServerFixedPriceSells] = useState(data);
+function FixedSells() {
+  const [serverFixedPriceSells, setServerFixedPriceSells] = useState();
 
+  const loadServerFixedPrice = async () => {
+    const fixedResult = await fetch("fixeds");
+    if (fixedResult.data) {
+      const fixeds = await fixedResult.data[0].data;
+      setServerFixedPriceSells(fixeds);
+    }
+  };
   useEffect(() => {
+    loadServerFixedPrice();
     socket.on("serverBroadCaseNewFixedPriceSell", (data) => {
       if (data.saleKind == 0) {
         setServerFixedPriceSells((prev) => [data, ...prev]);
