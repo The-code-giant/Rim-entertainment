@@ -100,7 +100,6 @@ function MakeOfferModal({ asset, assets, isBundle, loadAgain }) {
   const onFinish = async (values) => {
     const enableAccount = await ethereum.enable();
     if (enableAccount) {
-      console.log("enable account ", enableAccount);
       if (enableAccount.length > 0) {
         const offerSign = await signTransaction(
           enableAccount[0],
