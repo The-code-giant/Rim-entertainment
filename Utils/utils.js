@@ -507,7 +507,7 @@ export const getBuyErrorMessage = (value) => {
   ) {
     return "Invalid API key";
   } else {
-    errorMessage = "Make sure your wallet is connected and refresh the page";
+    errorMessage = value;
     console.log("error is ", value);
   }
   return errorMessage;
