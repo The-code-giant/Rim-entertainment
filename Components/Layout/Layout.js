@@ -148,15 +148,10 @@ const Layout = ({ children }) => {
         (ethereum &&
           router.pathname.includes("sell") &&
           !isMetaconnected &&
-          displayWalletModal) ||
-        (ethereum &&
-          router.pathname.includes("nft") &&
-          !isMetaconnected &&
           displayWalletModal)) && <ConnectWalletModal displayModal={true} />}
 
       {((!ethereum && router.pathname.includes("create")) ||
-        (!ethereum && router.pathname.includes("sell")) ||
-        (!ethereum && router.pathname.includes("nft"))) && (
+        (!ethereum && router.pathname.includes("sell"))) && (
         <ConnectMobileWalletModal displayModal={true} />
       )}
     </>
