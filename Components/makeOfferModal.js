@@ -175,12 +175,12 @@ function MakeOfferModal({ asset, assets, isBundle, loadAgain }) {
       )}
       {/* <ConnectWalletModal displayModal={isDisplayWalletModal} /> */}
       {/* {!isMetaConnected && <ConnectWalletModal />} */}
-      {/* <Modal title={<strong>{"You are not connect to any wallet!"}</strong>} footer={false} visible={notConnected} onCancel={handleCancel}>
+      <Modal title={<strong>{"You are not connect to any wallet!"}</strong>} footer={false} visible={notConnected} onCancel={handleCancel}>
            <ModalContainer>
              <ModalTextContainer>{"You need to connect your Ethereum wallet to sign messages and send transactions to Ethereum blockchain"}</ModalTextContainer>
            <Link style={{textAlign: "center"}} href="/wallet" passHref><a><ConnectButton color={"white"} background={"#0066ff"} marginBottom={"15px"} > Connect Wallet </ConnectButton></a></Link>
            </ModalContainer>
-         </Modal> */}
+         </Modal>
     </>
   );
 
