@@ -21,9 +21,9 @@ function Explore() {
   const [categories, setCategories] = useState([]);
   const [explores, setExplores] = useState({ assets: [] });
   const [loadMore, setLoadMore] = useState({
-    dataLimit: 2,
+    dataLimit: 5,
     dataStart: 0,
-    countBy: 2,
+    countBy: 5,
     dataLoad: true,
     dataLoadMoreButtonLoading: false,
   });
@@ -39,16 +39,16 @@ function Explore() {
     assetLength === 0
       ? setLoadMore({ ...loadMore, dataLoad: false })
       : (() => {
-          setExplores({
-            ...explores,
-            assets: [...explores.assets, ...fetchedData.data.assets],
-          });
-          setLoadMore({
-            ...loadMore,
-            dataStart: loadMore.dataStart + loadMore.countBy,
-            dataLoadMoreButtonLoading: false,
-          });
-        })();
+        setExplores({
+          ...explores,
+          assets: [...explores.assets, ...fetchedData.data.assets],
+        });
+        setLoadMore({
+          ...loadMore,
+          dataStart: loadMore.dataStart + loadMore.countBy,
+          dataLoadMoreButtonLoading: false,
+        });
+      })();
   }
 
   const router = useRouter();
@@ -85,14 +85,13 @@ function Explore() {
     <>
       <div>
         <CategoriesListContainer>
-        {categories?.length >0 && <SectionHeading>{EXPLORE_CONSTANTS.explore}</SectionHeading> }
+          {categories?.length > 0 && <SectionHeading>{EXPLORE_CONSTANTS.explore}</SectionHeading>}
           <CategoriesListScroll>
             <CategoriesList className={"m-2"}>
               {categories && categories.map((category, v) => (
                 <Link key={v} href={`/?cat=${category.slug}`} passHref>
-                  <li className={cat == category.slug ? "active" : ""}>{`${
-                    category.icon ? category.icon : ""
-                  } ${category.categoryName}`}</li>
+                  <li className={cat == category.slug ? "active" : ""}>{`${category.icon ? category.icon : ""
+                    } ${category.categoryName}`}</li>
                 </Link>
               ))}
             </CategoriesList>
@@ -108,23 +107,23 @@ function Explore() {
                     <Spin></Spin>
                   </LoadMoreButton>
                 ) : (
-                  <LoadMoreButton
-                    block
-                    shape={"round"}
-                    size={"large"}
-                    onClick={() => LoadMoreData(cat ? cat : "all")}
-                  >
-                    Load More
-                  </LoadMoreButton>
-                )
+                    <LoadMoreButton
+                      block
+                      shape={"round"}
+                      size={"large"}
+                      onClick={() => LoadMoreData(cat ? cat : "all")}
+                    >
+                      Load More
+                    </LoadMoreButton>
+                  )
               ) : null
             ) : null}
           </>
         ) : (
-          <LoadingContainer>
-            <Spin />
-          </LoadingContainer>
-        )}
+            <LoadingContainer>
+              <Spin />
+            </LoadingContainer>
+          )}
       </div>
     </>
   );
