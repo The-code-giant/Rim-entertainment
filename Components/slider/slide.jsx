@@ -21,14 +21,15 @@ export default function Slide(props) {
   }, []);
   return (
     <SliderWrapper>
-       <Carousel
-          breakPoints={breakPoints}
-          pagination={false}
-          transitionMs={1000}
-        >
-      {categories.map((v, i) => (
-        <SlideItem item={v} key={i} />
-      ))}
+      <Carousel
+        breakPoints={breakPoints}
+        pagination={false}
+        transitionMs={1000}
+      >
+        {categories.map((v, i) => (
+          v.categoryName !== "All" &&
+          <SlideItem item={v} key={i} />
+        ))}
       </Carousel>
     </SliderWrapper>
   );
