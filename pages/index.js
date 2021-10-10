@@ -29,8 +29,6 @@ export const getServerSideProps = async ({ query }) => {
   );
   return {
     props: {
-      // fixPricesData: JSON.parse(JSON.stringify(fixeds)),
-      // acutionPricesData: JSON.parse(JSON.stringify(acutions)),
       slides: slides.data,
       talents: talents.data,
       collections: collections.data,

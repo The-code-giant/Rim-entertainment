@@ -22,7 +22,7 @@ function Explore({ assets, categories }) {
 
 
   const [isLoad, setLoad] = useState(true);
-  const [explores, setExplores] = useState({ assets });
+  const [explores, setExplores] = useState(assets);
   const [loadMore, setLoadMore] = useState({
     dataLimit: 15,
     dataStart: 0,
