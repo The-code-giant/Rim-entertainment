@@ -79,21 +79,21 @@ function CollectionDetails() {
     assetLength === 0
       ? setLoadMoreButton({ ...loadMoreButton, onSalesLoad: false })
       : (() => {
-          setOnsales({
-            talent: {
-              talentAvatar: { url: collect.talent.talentAvatar.url },
-            },
-            assets: [...onSales.assets, ...moreAssets.data.assets],
-          });
-          setLoadMore({
-            ...loadMore,
-            onSales: loadMore.onSales + 10,
-          });
-          setLoadMoreButton({
-            ...loadMoreButton,
-            onsalesLoadMoreButtonLoading: false,
-          });
-        })();
+        setOnsales({
+          talent: {
+            talentAvatar: { url: collect.talent.talentAvatar.url },
+          },
+          assets: [...onSales.assets, ...moreAssets.data.assets],
+        });
+        setLoadMore({
+          ...loadMore,
+          onSales: loadMore.onSales + 10,
+        });
+        setLoadMoreButton({
+          ...loadMoreButton,
+          onsalesLoadMoreButtonLoading: false,
+        });
+      })();
   }
   async function LoadMoreOwned() {
     setLoadMoreButton({ ...loadMoreButton, ownedLoadMoreButtonLoading: true });
@@ -104,39 +104,38 @@ function CollectionDetails() {
     assetLength === 0
       ? setLoadMoreButton({ ...loadMoreButton, ownedLoad: false })
       : (() => {
-          setCollect({
-            ...collect,
-            assets: [...collect.assets, ...moreAssets.data.assets],
-          });
-          setLoadMore({
-            ...loadMore,
-            owned: loadMore.owned + 10,
-          });
-          setLoadMoreButton({
-            ...loadMoreButton,
-            ownedLoadMoreButtonLoading: false,
-          });
-        })();
+        setCollect({
+          ...collect,
+          assets: [...collect.assets, ...moreAssets.data.assets],
+        });
+        setLoadMore({
+          ...loadMore,
+          owned: loadMore.owned + 10,
+        });
+        setLoadMoreButton({
+          ...loadMoreButton,
+          ownedLoadMoreButtonLoading: false,
+        });
+      })();
   }
   useEffect(() => {
     slug != undefined
       ? (async function fetchCollection() {
-          const { data } = await api.get(
-            `${process.env.HEROKU_BASE_URL}/collections/${slug}`
-            // `${process.env.STRAPI_LOCAL_BASE_URL}/collections/${slug}`
-          );
-          console.log("came", await data);
-          setCollect(await data);
-          const sellOrders = await data.assets.filter(
-            (asset) => asset.sellOrders != null
-          );
-          setOnsales({
-            talent: {
-              talentAvatar: { url: data?.talent?.talentAvatar?.url },
-            },
-            assets: sellOrders,
-          });
-        })()
+        const { data } = await api.get(
+          `${process.env.HEROKU_BASE_URL}/collections/${slug}`
+          // `${process.env.STRAPI_LOCAL_BASE_URL}/collections/${slug}`
+        );
+        setCollect(await data);
+        const sellOrders = await data.assets.filter(
+          (asset) => asset.sellOrders != null
+        );
+        setOnsales({
+          talent: {
+            talentAvatar: { url: data?.talent?.talentAvatar?.url },
+          },
+          assets: sellOrders,
+        });
+      })()
       : "";
     setLoad(true);
   }, [slug]);
@@ -215,14 +214,13 @@ function CollectionDetails() {
                       <ShareButton />
                     </Dropdown>
                   </ProfileButton>
-                  <ProfileButton type="button">{"..."}</ProfileButton>
                 </div>
               </BioDescription>
             </BiographyContainer>
           </ProfileContainer>
         ) : (
-          ""
-        )}
+            ""
+          )}
 
         <Tabs defaultActiveKey="1" onChange={(e) => loadTabData(e)}>
           <TabPane tab="On Sale" key="1">
@@ -233,15 +231,15 @@ function CollectionDetails() {
                   <Spin></Spin>
                 </LoadMoreButton>
               ) : (
-                <LoadMoreButton
-                  block
-                  shape={"round"}
-                  size={"large"}
-                  onClick={() => LoadMoreOnsales()}
-                >
-                  Load More
-                </LoadMoreButton>
-              )
+                  <LoadMoreButton
+                    block
+                    shape={"round"}
+                    size={"large"}
+                    onClick={() => LoadMoreOnsales()}
+                  >
+                    Load More
+                  </LoadMoreButton>
+                )
             ) : null}
           </TabPane>
           <TabPane tab="Owned" key="2">
@@ -252,15 +250,15 @@ function CollectionDetails() {
                   <Spin></Spin>
                 </LoadMoreButton>
               ) : (
-                <LoadMoreButton
-                  block
-                  shape={"round"}
-                  size={"large"}
-                  onClick={() => LoadMoreOwned()}
-                >
-                  Load More
-                </LoadMoreButton>
-              )
+                  <LoadMoreButton
+                    block
+                    shape={"round"}
+                    size={"large"}
+                    onClick={() => LoadMoreOwned()}
+                  >
+                    Load More
+                  </LoadMoreButton>
+                )
             ) : null}
           </TabPane>
         </Tabs>

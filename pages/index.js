@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 
 import Explore from "/Components/explore";
-import FixedSells from "@/components/fixedSells";
 import HotCollections from "/Components/HotCollections";
-import LiveAuctions from "/Components/liveAuctions";
 import { MainWrapper } from "/Components/StyledComponents/globalStyledComponents";
 import Slide from "/Components/slider/slide";
 import TopSellers from "/Components/topSellers";
@@ -14,8 +12,6 @@ function Home({ fixPricesData, acutionPricesData }) {
     <MainWrapper>
       <Slide />
       <TopSellers />
-      <LiveAuctions />
-      <FixedSells />
       <HotCollections />
       <Explore />
     </MainWrapper>
