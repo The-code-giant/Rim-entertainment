@@ -6,27 +6,34 @@ import { MainWrapper } from "/Components/StyledComponents/globalStyledComponents
 import Slide from "/Components/slider/slide";
 import TopSellers from "/Components/topSellers";
 import { fetch } from "Utils/strapiApi";
-
-function Home({ fixPricesData, acutionPricesData }) {
+import api from "/Components/axiosRequest";
+const LIMIT = 15;
+function Home({ slides, talents, collections, exploreAssets }) {
   return (
     <MainWrapper>
-      <Slide />
-      <TopSellers />
-      <HotCollections />
-      <Explore />
+      <Slide slides={slides} />
+      <TopSellers talents={talents} />
+      <HotCollections collections={collections} />
+      <Explore assets={exploreAssets} categories={slides} />
     </MainWrapper>
   );
 }
 
-export const getServerSideProps = async () => {
-  // const auctionResult = await fetch("/auctions");
-  // const fixedResult = await fetch("/fixeds");
-  // const acutions = auctionResult.data[0].data;
-  // const fixeds = fixedResult.data[0].data;
+export const getServerSideProps = async ({ query }) => {
+  const slug = query.cat ? query.cat : "all";
+  const slides = await api.get("/categories?_sort=id:ASC");
+  const talents = await fetch("/talents");
+  const collections = await fetch("/collections");
+  const exploreAssets = await api.get(
+    `/categories/${slug}?limit=${LIMIT}&offset=0`
+  );
   return {
     props: {
-      // fixPricesData: JSON.parse(JSON.stringify(fixeds)),
-      // acutionPricesData: JSON.parse(JSON.stringify(acutions)),
+      slides: slides.data,
+      talents: talents.data,
+      collections: collections.data,
+      exploreAssets: exploreAssets.data
+
     },
   };
 };

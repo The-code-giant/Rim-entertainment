@@ -16,24 +16,7 @@ import { SectionHeading } from "./StyledComponents/globalStyledComponents";
 import { fetch } from "Utils/strapiApi";
 import { randomAvatar } from "Utils/utils";
 
-function TopSellers() {
-  const [topSelers, setTopSellers] = useState();
-
-  const loadTopSellers = async () => {
-    const topResult = await fetch("/talents");
-    if (topResult) {
-      const tops = await topResult.data;
-      setTopSellers(tops);
-    }
-  };
-  const topSellerDetails = async (top) => {
-    // const result = await OpenSeaAPI.getAssetsListByOwner(address);
-  };
-
-  useEffect(() => {
-    loadTopSellers();
-  }, []);
-
+function TopSellers({ talents }) {
   return (
     <>
       <div className="pt-3">
@@ -45,8 +28,8 @@ function TopSellers() {
         )} */}
       </div>
       <TopSellerContainer>
-        {topSelers &&
-          topSelers.map((seller, index) => (
+        {talents &&
+          talents.map((seller, index) => (
             <Link
               key={index}
               href={{
@@ -75,11 +58,10 @@ function TopSellers() {
                     <SellerPrice>
                       {/* {seller.stats?.average_price} */}
                       {/* {seller.number_of_assets + " assets"} */}
-                      {`${
-                        seller?.assets?.length
+                      {`${seller?.assets?.length
                           ? seller?.assets?.length + " assets"
                           : ""
-                      } `}
+                        } `}
                     </SellerPrice>
                   </SellerDetails>
                 </TopSellerItem>

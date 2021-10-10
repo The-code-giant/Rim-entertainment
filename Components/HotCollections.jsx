@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from "react";
+import { socket } from "config/websocket";
 import Link from "next/link";
+import React, { useEffect, useState } from "react";
 import Carousel from "react-elastic-carousel";
 import { SectionHeading } from "./StyledComponents/globalStyledComponents";
 import {
-  CollectionCard,
-  ProfileAvatarContainer,
-  CardTitle,
   CardDescription,
-  CardImageContainer,
+  CardImageContainer, CardTitle, CollectionCard,
+  ProfileAvatarContainer
 } from "./StyledComponents/hotCollections-styledComponents";
-import api from "/Components/axiosRequest";
-import { socket } from "config/websocket";
-import { fetch } from "Utils/strapiApi";
 const breakPoints = [
   { width: 1, itemsToShow: 1 },
   { width: 550, itemsToShow: 2, itemsToScroll: 2 },
@@ -20,27 +16,15 @@ const breakPoints = [
   { width: 1200, itemsToShow: 5, itemsToScroll: 5 },
 ];
 
-export default function HotCollections() {
-  const [serverCollections, setServerCollections] = useState([]);
-
-  const loadServerCollection = async () => {
-    await fetch("/collections")
-      .then((response) => {
-        const cols = response.data;
-        setServerCollections(cols);
-      })
-      .catch((e) => {
-        console.log("error in loading collection", e);
-      });
-  };
+export default function HotCollections({ collections }) {
+  const [serverCollections, setServerCollections] = useState(collections);
 
   useEffect(async () => {
     socket.on("serverBroadCastNewCollection", (data) => {
       setServerCollections((prev) => [data, ...prev]);
     });
-
-    loadServerCollection();
   }, []);
+
   return (
     <div className={"mt-5"}>
       <SectionHeading>{"Recent collections"} 💥</SectionHeading>
