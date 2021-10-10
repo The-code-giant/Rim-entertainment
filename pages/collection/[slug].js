@@ -126,6 +126,7 @@ function CollectionDetails() {
           // `${process.env.STRAPI_LOCAL_BASE_URL}/collections/${slug}`
         );
         setCollect(await data);
+        console.log("data", data)
         const sellOrders = await data.assets.filter(
           (asset) => asset.sellOrders != null
         );
@@ -222,46 +223,25 @@ function CollectionDetails() {
             ""
           )}
 
-        <Tabs defaultActiveKey="1" onChange={(e) => loadTabData(e)}>
-          <TabPane tab="On Sale" key="1">
-            <Products data={onSales} />
-            {loadMoreButton.onSalesLoad ? (
-              loadMoreButton.onsalesLoadMoreButtonLoading ? (
-                <LoadMoreButton block shape={"round"} size={"large"}>
-                  <Spin></Spin>
+        <div>
+          <Products data={collect} />
+          {loadMoreButton.ownedLoad ? (
+            loadMoreButton.ownedLoadMoreButtonLoading ? (
+              <LoadMoreButton block shape={"round"} size={"large"}>
+                <Spin></Spin>
+              </LoadMoreButton>
+            ) : (
+                <LoadMoreButton
+                  block
+                  shape={"round"}
+                  size={"large"}
+                  onClick={() => LoadMoreOwned()}
+                >
+                  Load More
                 </LoadMoreButton>
-              ) : (
-                  <LoadMoreButton
-                    block
-                    shape={"round"}
-                    size={"large"}
-                    onClick={() => LoadMoreOnsales()}
-                  >
-                    Load More
-                  </LoadMoreButton>
-                )
-            ) : null}
-          </TabPane>
-          <TabPane tab="Owned" key="2">
-            <Products data={collect} />
-            {loadMoreButton.ownedLoad ? (
-              loadMoreButton.ownedLoadMoreButtonLoading ? (
-                <LoadMoreButton block shape={"round"} size={"large"}>
-                  <Spin></Spin>
-                </LoadMoreButton>
-              ) : (
-                  <LoadMoreButton
-                    block
-                    shape={"round"}
-                    size={"large"}
-                    onClick={() => LoadMoreOwned()}
-                  >
-                    Load More
-                  </LoadMoreButton>
-                )
-            ) : null}
-          </TabPane>
-        </Tabs>
+              )
+          ) : null}
+        </div>
       </MainWrapper>
     </>
   );
