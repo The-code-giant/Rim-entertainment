@@ -27,7 +27,7 @@ function Products(props) {
     <>
       <CardsContainer>
         {props.data &&
-          props.data.assets.map((n, index) =>
+          props.data.assets.reverse().map((n, index) =>
             <ProductCardContainer key={index} className={"p-1"}>
               <ProductCard
                 className="p-3 p-sm-2 p-md-2 p-lg-3"
