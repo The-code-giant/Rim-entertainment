@@ -16,14 +16,17 @@ import {
 import { useRouter } from "next/router";
 import api from "/Components/axiosRequest";
 
-function Explore() {
-  const [isLoad, setLoad] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [explores, setExplores] = useState({ assets: [] });
+function Explore({ assets, categories }) {
+  const router = useRouter();
+  const { cat } = router.query;
+
+
+  const [isLoad, setLoad] = useState(true);
+  const [explores, setExplores] = useState({ assets });
   const [loadMore, setLoadMore] = useState({
-    dataLimit: 5,
+    dataLimit: 15,
     dataStart: 0,
-    countBy: 5,
+    countBy: 15,
     dataLoad: true,
     dataLoadMoreButtonLoading: false,
   });
@@ -51,36 +54,8 @@ function Explore() {
       })();
   }
 
-  const router = useRouter();
-  const { cat } = router.query;
 
-  async function fetchingData(slug) {
-    const fetchedData = await api.get(
-      `/categories/${slug}?limit=${loadMore.dataLimit}&offset=0`
-    );
-    setExplores({
-      ...fetchedData.data,
-    });
-    setLoadMore({
-      ...loadMore,
-      dataStart: loadMore.countBy,
-      dataLoad: true,
-    });
-    setLoad(true);
-  }
-  useEffect(() => {
-    async function fetchingCats() {
-      const data = await api.get("/categories?_sort=id:ASC");
-      setCategories(await data.data);
-    }
-    fetchingCats();
 
-    if (cat != undefined) {
-      fetchingData(cat);
-    } else {
-      fetchingData("all");
-    }
-  }, [cat]);
   return (
     <>
       <div>
@@ -100,7 +75,7 @@ function Explore() {
         {explores ? (
           <>
             {explores && <Products data={explores} />}
-            {isLoad ? (
+            {
               loadMore.dataLoad ? (
                 loadMore.dataLoadMoreButtonLoading ? (
                   <LoadMoreButton block shape={"round"} size={"large"}>
@@ -117,7 +92,8 @@ function Explore() {
                     </LoadMoreButton>
                   )
               ) : null
-            ) : null}
+            }
+
           </>
         ) : (
             <LoadingContainer>
