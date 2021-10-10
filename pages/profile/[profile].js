@@ -45,6 +45,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 const { TabPane } = Tabs;
+const OFFSET = 50;
+const DEFAULT_BANNER = "https://lh3.googleusercontent.com/TWe_NtqXv49vWUZOuwLQmsuFhZn_V_j71PCg72XfxqL4s4K2zH1PIslA5b1CkfpFmQ9oP640sVDWIAMhjuIqcg-YirZWbc3Y4ugd3go=h600"
 function Profile() {
   const accountTokens = useSelector(getAccountTokens);
   const [isLoad, setLoad] = useState(false);
@@ -66,15 +68,15 @@ function Profile() {
     assets: [],
   });
   const [loadMore, setLoadMore] = useState({
-    onSalesOffset: 10,
-    ownedOffset: 10,
-    createdOffset: 10,
+    onSalesOffset: OFFSET,
+    ownedOffset: OFFSET,
+    createdOffset: OFFSET,
     onSalesLoad: true,
     ownedLoad: true,
     createdLoad: true,
-    onsalesLoadMoreButtonLoading: false,
-    ownedLoadMoreButtonLoading: false,
+    isOnSaleBtnLoading: false,
     createdLoadMoreButtonLoading: false,
+    isOwnedBtnLoading: false
   });
   const router = useRouter();
   const { profile } = router.query;
@@ -82,53 +84,55 @@ function Profile() {
   async function LoadMoreOnsales() {
     setLoadMore({
       ...loadMore,
-      onsalesLoadMoreButtonLoading: true,
+      isOnSaleBtnLoading: true,
     });
     const moreAssets = await api.get(
       `/talents/${profile}?offset=${loadMore.onSalesOffset}`
     );
-    const assetLength = await moreAssets.data.assets.length;
-    assetLength === 0
-      ? setLoadMore({ ...loadMore, onSalesLoad: false })
-      : (() => {
-          const sellOrders = moreAssets.data.assets.filter(
-            (asset) => asset.sellOrders != null
-          );
-          setOnsales({
-            ...onSales,
-            assets: [...onSales.assets, sellOrders],
-          });
-          setLoadMore({
-            ...loadMore,
-            onSalesOffset: loadMore.onSalesOffset + 10,
-            onsalesLoadMoreButtonLoading: false,
-          });
-        })();
+    const assetLength = moreAssets.data.assets.length;
+    if (assetLength === 0) {
+      setLoadMore({ ...loadMore, onSalesLoad: false })
+    } else {
+      const sellOrders = moreAssets.data.assets.filter(
+        (asset) => asset.sellOrders != null
+      );
+      setOnsales({
+        ...onSales,
+        assets: [...onSales.assets, sellOrders],
+      });
+      setLoadMore({
+        ...loadMore,
+        onSalesOffset: loadMore.onSalesOffset + 10,
+        isOnSaleBtnLoading: false,
+      });
+    }
   }
 
-  async function LoadMoreCreated() {
+  async function LoadMoreData() {
     setLoadMore({
       ...loadMore,
-      createdLoadMoreButtonLoading: true,
+      isOwnedBtnLoading: true,
     });
     const moreAssets = await api.get(
-      `/talents/${profile}?offset=${loadMore.createdOffset}`
+      `/talents/${profile}?offset=${loadMore.ownedOffset}`
     );
-    const assetLength = await moreAssets.data.assets.length;
-    assetLength === 0
-      ? setLoadMore({ ...loadMore, createdLoad: false })
-      : (() => {
-          setTalent({
-            ...talent,
-            assets: [...talent.assets, ...moreAssets.data.assets],
-          });
-          setLoadMore({
-            ...loadMore,
-            createdOffset: loadMore.createdOffset + 10,
-            createdLoadMoreButtonLoading: false,
-          });
-        })();
+    const assetLength = moreAssets.data.assets.length;
+    if (assetLength === 0) {
+      setLoadMore({ ...loadMore, ownedLoad: false })
+    }
+    else {
+      setOwned({
+        ...talent,
+        assets: [...owned.assets, ...moreAssets.data.assets],
+      });
+      setLoadMore({
+        ...loadMore,
+        ownedOffset: loadMore.ownedOffset + 50,
+        isOwnedBtnLoading: false,
+      });
+    }
   }
+
   function editProfileButton() {
     accountTokens.metaToken[0] === profile
       ? setEditProfile(true)
@@ -139,17 +143,15 @@ function Profile() {
     (async function fetchingTalent() {
       if (profile != undefined) {
         const data = await api.get(`/talents/${profile}`);
-        setTalent(await data.data);
-        const sellOrders = await data.data.assets.filter(
+        setTalent(data.data);
+        const sellOrders = data.data.assets.filter(
           (asset) => asset.sellOrders != null
         );
         setOnsales({
           talent: { talentAvatar: { url: data.data?.talentAvatar?.url } },
           assets: sellOrders,
         });
-        const owneds = await data.data.assets.filter(
-          (asset) => asset.owner.address === data.data.walletAddress
-        );
+        const owneds = data.data.assets
         setOwned({
           talent: { talentAvatar: { url: data.data?.talentAvatar?.url } },
           assets: owneds,
@@ -165,7 +167,7 @@ function Profile() {
         {isLoad === false ? <CollectionLoader /> : ""}
         {isLoad ? (
           <ProfileContainer>
-            <img src={talent.talentBanner?.url} />
+            <img src={talent.talentBanner?.url || DEFAULT_BANNER} />
             <BiographyContainer>
               <div className={"avatar"}>
                 <img
@@ -241,69 +243,47 @@ function Profile() {
                       <Link href="/settings">{"Edit Profile"}</Link>
                     </EditProfile>
                   ) : (
-                    ""
-                  )}
+                      ""
+                    )}
                 </div>
               </BioDescription>
             </BiographyContainer>
           </ProfileContainer>
         ) : (
-          ""
-        )}
-        <Tabs defaultActiveKey="1">
+            ""
+          )}
+        <Tabs defaultActiveKey="2">
           <TabPane tab="On Sale" key="1">
             <>
               <Products data={onSales} />
               {isLoad ? (
                 loadMore.onSalesLoad ? (
-                  loadMore.onsalesLoadMoreButtonLoading ? (
+                  loadMore.isOnSaleBtnLoading ? (
                     <LoadMoreButton block shape={"round"} size={"large"}>
                       <Spin></Spin>
                     </LoadMoreButton>
                   ) : (
-                    <LoadMoreButton
-                      block
-                      shape={"round"}
-                      size={"large"}
-                      onClick={() => LoadMoreOnsales()}
-                    >
-                      Load More
-                    </LoadMoreButton>
-                  )
+                      <LoadMoreButton
+                        block
+                        shape={"round"}
+                        size={"large"}
+                        onClick={() => LoadMoreOnsales()}
+                      >
+                        Load More
+                      </LoadMoreButton>
+                    )
                 ) : null
               ) : null}
             </>
           </TabPane>
 
-          <TabPane tab="Owned" key="2">
+          <TabPane tab="NFTs" key="2">
             <>
               <Products data={owned} />
-              <LoadMoreButton block shape={"round"} size={"large"}>
+              <LoadMoreButton onClick={LoadMoreData} block shape={"round"} size={"large"}>
                 {"Load More"}
               </LoadMoreButton>{" "}
             </>
-          </TabPane>
-
-          <TabPane tab="Created" key="3">
-            <Products data={talent} />
-            {isLoad ? (
-              loadMore.createdLoad ? (
-                loadMore.createdLoadMoreButtonLoading ? (
-                  <LoadMoreButton block shape={"round"} size={"large"}>
-                    <Spin></Spin>
-                  </LoadMoreButton>
-                ) : (
-                  <LoadMoreButton
-                    block
-                    shape={"round"}
-                    size={"large"}
-                    onClick={() => LoadMoreCreated()}
-                  >
-                    Load More
-                  </LoadMoreButton>
-                )
-              ) : null
-            ) : null}
           </TabPane>
         </Tabs>
       </MainWrapper>
